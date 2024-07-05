@@ -39,18 +39,20 @@ import {
 import { BasicMessageDto } from './dtos/basic-message.dto';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { ChatOpenAI } from '@langchain/openai';
+import { ChatAnthropic } from '@langchain/anthropic';
 import { HttpResponseOutputParser } from 'langchain/output_parsers';
 import { TEMPLATES } from 'src/utils/constants/templates.constants';
 import customMessage from 'src/utils/responses/customMessage.response';
 import { MESSAGES } from 'src/utils/constants/messages.constants';
 import { openAI, vercelRoles } from 'src/utils/constants/openAI.constants';
+import { anthropic } from 'src/utils/constants/anthropic.constants';
 import { ContextAwareMessagesDto } from './dtos/context-aware-messages.dto';
 import { Message as VercelChatMessage } from 'ai';
 
 import { existsSync } from 'fs';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { VectorStoreService } from 'src/services/vector-store.service';
+// import { VectorStoreService } from 'src/services/vector-store.service';
 import * as path from 'path';
 import { Document } from '@langchain/core/documents';
 import { DocumentDto } from './dtos/document.dto';
@@ -62,19 +64,20 @@ import {
   MessagesPlaceholder,
 } from '@langchain/core/prompts';
 import { pull } from 'langchain/hub';
-import { HumanMessage, AIMessage } from 'langchain/schema';
+import { HumanMessage, AIMessage, MessageContent } from 'langchain/schema';
 
 @Injectable()
 export class LangchainChatService {
-  constructor(private vectorStoreService: VectorStoreService) {}
+  // constructor(private vectorStoreService: VectorStoreService) {}
 
   async basicChat(basicMessageDto: BasicMessageDto) {
     try {
-      const chain = this.loadSingleChain(TEMPLATES.BASIC_CHAT_TEMPLATE);
-      const response = await chain.invoke({
-        input: basicMessageDto.user_query,
-      });
-      return this.successResponse(response);
+      const chain = this.loadSingleChainAnthropic(
+        TEMPLATES.BASIC_CHAT_TEMPLATE,
+      );
+
+      const response = await chain.invoke(basicMessageDto.question);
+      return this.successResponseBasic(response.content as MessageContent);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -102,18 +105,18 @@ export class LangchainChatService {
 
   async documentChat(basicMessageDto: BasicMessageDto) {
     try {
-      const documentContext = await this.vectorStoreService.similaritySearch(
-        basicMessageDto.user_query,
-        3,
-      );
+      // const documentContext = await this.vectorStoreService.similaritySearch(
+      //   basicMessageDto.user_query,
+      //   3,
+      // );
 
       const chain = this.loadSingleChain(
         TEMPLATES.DOCUMENT_CONTEXT_CHAT_TEMPLATE,
       );
 
       const response = await chain.invoke({
-        context: JSON.stringify(documentContext),
-        question: basicMessageDto.user_query,
+        // context: JSON.stringify(documentContext),
+        question: basicMessageDto.question,
       });
       return this.successResponse(response);
     } catch (e: unknown) {
@@ -154,7 +157,7 @@ export class LangchainChatService {
         }));
         embeddings = embeddings.concat(pageEmbeddings);
       }
-      await this.vectorStoreService.addDocuments(embeddings);
+      // await this.vectorStoreService.addDocuments(embeddings);
       return customMessage(HttpStatus.OK, MESSAGES.SUCCESS);
     } catch (e: unknown) {
       console.log(e);
@@ -218,7 +221,17 @@ export class LangchainChatService {
     });
 
     const outputParser = new HttpResponseOutputParser();
+
     return prompt.pipe(model).pipe(outputParser);
+  };
+
+  private loadSingleChainAnthropic = (template: string) => {
+    const model = new ChatAnthropic({
+      modelName: anthropic.CLAUDE_3_SONNET_20240229.toString(),
+      temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
+    });
+
+    return model;
   };
 
   private formatMessage = (message: VercelChatMessage) =>
@@ -228,6 +241,9 @@ export class LangchainChatService {
     message.role === vercelRoles.user
       ? new HumanMessage({ content: message.content, additional_kwargs: {} })
       : new AIMessage({ content: message.content, additional_kwargs: {} });
+
+  private successResponseBasic = (response: MessageContent) =>
+    customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
 
   private successResponse = (response: Uint8Array) =>
     customMessage(
