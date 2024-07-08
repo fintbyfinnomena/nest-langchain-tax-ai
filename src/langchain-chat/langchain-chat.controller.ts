@@ -39,6 +39,7 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  Res
 } from '@nestjs/common';
 import { LangchainChatService } from './langchain-chat.service';
 import { BasicMessageDto } from './dtos/basic-message.dto';
@@ -48,15 +49,16 @@ import { extname } from 'path';
 import { DocumentDto } from './dtos/document.dto';
 import { diskStorage } from 'multer';
 import { PDF_BASE_PATH } from 'src/utils/constants/common.constants';
+import { Response } from 'express';
 
 @Controller('langchain-chat')
 export class LangchainChatController {
   constructor(private readonly langchainChatService: LangchainChatService) {}
 
   @Post('basic-chat')
-  @HttpCode(200)
-  async basicChat(@Body() messagesDto: BasicMessageDto) {
-    return await this.langchainChatService.basicChat(messagesDto);
+  // @HttpCode(200)
+  async basicChat(@Body() messagesDto: BasicMessageDto, @Res() res: Response) {
+    return this.langchainChatService.basicChat(messagesDto, res);
   }
 
   @Post('context-aware-chat')
