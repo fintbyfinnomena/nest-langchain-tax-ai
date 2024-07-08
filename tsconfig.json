@@ -16,6 +16,10 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@taxcal_ai_garage": ["package/taxcal_ai_garage/src"],
+      "@taxcal_ai_garage/*": ["package/taxcal_ai_garage/src/*"]
+    }
+  },
 }

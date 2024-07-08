@@ -106,4 +106,11 @@ export class LangchainChatController {
   async agentChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto) {
     return await this.langchainChatService.agentChat(contextAwareMessagesDto);
   }
+
+  @Post('port-agent-chat')
+  @HttpCode(200)
+  async portAgentChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto) {
+    return await this.langchainChatService.portAgentChat(contextAwareMessagesDto);
+  }
+
 }
