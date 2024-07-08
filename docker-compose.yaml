@@ -2,7 +2,7 @@ services:
   nestjs:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: nestjs_dev
     volumes:
       - ./:/app
