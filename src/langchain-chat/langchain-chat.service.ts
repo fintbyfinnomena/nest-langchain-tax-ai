@@ -71,6 +71,7 @@ import { z } from "zod";
 import * as Type from '@taxcal_ai_garage/tools/tsf_portfolio_allocationn_type'
 import { suggestPortfolioAllocation } from '@taxcal_ai_garage/tools/tsf_portfolio_allocation'
 import { RiskLevel } from '@taxcal_ai_garage/tools/tsf_enum'
+import { getFundInformation } from '@taxcal_ai_garage/tools/fund_info'
 
 @Injectable()
 export class LangchainChatService {
@@ -261,7 +262,7 @@ export class LangchainChatService {
       const prompt = ChatPromptTemplate.fromMessages([
         [
           'system',
-          'You are a helpful assistant',
+          'You are a helpful assistant for help allocate port',
         ],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
@@ -292,6 +293,66 @@ export class LangchainChatService {
       return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
+    }
+  }
+
+  async fundInfoAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+    try {
+      const tools = [
+        new DynamicStructuredTool({
+          name: "fund-information",
+          description: "useful for answer the fund questions , give the fund information or whatever user need to know about fund from finnomena",
+          schema: z.object({
+            fundName: z.string().describe("fund name, fund code or whatever for identity the fund")
+          }),
+          func: async ({ fundName }) => {
+            const result = await getFundInformation(fundName)
+            return JSON.stringify(result)
+          },
+        }),
+      ];
+
+      const messages = contextAwareMessagesDto.messages ?? [];
+      const formattedPreviousMessages = messages
+        .slice(0, -1)
+        .map(this.formatBaseMessages);
+      const currentMessageContent = messages[messages.length - 1].content;
+
+      const prompt = ChatPromptTemplate.fromMessages([
+        [
+          'system',
+          'You are a helpful assistant for give fund information',
+        ],
+        new MessagesPlaceholder({ variableName: 'chat_history' }),
+        ['user', '{input}'],
+        new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
+      ]);
+
+      const llm = new ChatOpenAI({
+        temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
+        modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      });
+
+      const agent = await createOpenAIFunctionsAgent({
+        llm,
+        tools,
+        prompt,
+      });
+
+      const agentExecutor = new AgentExecutor({
+        agent,
+        tools,
+        verbose: true,
+      });
+
+      const response = await agentExecutor.invoke({
+        input: currentMessageContent,
+        chat_history: formattedPreviousMessages,
+      });
+
+    return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+    } catch (e: unknown) {
+        this.exceptionHandling(e);
     }
   }
 

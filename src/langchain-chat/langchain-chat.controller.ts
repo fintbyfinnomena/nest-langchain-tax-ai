@@ -113,4 +113,10 @@ export class LangchainChatController {
     return await this.langchainChatService.portAgentChat(contextAwareMessagesDto);
   }
 
+  @Post('fund-info-agent-chat')
+  @HttpCode(200)
+  async fundInfoAgentChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto) {
+    return await this.langchainChatService.fundInfoAgentChat(contextAwareMessagesDto);
+  }
+
 }
