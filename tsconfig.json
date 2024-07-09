@@ -18,9 +18,5 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
-    "paths": {
-      "@taxcal_ai_garage": ["package/taxcal_ai_garage/src"],
-      "@taxcal_ai_garage/*": ["package/taxcal_ai_garage/src/*"]
-    }
   },
 }

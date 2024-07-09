@@ -65,13 +65,6 @@ import {
 } from '@langchain/core/prompts';
 import { pull } from 'langchain/hub';
 import { HumanMessage, AIMessage, MessageContent } from 'langchain/schema';
-import { DynamicStructuredTool } from "@langchain/core/tools";
-
-import { z } from "zod";
-import * as Type from '@taxcal_ai_garage/tools/tsf_portfolio_allocationn_type'
-import { suggestPortfolioAllocation } from '@taxcal_ai_garage/tools/tsf_portfolio_allocation'
-import { RiskLevel } from '@taxcal_ai_garage/tools/tsf_enum'
-import { getFundInformation } from '@taxcal_ai_garage/tools/fund_info'
 
 import { suggestPortProfileAllocationTool, fundInformationTool } from 'src/langchain-chat/tools/customTools';
 

@@ -1,10 +1,10 @@
 import { DynamicStructuredTool } from "@langchain/core/tools"
 
 import { z } from "zod";
-import * as Type from '@taxcal_ai_garage/tools/tsf_portfolio_allocationn_type'
-import { suggestPortfolioAllocation } from '@taxcal_ai_garage/tools/tsf_portfolio_allocation'
-import { RiskLevel } from '@taxcal_ai_garage/tools/tsf_enum'
-import { getFundInformation } from '@taxcal_ai_garage/tools/fund_info'
+import * as Type from 'src/types/tax-saving-fund/portfolioAllocationn.types'
+import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools'
+import { RiskLevel } from 'src/types/tax-saving-fund/enum.prompts'
+import { getFundInformation } from 'src/utils/tools/fundInfo.tools'
 
 export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   name: "suggest-port-profile-allocation",
