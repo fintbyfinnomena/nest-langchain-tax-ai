@@ -23,7 +23,7 @@
     "@langchain/anthropic": "^0.2.3",
     "@langchain/community": "^0.0.40",
     "@langchain/core": "^0.2.14",
-    "@langchain/openai": "^0.0.21",
+    "@langchain/openai": "^0.2.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.0",
     "@nestjs/core": "^10.0.0",
