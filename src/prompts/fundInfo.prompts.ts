@@ -1,4 +1,4 @@
-export const prompt = `
+export const fundInfoPrompt = `
 This agent is designed for provide fund information to users
 
 Instruction

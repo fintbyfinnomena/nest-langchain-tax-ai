@@ -1,4 +1,4 @@
-export const prompt = `
+export const recommendPrompt = `
 This agent is designed for provide data of tax saving fund that Finnomena investment team recommend this year
 
 Instruction

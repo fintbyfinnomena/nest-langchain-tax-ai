@@ -125,4 +125,16 @@ export class LangchainChatController {
     return await this.langchainChatService.agentMultiToolsChat(contextAwareMessagesDto);
   }
 
+  @Post('tax-saving-fund-agent')
+  @HttpCode(200)
+  async taxSavingFundAgentChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto) {
+    return await this.langchainChatService.taxSavingFundAgentChat(contextAwareMessagesDto);
+  }
+
+  @Post('knowledge-agent')
+  @HttpCode(200)
+  async knowledgeAgentChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto) {
+    return await this.langchainChatService.knowledgeAgentChat(contextAwareMessagesDto);
+  }
+
 }
