@@ -32,7 +32,7 @@ export class ChatService {
 
     const chatModel = new ChatOpenAI({
       modelName: 'gpt-3.5-turbo',
-      apiKey: process.env.OPEN_AI_API_KEY,
+      openAIApiKey: process.env.OPEN_AI_API_KEY,
     });
 
     const chain = prompt.pipe(chatModel);
