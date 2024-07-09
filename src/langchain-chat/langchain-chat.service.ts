@@ -73,6 +73,8 @@ import { suggestPortfolioAllocation } from '@taxcal_ai_garage/tools/tsf_portfoli
 import { RiskLevel } from '@taxcal_ai_garage/tools/tsf_enum'
 import { getFundInformation } from '@taxcal_ai_garage/tools/fund_info'
 
+import { suggestPortProfileAllocationTool, fundInformationTool } from 'src/langchain-chat/tools/customTools';
+
 @Injectable()
 export class LangchainChatService {
   // constructor(private vectorStoreService: VectorStoreService) {}
@@ -221,38 +223,7 @@ export class LangchainChatService {
 
   async portAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
-      const tools = [
-        new DynamicStructuredTool({
-          name: "suggest-port-profile-allocation",
-          description: "suggest port profile allocation and return list of fund. useful for create fund profile and allocate you port",
-          schema: z.object({
-            ageAbove45: z.boolean().describe("age above 45 year old ?"),
-            annualIncome: z.number().describe("annual income"),
-            alternativeRetirementFund: z.number().describe("sum of the alternative retirement fund"),
-            govPensionFund: z.number().describe("the total of government pension fund"),
-            nationalSavingFund: z.number().describe("the total of national saving fund"),
-            pensionInsurance: z.number().describe("the total of pension insurance"),
-            riskLevel: z.nativeEnum(RiskLevel).describe("personal risk level."),
-            desiredAmount: z.number().describe("the desired amount"),
-          }),
-          func: async ({ ageAbove45,annualIncome,alternativeRetirementFund,govPensionFund,nationalSavingFund,pensionInsurance,riskLevel,desiredAmount }) => {
-            const input: Type.ComboAllocationInput = {
-              ageAbove45 : ageAbove45,
-              annualIncome : annualIncome,
-              alternativeRetirementFund : alternativeRetirementFund,
-              govPensionFund : govPensionFund,
-              nationalSavingFund : nationalSavingFund,
-              pensionInsurance : pensionInsurance,
-              riskLevel : riskLevel,
-              desiredAmount : desiredAmount
-            }
-
-            const res = await suggestPortfolioAllocation(input)
-            return JSON.stringify(res.allocation)
-          },
-        }),
-      ];
-
+      const tools = [suggestPortProfileAllocationTool];
       const messages = contextAwareMessagesDto.messages ?? [];
       const formattedPreviousMessages = messages
         .slice(0, -1)
@@ -298,20 +269,7 @@ export class LangchainChatService {
 
   async fundInfoAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
-      const tools = [
-        new DynamicStructuredTool({
-          name: "fund-information",
-          description: "useful for answer the fund questions , give the fund information or whatever user need to know about fund from finnomena",
-          schema: z.object({
-            fundName: z.string().describe("fund name, fund code or whatever for identity the fund")
-          }),
-          func: async ({ fundName }) => {
-            const result = await getFundInformation(fundName)
-            return JSON.stringify(result)
-          },
-        }),
-      ];
-
+      const tools = [fundInformationTool];
       const messages = contextAwareMessagesDto.messages ?? [];
       const formattedPreviousMessages = messages
         .slice(0, -1)
@@ -352,7 +310,54 @@ export class LangchainChatService {
 
     return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
-        this.exceptionHandling(e);
+      this.exceptionHandling(e);
+    }
+  }
+
+  async agentMultiToolsChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+    try {
+      const tools = [suggestPortProfileAllocationTool,fundInformationTool];
+      const messages = contextAwareMessagesDto.messages ?? [];
+      const formattedPreviousMessages = messages
+        .slice(0, -1)
+        .map(this.formatBaseMessages);
+      const currentMessageContent = messages[messages.length - 1].content;
+
+      const prompt = ChatPromptTemplate.fromMessages([
+        [
+          'system',
+          'You are a helpful assistant and master of fund',
+        ],
+        new MessagesPlaceholder({ variableName: 'chat_history' }),
+        ['user', '{input}'],
+        new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
+      ]);
+
+      const llm = new ChatOpenAI({
+        temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
+        modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      });
+
+      const agent = await createOpenAIFunctionsAgent({
+        llm,
+        tools,
+        prompt,
+      });
+
+      const agentExecutor = new AgentExecutor({
+        agent,
+        tools,
+        verbose: true,
+      });
+
+      const response = await agentExecutor.invoke({
+        input: currentMessageContent,
+        chat_history: formattedPreviousMessages,
+      });
+
+    return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+    } catch (e: unknown) {
+      this.exceptionHandling(e);
     }
   }
 

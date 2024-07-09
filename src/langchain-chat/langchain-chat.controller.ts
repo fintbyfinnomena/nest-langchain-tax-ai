@@ -119,4 +119,10 @@ export class LangchainChatController {
     return await this.langchainChatService.fundInfoAgentChat(contextAwareMessagesDto);
   }
 
+  @Post('agent-multi-tools-chat')
+  @HttpCode(200)
+  async agentMultiToolsChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto) {
+    return await this.langchainChatService.agentMultiToolsChat(contextAwareMessagesDto);
+  }
+
 }
