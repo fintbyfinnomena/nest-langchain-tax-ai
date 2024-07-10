@@ -6,7 +6,7 @@ import { LangchainChatController } from './langchain-chat.controller';
 @Module({
   controllers: [LangchainChatController],
   providers: [
-    LangchainChatService, 
+    LangchainChatService,
     // VectorStoreService
   ],
 })
