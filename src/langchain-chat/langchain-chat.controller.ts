@@ -103,9 +103,53 @@ export class LangchainChatController {
     return await this.langchainChatService.documentChat(messagesDto);
   }
 
-  @Post('agent-chat')
+  @Post('port-agent-chat')
   @HttpCode(200)
-  async agentChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto) {
-    return await this.langchainChatService.agentChat(contextAwareMessagesDto);
+  async portAgentChat(
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+  ) {
+    return await this.langchainChatService.portAgentChat(
+      contextAwareMessagesDto,
+    );
+  }
+
+  @Post('fund-info-agent-chat')
+  @HttpCode(200)
+  async fundInfoAgentChat(
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+  ) {
+    return await this.langchainChatService.fundInfoAgentChat(
+      contextAwareMessagesDto,
+    );
+  }
+
+  @Post('agent-multi-tools-chat')
+  @HttpCode(200)
+  async agentMultiToolsChat(
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+  ) {
+    return await this.langchainChatService.agentMultiToolsChat(
+      contextAwareMessagesDto,
+    );
+  }
+
+  @Post('tax-saving-fund-agent')
+  @HttpCode(200)
+  async taxSavingFundAgentChat(
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+  ) {
+    return await this.langchainChatService.taxSavingFundAgentChat(
+      contextAwareMessagesDto,
+    );
+  }
+
+  @Post('knowledge-agent')
+  @HttpCode(200)
+  async knowledgeAgentChat(
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+  ) {
+    return await this.langchainChatService.knowledgeAgentChat(
+      contextAwareMessagesDto,
+    );
   }
 }
