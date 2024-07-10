@@ -76,7 +76,6 @@ import {
 import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
-  taxSavingFundTool,
 } from 'src/langchain-chat/tools/customTools';
 import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
@@ -247,11 +246,6 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      // const llm = new ChatOpenAI({
-      //   temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-      //   modelName: openAI.GPT_4_openAI.toString(),
-      // });
-
       const llm = new ChatAnthropic({
         model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
         temperature: 0,
@@ -284,7 +278,6 @@ export class LangchainChatService {
     contextAwareMessagesDto: ContextAwareMessagesDto,
   ) {
     try {
-      const tools = [taxSavingFundTool];
       const messages = contextAwareMessagesDto.messages ?? [];
       const formattedPreviousMessages = messages
         .slice(0, -1)
@@ -295,32 +288,20 @@ export class LangchainChatService {
         ['system', recommendPrompt],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
-        new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const llm = new ChatOpenAI({
-        temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-        modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      const llm = new ChatAnthropic({
+        model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
+        temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
       });
+      const chain = prompt.pipe(llm);
 
-      const agent = await createOpenAIFunctionsAgent({
-        llm,
-        tools,
-        prompt,
-      });
-
-      const agentExecutor = new AgentExecutor({
-        agent,
-        tools,
-        verbose: true,
-      });
-
-      const response = await agentExecutor.invoke({
+      const response = await chain.invoke({
         input: currentMessageContent,
         chat_history: formattedPreviousMessages,
       });
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -328,11 +309,7 @@ export class LangchainChatService {
 
   async agentMultiToolsChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
-      const tools = [
-        suggestPortProfileAllocationTool,
-        fundInformationTool,
-        taxSavingFundTool,
-      ];
+      const tools = [suggestPortProfileAllocationTool, fundInformationTool];
 
       const messages = contextAwareMessagesDto.messages ?? [];
       const formattedPreviousMessages = messages
@@ -389,11 +366,10 @@ export class LangchainChatService {
         ['user', '{input}'],
       ]);
 
-      const llm = new ChatOpenAI({
-        temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-        modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      const llm = new ChatAnthropic({
+        model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
+        temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
       });
-
       const chain = prompt.pipe(llm);
 
       const response = await chain.invoke({
