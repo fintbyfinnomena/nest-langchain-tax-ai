@@ -253,7 +253,7 @@ export class LangchainChatService {
       // });
 
       const llm = new ChatAnthropic({
-        model: anthropic.CLAUDE_3_SONNET_20240229.toString(),
+        model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
         temperature: 0,
       });
 
@@ -422,7 +422,7 @@ export class LangchainChatService {
 
   private loadSingleChainAnthropic = (template: string) => {
     const model = new ChatAnthropic({
-      modelName: anthropic.CLAUDE_3_SONNET_20240229.toString(),
+      modelName: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
       temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
     });
 
