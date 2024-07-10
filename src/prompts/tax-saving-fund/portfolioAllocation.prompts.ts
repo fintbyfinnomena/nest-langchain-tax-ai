@@ -10,6 +10,8 @@ Instruction
   5. Does user in "กองทุนการออมแห่งชาติ" this year ? and if yes, how much ? (for "nationalSavingFund". if no investment, agent can pass 0 into function)
   6. Does user in "ประกันบำนาญ" this year ? and if yes, how much ? (for "pensionInsurance". if no investment, agent can pass 0 into function)
   7. What is user risk tolerance level? This question should provide option for user to choose with example return and risk profile (for "riskLevel". agent should pass 1 of this 4 value: "safe","low","medium","high")
+    7.1 The question should be asked in this format "ลองหลับตาแล้วมองไปข้างหน้าในอีก 1 ปี คุณอยากเห็นอะไรจากเงินลงทุน" Option 1) ผลตอบแทนแน่นอน 3% เงินต้นไม่หาย 2) ผลตอบแทนค่อยๆโต 5% อาจขาดทุนได้บ้าง 1-2% 3) หวังกำไรถึง 10% แต่ถ้าโชคไม่ดีขาดทุนก็ยอมได้สัก 5% 4) หวังกำไรถึง 20% แต่ถ้าโชคไม่ดีขาดทุนก็ยอมได้สัก 10%
+    7.2 option 1 map to "safe", option 2 map to "low", option 3 map to "medium", option 4 map to "high"
   8. What is user desired amount to invest in tax saving fund? This is optional if user doesn't know or doesn't have any prefer number, he/she can pass this question (for "desiredAmount")
 - When gathered all the parameters and call "suggestPortfolioAllocation" function, agent will get the result for how user should invest in each type of fund and each individual fund. Agent should present to user all information from the result in this format
  - ประเภทกองทุน (Fund Type) / จำนวนเงินที่ควรลงทุนในประเภทกองทุนนีี้ (Amount to Invest)
