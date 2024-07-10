@@ -65,53 +65,16 @@ import {
 } from '@langchain/core/prompts';
 import { pull } from 'langchain/hub';
 import { HumanMessage, AIMessage, MessageContent } from 'langchain/schema';
-// import { LangChainAdapter, StreamingTextResponse } from 'ai';
-
 import type { Response } from 'express';
-import { Readable } from 'stream';
+import streamMessage from '../utils/responses/streamMessage.response'
 
 @Injectable()
 export class LangchainChatService {
-  // constructor(private vectorStoreService: VectorStoreService) {}
-  
   async basicChat(basicMessageDto: BasicMessageDto, res: Response) {
     try {
-      const model = new ChatAnthropic({
-        model: "claude-3-sonnet-20240229",
-        temperature: 0
-      });
-
+      const model = this.loadSingleChainAnthropic();
       const stream = await model.stream(basicMessageDto.question);
-      const readableStream = new Readable({
-        read() {}
-      });
-    
-      // Push data from the stream to the readable stream
-      (async () => {
-        try {
-          for await (const chunk of stream) {
-            readableStream.push(chunk.content);
-          }
-          readableStream.push(null); // Signal the end of the stream
-        } catch (error) {
-          readableStream.destroy(error); // Destroy the stream on error
-        }
-      })();
-    
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      readableStream.pipe(res);
-    
-      // Attach error event listener to the readable stream
-      readableStream.on('error', (error) => {
-        console.error('Error occurred while streaming:', error);
-        res.end(); // End the response to prevent hanging
-      });
-    
-      // Attach end event listener to the readable stream
-      readableStream.on('end', () => {
-        // console.log("end of stream");
-        res.end(); // End the response when the stream ends
-      });
+      streamMessage(res,stream);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -260,18 +223,10 @@ export class LangchainChatService {
     return prompt.pipe(model).pipe(outputParser);
   };
 
-  private loadSingleChainAnthropic = (template: string, res: Response) => {
+  private loadSingleChainAnthropic = () => {
     const model = new ChatAnthropic({
       modelName: anthropic.CLAUDE_3_SONNET_20240229.toString(),
-      temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
-      streaming: true,
-      callbacks: [
-        {
-          handleLLMNewToken: (token) => {
-            res.write(token);
-          }
-        }
-      ]
+      temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE
     });
 
     return model;

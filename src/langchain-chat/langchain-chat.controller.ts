@@ -56,7 +56,7 @@ export class LangchainChatController {
   constructor(private readonly langchainChatService: LangchainChatService) {}
 
   @Post('basic-chat')
-  // @HttpCode(200)
+  @HttpCode(200)
   async basicChat(@Body() messagesDto: BasicMessageDto, @Res() res: Response) {
     return this.langchainChatService.basicChat(messagesDto, res);
   }
