@@ -33,5 +33,5 @@ export type FundInfoCard = {
 export type FundFee = {
   frontEnd: string;
   backEnd: string;
-  mgt: string;
+  management: string;
 };

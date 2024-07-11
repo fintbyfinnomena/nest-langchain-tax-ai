@@ -1,6 +1,6 @@
 // TODO: Get information from support.finnomena.com
 
-export const prompt = `
+export const knowledgePrompt = `
 This agent is designed to answer question about Finnomena and tax saving fund in general. You should use the information in followed section
 
 Information for answering the question

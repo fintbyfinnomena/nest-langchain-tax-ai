@@ -61,7 +61,7 @@ export async function getFundInformation(
       fee: {
         frontEnd: fundFeeExtracted.frontEnd,
         backEnd: fundFeeExtracted.backEnd,
-        mgt: fundFeeExtracted.mgt,
+        management: fundFeeExtracted.management,
       },
       tsfRecommendation: {
         isRecommended: false,
@@ -94,18 +94,18 @@ function fetchTSFComment(fundName: string): string | null {
 
 function extractFee(fundFeeSecList: any): FundFee {
   const frontEndElem = fundFeeSecList.find((i: any) =>
-    i.description.includes('ขาย'),
+    i.description.includes('การขายหน่วย'),
   );
   const backendElem = fundFeeSecList.find((i: any) =>
-    i.description.includes('ซื้อ'),
+    i.description.includes('การรับซื้อคืน'),
   );
   const mgtElem = fundFeeSecList.find((i: any) =>
-    i.description.includes('จัดการ'),
+    i.description.includes('การจัดการ'),
   );
 
   return {
     frontEnd: frontEndElem ? frontEndElem['actual_value'] : '',
     backEnd: backendElem ? backendElem['actual_value'] : '',
-    mgt: mgtElem ? mgtElem['actual_value'] : '',
+    management: mgtElem ? mgtElem['actual_value'] : '',
   };
 }
