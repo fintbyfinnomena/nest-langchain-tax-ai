@@ -22,6 +22,22 @@ export type FundInfoCard = {
     sharpeRatio5y: number | null;
     netAsset: number | null;
   };
+  topHoldings: [
+    {
+      name: string | null;
+      percent: number | null;
+      short_code: string | null;
+      link_url: string | null;
+      color: string | null;
+    },
+  ];
+  assetAllocation: [
+    {
+      name: string | null;
+      percent: number | null;
+      color: string | null;
+    },
+  ];
   fee: FundFee;
   tsfRecommendation: {
     isRecommended: boolean;

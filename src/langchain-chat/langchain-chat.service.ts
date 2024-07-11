@@ -186,7 +186,8 @@ export class LangchainChatService {
   async portAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
       const tools = [suggestPortProfileAllocationTool];
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const prompt = ChatPromptTemplate.fromMessages([
         [
@@ -199,7 +200,7 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const agentExecutor = await this.createAgentExecutor(tools, prompt)
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
       const response = await agentExecutor.invoke({
         input: currentMessageContent,
@@ -215,7 +216,8 @@ export class LangchainChatService {
   async fundInfoAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
       const tools = [fundInformationTool];
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', fundInfoPrompt],
@@ -224,7 +226,7 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const agentExecutor = await this.createAgentExecutor(tools, prompt)
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
       const response = await agentExecutor.invoke({
         input: currentMessageContent,
@@ -242,7 +244,8 @@ export class LangchainChatService {
   ) {
     try {
       const tools = [taxSavingFundTool];
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', recommendPrompt],
@@ -251,7 +254,7 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const agentExecutor = await this.createAgentExecutor(tools, prompt)
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
       const response = await agentExecutor.invoke({
         input: currentMessageContent,
@@ -272,7 +275,8 @@ export class LangchainChatService {
         taxSavingFundTool,
       ];
 
-     const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', 'You are a helpful assistant and master of fund'],
@@ -281,7 +285,7 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const agentExecutor = await this.createAgentExecutor(tools, prompt)
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
       const response = await agentExecutor.invoke({
         input: currentMessageContent,
@@ -296,14 +300,15 @@ export class LangchainChatService {
 
   async knowledgeAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', knowledgePrompt],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
       ]);
 
-      const llm = this.loadModel()
+      const llm = this.loadModel();
       const chain = prompt.pipe(llm);
 
       const response = await chain.invoke({
@@ -327,10 +332,10 @@ export class LangchainChatService {
       model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
       temperature: 0,
     });
-  }
+  };
 
   private createAgentExecutor = async (tools: any, prompt: any) => {
-    const llm = this.loadModel()
+    const llm = this.loadModel();
     // return await createOpenAIFunctionsAgent({
     //   llm,
     //   tools,
@@ -350,7 +355,7 @@ export class LangchainChatService {
     });
 
     return agentExecutor;
-  }
+  };
 
   private loadSingleChain = (template: string) => {
     const prompt = PromptTemplate.fromTemplate(template);
@@ -405,17 +410,21 @@ export class LangchainChatService {
     );
   };
 
-  private scrapingContextMessage = (contextAwareMessagesDto: ContextAwareMessagesDto): { formattedPreviousMessages: (HumanMessage | AIMessage)[]; currentMessageContent:string; } => {
+  private scrapingContextMessage = (
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+  ): {
+    formattedPreviousMessages: (HumanMessage | AIMessage)[];
+    currentMessageContent: string;
+  } => {
     const messages = contextAwareMessagesDto.messages ?? [];
     const formattedPreviousMessages = messages
-        .slice(0, -1)
-        .map(this.formatBaseMessages);
+      .slice(0, -1)
+      .map(this.formatBaseMessages);
     const currentMessageContent = messages[messages.length - 1].content;
 
-    return { 
-      formattedPreviousMessages:formattedPreviousMessages,
-      currentMessageContent:currentMessageContent
-    }
+    return {
+      formattedPreviousMessages: formattedPreviousMessages,
+      currentMessageContent: currentMessageContent,
+    };
   };
-
 }
