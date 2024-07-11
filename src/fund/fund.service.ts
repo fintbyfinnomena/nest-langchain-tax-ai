@@ -6,9 +6,9 @@ import { getFundInformation } from '../utils/tools/fundInfo.tools';
 
 @Injectable()
 export class FundService {
-  async getFundInfo(fundInfoDto: FundInfoDto) {
+  async getFundInfo(fundName: string) {
     try {
-      const response = await getFundInformation(fundInfoDto.fundName);
+      const response = await getFundInformation(fundName);
       return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
