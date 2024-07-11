@@ -1,4 +1,8 @@
-import { AIMessage, HumanMessage, StoredMessageData } from 'langchain/schema';
+import {
+  AIMessage,
+  HumanMessage,
+  StoredMessageData,
+} from '@langchain/core/messages';
 import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 
 export interface ChatHistoryManager {
