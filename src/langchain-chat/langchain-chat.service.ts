@@ -86,6 +86,7 @@ import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
 import { ChatHistoryManager } from 'src/utils/history/interface';
+import { ChatManager } from 'src/utils/responses/chatManager';
 
 @Injectable()
 export class LangchainChatService {
@@ -255,15 +256,23 @@ export class LangchainChatService {
       //   chat_history: formattedPreviousMessages,
       // });
 
-      const stream = agentExecutor.streamEvents(
-        {
-          input: currentMessageContent,
-          chat_history: formattedPreviousMessages,
-        },
-        { version: 'v1' },
+      const chatManager = new ChatManager(
+        this.chatHistoryManager,
+        '1',
+        agentExecutor,
       );
 
-      streamMessage(res, stream);
+      chatManager.StreamMessage(res, currentMessageContent);
+
+      // const stream = agentExecutor.streamEvents(
+      //   {
+      //     input: currentMessageContent,
+      //     chat_history: formattedPreviousMessages,
+      //   },
+      //   { version: 'v1' },
+      // );
+
+      // streamMessage(res, stream);
 
       // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
