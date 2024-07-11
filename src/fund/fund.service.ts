@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import customMessage from 'src/utils/responses/customMessage.response';
 import { MESSAGES } from 'src/utils/constants/messages.constants';
-import { FundInfoDto } from './dtos/fund-info.dto';
 import { getFundInformation } from '../utils/tools/fundInfo.tools';
 
 @Injectable()

@@ -1,6 +1,5 @@
 import { Param, Controller, HttpCode, Get } from '@nestjs/common';
 import { FundService } from './fund.service';
-import { FundInfoDto } from './dtos/fund-info.dto';
 
 @Controller('fund')
 export class FundController {
