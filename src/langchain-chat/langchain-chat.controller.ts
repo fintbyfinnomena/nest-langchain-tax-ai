@@ -106,50 +106,34 @@ export class LangchainChatController {
   @Post('port-agent-chat')
   @HttpCode(200)
   async portAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.portAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.portAgentChat(contextAwareMessagesDto,res);
   }
 
   @Post('fund-info-agent-chat')
   @HttpCode(200)
   async fundInfoAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.fundInfoAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.fundInfoAgentChat(contextAwareMessagesDto,res);
   }
 
   @Post('agent-multi-tools-chat')
   @HttpCode(200)
-  async agentMultiToolsChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.agentMultiToolsChat(
-      contextAwareMessagesDto,
-    );
+  async agentMultiToolsChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto, @Res() res: Response) {
+    return await this.langchainChatService.agentMultiToolsChat(contextAwareMessagesDto,res);
   }
 
   @Post('tax-saving-fund-agent')
   @HttpCode(200)
   async taxSavingFundAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.taxSavingFundAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.taxSavingFundAgentChat(contextAwareMessagesDto,res);
   }
 
   @Post('knowledge-agent')
   @HttpCode(200)
   async knowledgeAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.knowledgeAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.knowledgeAgentChat(contextAwareMessagesDto,res);
   }
 }

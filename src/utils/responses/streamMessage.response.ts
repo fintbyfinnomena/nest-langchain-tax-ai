@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import type { Response } from 'express';
-import { AIMessageChunk } from '@langchain/core/messages'; 
-import { IterableReadableStream  } from '@langchain/core/utils/stream';
+import { AIMessageChunk } from '@langchain/core/messages';
+import { IterableReadableStream } from '@langchain/core/utils/stream';
 
 
 
@@ -10,12 +10,14 @@ function streamMessage(res: Response, stream: any) {
     const readableStream = new Readable({
         read() { }
     });
-
     // Push data from the stream to the readable stream
+    //basic-chat no longer work with this method
     (async () => {
         try {
-            for await (const chunk of stream) {
-                readableStream.push(chunk.content);
+            for await (const event of stream) {
+                if (event.event == "on_llm_stream") {
+                    readableStream.push(event.data.chunk.text);
+                }
             }
             readableStream.push(null); // Signal the end of the stream
         } catch (error) {
