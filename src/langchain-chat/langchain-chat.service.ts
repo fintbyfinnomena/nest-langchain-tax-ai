@@ -66,7 +66,8 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from '@langchain/core/prompts';
-
+import type { Response } from 'express';
+import streamMessage from '../utils/responses/streamMessage.response';
 import {
   HumanMessage,
   AIMessage,
@@ -82,19 +83,15 @@ import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 
 @Injectable()
 export class LangchainChatService {
-  // constructor(private vectorStoreService: VectorStoreService) {}
-
-  async basicChat(basicMessageDto: BasicMessageDto) {
+  async basicChat(basicMessageDto: BasicMessageDto, res: Response) {
     try {
-      const chain = this.loadSingleChainAnthropic(
-        TEMPLATES.BASIC_CHAT_TEMPLATE,
-      );
-
-      const response = await chain.invoke(basicMessageDto.question);
-      return this.successResponseBasic(response.content as MessageContent);
+      const model = this.loadSingleChainAnthropic();
+      const stream = await model.stream(basicMessageDto.question);
+      streamMessage(res, stream);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -183,7 +180,11 @@ export class LangchainChatService {
     }
   }
 
-  async portAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async portAgentChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [suggestPortProfileAllocationTool];
       const { formattedPreviousMessages, currentMessageContent } =
@@ -202,18 +203,27 @@ export class LangchainChatService {
 
       const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      streamMessage(res, stream);
+
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async fundInfoAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async fundInfoAgentChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [fundInformationTool];
       const { formattedPreviousMessages, currentMessageContent } =
@@ -228,19 +238,31 @@ export class LangchainChatService {
 
       const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await agentExecutor.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
+
+      streamMessage(res, stream);
+
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
+  //WORKED
   async taxSavingFundAgentChat(
     contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
   ) {
     try {
       const tools = [taxSavingFundTool];
@@ -256,18 +278,30 @@ export class LangchainChatService {
 
       const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await agentExecutor.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      streamMessage(res, stream);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async agentMultiToolsChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async agentMultiToolsChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [
         suggestPortProfileAllocationTool,
@@ -287,18 +321,30 @@ export class LangchainChatService {
 
       const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await agentExecutor.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      streamMessage(res, stream);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async knowledgeAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async knowledgeAgentChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const { formattedPreviousMessages, currentMessageContent } =
         this.scrapingContextMessage(contextAwareMessagesDto);
@@ -311,12 +357,20 @@ export class LangchainChatService {
       const llm = this.loadModel();
       const chain = prompt.pipe(llm);
 
-      const response = await chain.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await chain.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
+      const stream = chain.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
+      streamMessage(res, stream);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -370,7 +424,7 @@ export class LangchainChatService {
     return prompt.pipe(model).pipe(outputParser);
   };
 
-  private loadSingleChainAnthropic = (template: string) => {
+  private loadSingleChainAnthropic = () => {
     const model = new ChatAnthropic({
       modelName: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
       temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
