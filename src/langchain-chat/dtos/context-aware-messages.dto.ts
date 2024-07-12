@@ -41,3 +41,7 @@ export class ContextAwareMessagesDto {
   @IsArray()
   messages: MessageDto[];
 }
+
+export interface ChatHeader {
+  'session-id': string;
+}

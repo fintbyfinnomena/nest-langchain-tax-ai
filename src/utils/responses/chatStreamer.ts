@@ -1,31 +1,36 @@
-import { AgentExecutor } from 'langchain/agents';
 import { ChatHistoryManager } from '../history/interface';
 import { Readable } from 'stream';
 import type { Response } from 'express';
+import { IterableReadableStream } from '@langchain/core/utils/stream';
+import { StreamEvent } from '@langchain/core/tracers/log_stream';
+
+interface ChainStreamer {
+  streamEvents(...args: any): IterableReadableStream<StreamEvent>;
+}
 
 export class ChatStreamer {
   private chatHistoryManager: ChatHistoryManager;
-  private sessionID: string;
-  private agentExecutor: AgentExecutor;
+  private sessionId: string;
+  private chainStreamer: ChainStreamer;
 
   constructor(
     historyManager: ChatHistoryManager,
-    sessionID: string,
-    agentExecutor: AgentExecutor,
+    sessionId: string,
+    chainStreamer: ChainStreamer,
   ) {
     this.chatHistoryManager = historyManager;
-    this.sessionID = sessionID;
-    this.agentExecutor = agentExecutor;
+    this.sessionId = sessionId;
+    this.chainStreamer = chainStreamer;
   }
 
   async StreamMessage(res: Response, message: string) {
     const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
-      this.sessionID,
+      this.sessionId,
     );
 
     let resMsg = '';
 
-    const stream = this.agentExecutor.streamEvents(
+    const stream = this.chainStreamer.streamEvents(
       {
         input: message,
         chat_history: await history.getMessages(),
@@ -66,7 +71,7 @@ export class ChatStreamer {
       history.addUserMessage(message);
       history.addAIMessage(resMsg);
       this.chatHistoryManager.SaveHistoryMessages(
-        this.sessionID,
+        this.sessionId,
         await history.getMessages(),
       );
       res.end(); // End the response when the stream ends

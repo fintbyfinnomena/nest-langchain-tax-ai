@@ -6,12 +6,12 @@ import {
 import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 
 export interface ChatHistoryManager {
-  GetHistoryMessagesBySessionID(sessionID: string): Promise<ChatMessageHistory>;
+  GetHistoryMessagesBySessionID(sessionId: string): Promise<ChatMessageHistory>;
   SaveHistoryMessages(
-    sessionID: string,
+    sessionId: string,
     messages: (AIMessage | HumanMessage)[],
   ): Promise<void>;
-  ClearHistoryMessagesBySessionID(sessionID: string): Promise<void>;
+  ClearHistoryMessagesBySessionID(sessionId: string): Promise<void>;
 }
 
 export interface CustomMessage {

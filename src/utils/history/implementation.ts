@@ -8,16 +8,16 @@ export class ChatHistoryManagerImp implements ChatHistoryManager {
   constructor(redis: Redis) {
     this.redis = redis;
   }
-  async ClearHistoryMessagesBySessionID(sessionID: string): Promise<void> {
-    await this.redis.del(sessionID);
+  async ClearHistoryMessagesBySessionID(sessionId: string): Promise<void> {
+    await this.redis.del(sessionId);
     return;
   }
   async GetHistoryMessagesBySessionID(
-    sessionID: string,
+    sessionId: string,
   ): Promise<ChatMessageHistory> {
     const userChatHistory = new ChatMessageHistory();
 
-    const value = await this.redis.get(sessionID);
+    const value = await this.redis.get(sessionId);
     if (!value) {
       return userChatHistory;
     }
@@ -34,7 +34,7 @@ export class ChatHistoryManagerImp implements ChatHistoryManager {
     return userChatHistory;
   }
   async SaveHistoryMessages(
-    sessionID: string,
+    sessionId: string,
     messages: (AIMessage | HumanMessage)[],
   ): Promise<void> {
     const customMessages: CustomMessage[] = [];
@@ -52,7 +52,7 @@ export class ChatHistoryManagerImp implements ChatHistoryManager {
       }
     }
     const value = JSON.stringify(customMessages);
-    await this.redis.set(sessionID, value);
+    await this.redis.set(sessionId, value);
     return;
   }
 }
