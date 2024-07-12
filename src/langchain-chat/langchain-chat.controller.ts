@@ -150,4 +150,14 @@ export class LangchainChatController {
       contextAwareMessagesDto,
     );
   }
+
+  @Post('question')
+  @HttpCode(200)
+  async supervisorAgentChat(
+    @Body() basicMessageDto: BasicMessageDto,
+  ) {
+    return await this.langchainChatService.supervisorAgentChat(
+      basicMessageDto,
+    );
+  }
 }
