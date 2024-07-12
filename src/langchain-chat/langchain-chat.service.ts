@@ -66,7 +66,8 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from '@langchain/core/prompts';
-
+import type { Response } from 'express';
+import streamMessage from '../utils/responses/streamMessage.response';
 import {
   HumanMessage,
   AIMessage,
@@ -83,6 +84,7 @@ import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 
 import { 
   createAnthropicModel,
@@ -92,16 +94,14 @@ import { initSupervisorAgent } from 'src/langchain-chat/agents/supervisor'
 
 @Injectable()
 export class LangchainChatService {
-  // constructor(private vectorStoreService: VectorStoreService) {}
-
-  async basicChat(basicMessageDto: BasicMessageDto) {
+  async basicChat(basicMessageDto: BasicMessageDto, res: Response) {
     try {
       // const chain = this.loadSingleChainAnthropic(
       //   TEMPLATES.BASIC_CHAT_TEMPLATE,
       // );
-      const chain = await createAnthropicModel()
-      const response = await chain.invoke(basicMessageDto.question);
-      return this.successResponseBasic(response.content as MessageContent);
+      const model = await createAnthropicModel()
+      const stream = await model.stream(basicMessageDto.question);
+      streamMessage(res, stream)
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -190,63 +190,104 @@ export class LangchainChatService {
     }
   }
 
-  async portAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async portAgentChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [suggestPortProfileAllocationTool];
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const agentExecutor = await loadAgentExecutor(tools, portfolioAllocationWithoutHistoryPrompt)
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      streamMessage(res, stream);
+
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async fundInfoAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async fundInfoAgentChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [fundInformationTool];
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const agentExecutor = await loadAgentExecutor(tools, fundInfoPrompt)
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await agentExecutor.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
+
+      streamMessage(res, stream);
+
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
+  //WORKED
   async taxSavingFundAgentChat(
     contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
   ) {
     try {
       const tools = [taxSavingFundTool];
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const agentExecutor = await loadAgentExecutor(tools, recommendPrompt)
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      //const response = await agentExecutor.invoke({
+      //  input: currentMessageContent,
+      //  chat_history: formattedPreviousMessages,
+      //});
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
+
+      streamMessage(res, stream);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async agentMultiToolsChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async agentMultiToolsChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [
         suggestPortProfileAllocationTool,
@@ -254,24 +295,39 @@ export class LangchainChatService {
         taxSavingFundTool,
       ];
 
-     const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
 
       const agentExecutor = await loadAgentExecutor(tools, 'You are a helpful assistant and master of fund')
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      //const response = await agentExecutor.invoke({
+      //  input: currentMessageContent,
+      //  chat_history: formattedPreviousMessages,
+      //});
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      const stream = agentExecutor.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
+
+      streamMessage(res, stream);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async knowledgeAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async knowledgeAgentChat(
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
-      const { formattedPreviousMessages, currentMessageContent } = this.scrapingContextMessage(contextAwareMessagesDto)
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', knowledgePrompt],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
@@ -281,24 +337,34 @@ export class LangchainChatService {
       const llm = await createAnthropicModel()
       const chain = prompt.pipe(llm);
 
-      const response = await chain.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await chain.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
+      const stream = chain.streamEvents(
+        {
+          input: currentMessageContent,
+          chat_history: formattedPreviousMessages,
+        },
+        { version: 'v1' },
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
+      streamMessage(res, stream);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async supervisorAgentChat(basicMessageDto: BasicMessageDto) {
+  async supervisorAgentChat(
+    basicMessageDto: BasicMessageDto,
+    res: Response,
+  ) {
     try {
 
       const supervisorGraph = await initSupervisorAgent()
 
-
-      let streamResults = supervisorGraph.stream(
+      let stream = supervisorGraph.stream(
         {
           messages: [
             new HumanMessage({
@@ -308,15 +374,17 @@ export class LangchainChatService {
         },
         { recursionLimit: 100 },
       );
-
-      for await (const output of await streamResults) {
+      const results = []; 
+      for await (const output of await stream) {
         if (!output?.__end__) {
-          console.log("-->",JSON.stringify(output));
-          console.log("----");
+          results.push(output)
         }
       }
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, 'response');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.write(JSON.stringify(results))
+      res.end();
+
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -375,17 +443,21 @@ export class LangchainChatService {
     );
   };
 
-  private scrapingContextMessage = (contextAwareMessagesDto: ContextAwareMessagesDto): { formattedPreviousMessages: (HumanMessage | AIMessage)[]; currentMessageContent:string; } => {
+  private scrapingContextMessage = (
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+  ): {
+    formattedPreviousMessages: (HumanMessage | AIMessage)[];
+    currentMessageContent: string;
+  } => {
     const messages = contextAwareMessagesDto.messages ?? [];
     const formattedPreviousMessages = messages
-        .slice(0, -1)
-        .map(this.formatBaseMessages);
+      .slice(0, -1)
+      .map(this.formatBaseMessages);
     const currentMessageContent = messages[messages.length - 1].content;
 
-    return { 
-      formattedPreviousMessages:formattedPreviousMessages,
-      currentMessageContent:currentMessageContent
-    }
+    return {
+      formattedPreviousMessages: formattedPreviousMessages,
+      currentMessageContent: currentMessageContent,
+    };
   };
-
 }

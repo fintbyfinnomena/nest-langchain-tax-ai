@@ -39,6 +39,7 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  Res
 } from '@nestjs/common';
 import { LangchainChatService } from './langchain-chat.service';
 import { BasicMessageDto } from './dtos/basic-message.dto';
@@ -48,6 +49,7 @@ import { extname } from 'path';
 import { DocumentDto } from './dtos/document.dto';
 import { diskStorage } from 'multer';
 import { PDF_BASE_PATH } from 'src/utils/constants/common.constants';
+import { Response } from 'express';
 
 @Controller('langchain-chat')
 export class LangchainChatController {
@@ -55,8 +57,8 @@ export class LangchainChatController {
 
   @Post('basic-chat')
   @HttpCode(200)
-  async basicChat(@Body() messagesDto: BasicMessageDto) {
-    return await this.langchainChatService.basicChat(messagesDto);
+  async basicChat(@Body() messagesDto: BasicMessageDto, @Res() res: Response) {
+    return this.langchainChatService.basicChat(messagesDto, res);
   }
 
   @Post('context-aware-chat')
@@ -104,60 +106,42 @@ export class LangchainChatController {
   @Post('port-agent-chat')
   @HttpCode(200)
   async portAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.portAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.portAgentChat(contextAwareMessagesDto,res);
   }
 
   @Post('fund-info-agent-chat')
   @HttpCode(200)
   async fundInfoAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.fundInfoAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.fundInfoAgentChat(contextAwareMessagesDto,res);
   }
 
   @Post('agent-multi-tools-chat')
   @HttpCode(200)
-  async agentMultiToolsChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.agentMultiToolsChat(
-      contextAwareMessagesDto,
-    );
+  async agentMultiToolsChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto, @Res() res: Response) {
+    return await this.langchainChatService.agentMultiToolsChat(contextAwareMessagesDto,res);
   }
 
   @Post('tax-saving-fund-agent')
   @HttpCode(200)
   async taxSavingFundAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.taxSavingFundAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.taxSavingFundAgentChat(contextAwareMessagesDto,res);
   }
 
   @Post('knowledge-agent')
   @HttpCode(200)
   async knowledgeAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
-  ) {
-    return await this.langchainChatService.knowledgeAgentChat(
-      contextAwareMessagesDto,
-    );
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
+    return await this.langchainChatService.knowledgeAgentChat(contextAwareMessagesDto,res);
   }
 
   @Post('question')
   @HttpCode(200)
   async supervisorAgentChat(
-    @Body() basicMessageDto: BasicMessageDto,
+    @Body() basicMessageDto: BasicMessageDto,@Res() res: Response
   ) {
-    return await this.langchainChatService.supervisorAgentChat(
-      basicMessageDto,
-    );
+    return await this.langchainChatService.supervisorAgentChat(basicMessageDto,res);
   }
 }

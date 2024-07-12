@@ -35,15 +35,12 @@ import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
+import { supervisorRolePrompt, supervisorConditionPrompt } from 'src/prompts/supervisor.prompts';
 
 export async function initSupervisorAgent() : Promise<Runnable> {
 
 	const members = ["port_profile_allocation","fund_information","tax_saving_fund","knowledge"];
-
-	const systemPrompt =
-	  "You are a supervisor tasked with managing a conversation between the following workers: {members}. Given the following user request, respond with the worker to act next. Each worker will perform a task and respond with their results and status. When finished, respond with FINISH.";
 	const options = [END, ...members];
-
 	// Define the routing function
 	const functionDef = {
 	  name: "route",
@@ -69,13 +66,9 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 	} as const;
 
 	const prompt = ChatPromptTemplate.fromMessages([
-	  ["system", systemPrompt],
+	  ["system", supervisorRolePrompt],
 	  new MessagesPlaceholder("messages"),
-	  [
-	    "system",
-	    "Given the conversation above, who should act next?" +
-	    " Or should we FINISH? Select one of: {options}",
-	  ],
+	  [ "system", supervisorConditionPrompt],
 	]);
 
 	const formattedPrompt = await prompt.partial({
@@ -124,8 +117,6 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 
 	workflow.addEdge(START, "supervisor");
 
-	const graph = workflow.compile();
-
-	return graph;
+	return workflow.compile();
 
 }
