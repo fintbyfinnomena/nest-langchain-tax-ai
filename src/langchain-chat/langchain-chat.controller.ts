@@ -152,7 +152,6 @@ export class LangchainChatController {
     @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
     @Res() res: Response,
   ) {
-    console.log('header => ', headers);
     const sessionId = headers['session-id'];
 
     if (!sessionId) {

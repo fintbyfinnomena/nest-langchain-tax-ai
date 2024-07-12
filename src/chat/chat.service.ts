@@ -48,8 +48,6 @@ export class ChatService {
       // catch something in this
     }
 
-    console.log(new HumanMessage(message));
-
     await chatHistory.addMessage(new HumanMessage(message));
 
     const aiResp = await this.chain.invoke({

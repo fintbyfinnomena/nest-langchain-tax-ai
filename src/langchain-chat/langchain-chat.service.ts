@@ -200,7 +200,6 @@ export class LangchainChatService {
     res: Response,
   ) {
     try {
-      const sessionId = '1';
       const tools = [suggestPortProfileAllocationTool];
       const { currentMessageContent } = this.scrapingContextMessage(
         contextAwareMessagesDto,
@@ -394,7 +393,7 @@ export class LangchainChatService {
   private loadModel = () => {
     return new ChatOpenAI({
       temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-      modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      modelName: openAI.GPT_4_openAI.toString(),
     });
 
     // return new ChatAnthropic({
@@ -431,7 +430,7 @@ export class LangchainChatService {
 
     const model = new ChatOpenAI({
       temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-      modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      modelName: openAI.GPT_4_openAI.toString(),
     });
 
     const outputParser = new HttpResponseOutputParser();
