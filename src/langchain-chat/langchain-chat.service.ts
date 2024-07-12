@@ -33,6 +33,7 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -57,17 +58,12 @@ import * as path from 'path';
 import { Document } from '@langchain/core/documents';
 import { DocumentDto } from './dtos/document.dto';
 import { PDF_BASE_PATH } from 'src/utils/constants/common.constants';
-import {
-  AgentExecutor,
-  createOpenAIFunctionsAgent,
-  createToolCallingAgent,
-} from 'langchain/agents';
+import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from '@langchain/core/prompts';
 import type { Response } from 'express';
-import streamMessage from '../utils/responses/streamMessage.response';
 import {
   HumanMessage,
   AIMessage,
@@ -83,15 +79,32 @@ import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
-import { StringOutputParser } from '@langchain/core/output_parsers';
+import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
+import { ChatHistoryManager } from 'src/utils/history/interface';
+import { ChatStreamer } from 'src/utils/responses/chatStreamer';
 
 @Injectable()
 export class LangchainChatService {
-  async basicChat(basicMessageDto: BasicMessageDto, res: Response) {
+  private chatHistoryManager: ChatHistoryManager;
+
+  constructor(@Inject('REDIS_CLIENT') redisClient) {
+    this.chatHistoryManager = new ChatHistoryManagerImp(redisClient);
+  }
+
+  async basicChat(
+    sessionId: string,
+    basicMessageDto: BasicMessageDto,
+    res: Response,
+  ) {
     try {
       const model = this.loadSingleChainAnthropic();
-      const stream = await model.stream(basicMessageDto.question);
-      streamMessage(res, stream);
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        model,
+      );
+
+      await chatManager.StreamMessage(res, basicMessageDto.question);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -182,13 +195,15 @@ export class LangchainChatService {
 
   //WORKED
   async portAgentChat(
+    sessionId: string,
     contextAwareMessagesDto: ContextAwareMessagesDto,
     res: Response,
   ) {
     try {
       const tools = [suggestPortProfileAllocationTool];
-      const { formattedPreviousMessages, currentMessageContent } =
-        this.scrapingContextMessage(contextAwareMessagesDto);
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         [
@@ -203,15 +218,13 @@ export class LangchainChatService {
 
       const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const stream = agentExecutor.streamEvents(
-        {
-          input: currentMessageContent,
-          chat_history: formattedPreviousMessages,
-        },
-        { version: 'v1' },
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
       );
 
-      streamMessage(res, stream);
+      await chatManager.StreamMessage(res, currentMessageContent);
 
       // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
@@ -221,13 +234,15 @@ export class LangchainChatService {
 
   //WORKED
   async fundInfoAgentChat(
+    sessionId: string,
     contextAwareMessagesDto: ContextAwareMessagesDto,
     res: Response,
   ) {
     try {
       const tools = [fundInformationTool];
-      const { formattedPreviousMessages, currentMessageContent } =
-        this.scrapingContextMessage(contextAwareMessagesDto);
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', fundInfoPrompt],
@@ -243,15 +258,13 @@ export class LangchainChatService {
       //   chat_history: formattedPreviousMessages,
       // });
 
-      const stream = agentExecutor.streamEvents(
-        {
-          input: currentMessageContent,
-          chat_history: formattedPreviousMessages,
-        },
-        { version: 'v1' },
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
       );
 
-      streamMessage(res, stream);
+      await chatManager.StreamMessage(res, currentMessageContent);
 
       // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
@@ -261,13 +274,15 @@ export class LangchainChatService {
 
   //WORKED
   async taxSavingFundAgentChat(
+    sessionId: string,
     contextAwareMessagesDto: ContextAwareMessagesDto,
     res: Response,
   ) {
     try {
       const tools = [taxSavingFundTool];
-      const { formattedPreviousMessages, currentMessageContent } =
-        this.scrapingContextMessage(contextAwareMessagesDto);
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', recommendPrompt],
@@ -282,15 +297,14 @@ export class LangchainChatService {
       //   input: currentMessageContent,
       //   chat_history: formattedPreviousMessages,
       // });
-      const stream = agentExecutor.streamEvents(
-        {
-          input: currentMessageContent,
-          chat_history: formattedPreviousMessages,
-        },
-        { version: 'v1' },
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
       );
 
-      streamMessage(res, stream);
+      await chatManager.StreamMessage(res, currentMessageContent);
+
       // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
@@ -299,6 +313,7 @@ export class LangchainChatService {
 
   //WORKED
   async agentMultiToolsChat(
+    sessionId: string,
     contextAwareMessagesDto: ContextAwareMessagesDto,
     res: Response,
   ) {
@@ -309,8 +324,9 @@ export class LangchainChatService {
         taxSavingFundTool,
       ];
 
-      const { formattedPreviousMessages, currentMessageContent } =
-        this.scrapingContextMessage(contextAwareMessagesDto);
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', 'You are a helpful assistant and master of fund'],
@@ -325,15 +341,13 @@ export class LangchainChatService {
       //   input: currentMessageContent,
       //   chat_history: formattedPreviousMessages,
       // });
-      const stream = agentExecutor.streamEvents(
-        {
-          input: currentMessageContent,
-          chat_history: formattedPreviousMessages,
-        },
-        { version: 'v1' },
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
       );
 
-      streamMessage(res, stream);
+      await chatManager.StreamMessage(res, currentMessageContent);
       // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
@@ -342,12 +356,14 @@ export class LangchainChatService {
 
   //WORKED
   async knowledgeAgentChat(
+    sessionId: string,
     contextAwareMessagesDto: ContextAwareMessagesDto,
     res: Response,
   ) {
     try {
-      const { formattedPreviousMessages, currentMessageContent } =
-        this.scrapingContextMessage(contextAwareMessagesDto);
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', knowledgePrompt],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
@@ -361,15 +377,13 @@ export class LangchainChatService {
       //   input: currentMessageContent,
       //   chat_history: formattedPreviousMessages,
       // });
-      const stream = chain.streamEvents(
-        {
-          input: currentMessageContent,
-          chat_history: formattedPreviousMessages,
-        },
-        { version: 'v1' },
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        chain,
       );
 
-      streamMessage(res, stream);
+      await chatManager.StreamMessage(res, currentMessageContent);
       // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
@@ -377,15 +391,15 @@ export class LangchainChatService {
   }
 
   private loadModel = () => {
-    // return new ChatOpenAI({
-    //   temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-    //   modelName: openAI.GPT_3_5_TURBO_1106.toString(),
-    // });
-
-    return new ChatAnthropic({
-      model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
-      temperature: 0,
+    return new ChatOpenAI({
+      temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
+      modelName: openAI.GPT_4_openAI.toString(),
     });
+
+    // return new ChatAnthropic({
+    //   model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
+    //   temperature: 0,
+    // });
   };
 
   private createAgentExecutor = async (tools: any, prompt: any) => {
@@ -416,7 +430,7 @@ export class LangchainChatService {
 
     const model = new ChatOpenAI({
       temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-      modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      modelName: openAI.GPT_4_openAI.toString(),
     });
 
     const outputParser = new HttpResponseOutputParser();
