@@ -86,7 +86,7 @@ import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
 import { ChatHistoryManager } from 'src/utils/history/interface';
-import { ChatManager } from 'src/utils/responses/chatManager';
+import { ChatStreamer } from 'src/utils/responses/chatStreamer';
 
 @Injectable()
 export class LangchainChatService {
@@ -239,8 +239,9 @@ export class LangchainChatService {
   ) {
     try {
       const tools = [fundInformationTool];
-      const { formattedPreviousMessages, currentMessageContent } =
-        this.scrapingContextMessage(contextAwareMessagesDto);
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', fundInfoPrompt],
@@ -256,7 +257,7 @@ export class LangchainChatService {
       //   chat_history: formattedPreviousMessages,
       // });
 
-      const chatManager = new ChatManager(
+      const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         '1',
         agentExecutor,
@@ -398,15 +399,15 @@ export class LangchainChatService {
   }
 
   private loadModel = () => {
-    // return new ChatOpenAI({
-    //   temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-    //   modelName: openAI.GPT_3_5_TURBO_1106.toString(),
-    // });
-
-    return new ChatAnthropic({
-      model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
-      temperature: 0,
+    return new ChatOpenAI({
+      temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
+      modelName: openAI.GPT_3_5_TURBO_1106.toString(),
     });
+
+    // return new ChatAnthropic({
+    //   model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
+    //   temperature: 0,
+    // });
   };
 
   private createAgentExecutor = async (tools: any, prompt: any) => {

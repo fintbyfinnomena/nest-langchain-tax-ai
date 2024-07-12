@@ -3,8 +3,8 @@ import { ChatHistoryManager } from '../history/interface';
 import { Readable } from 'stream';
 import type { Response } from 'express';
 
-export class ChatManager {
-  private historyManager: ChatHistoryManager;
+export class ChatStreamer {
+  private chatHistoryManager: ChatHistoryManager;
   private sessionID: string;
   private agentExecutor: AgentExecutor;
 
@@ -13,15 +13,17 @@ export class ChatManager {
     sessionID: string,
     agentExecutor: AgentExecutor,
   ) {
-    this.historyManager = historyManager;
+    this.chatHistoryManager = historyManager;
     this.sessionID = sessionID;
     this.agentExecutor = agentExecutor;
   }
 
   async StreamMessage(res: Response, message: string) {
-    const history = await this.historyManager.GetHistoryMessagesBySessionID(
+    const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
       this.sessionID,
     );
+
+    let resMsg = '';
 
     const stream = this.agentExecutor.streamEvents(
       {
@@ -41,6 +43,7 @@ export class ChatManager {
         for await (const event of stream) {
           if (event.event == 'on_llm_stream') {
             readableStream.push(event.data.chunk.text);
+            resMsg += event.data.chunk.text;
           }
         }
         readableStream.push(null); // Signal the end of the stream
@@ -59,11 +62,13 @@ export class ChatManager {
     });
 
     // Attach end event listener to the readable stream
-    readableStream.on('end', (data) => {
-      console.log('data => ', data);
-      // history.addUserMessage(message);
-      // history.addAIMessage(readableStream);
-      //   this.
+    readableStream.on('end', async () => {
+      history.addUserMessage(message);
+      history.addAIMessage(resMsg);
+      this.chatHistoryManager.SaveHistoryMessages(
+        this.sessionID,
+        await history.getMessages(),
+      );
       res.end(); // End the response when the stream ends
     });
   }
