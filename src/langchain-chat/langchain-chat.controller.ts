@@ -68,11 +68,11 @@ export class LangchainChatController {
     @Body() messagesDto: BasicMessageDto,
     @Res() res: Response,
   ) {
-    const sessionId = headers['sessionId'];
+    const sessionId = headers['session-id'];
 
     if (!sessionId) {
       throw new HttpException(
-        'sessionId header is missing',
+        'session-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -129,11 +129,11 @@ export class LangchainChatController {
     @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
     @Res() res: Response,
   ) {
-    const sessionId = headers['Sessionid'];
+    const sessionId = headers['session-id'];
 
     if (!sessionId) {
       throw new HttpException(
-        'Sessionid header is missing',
+        'Session-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -157,7 +157,7 @@ export class LangchainChatController {
 
     if (!sessionId) {
       throw new HttpException(
-        'sessionId header is missing',
+        'session-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -176,11 +176,11 @@ export class LangchainChatController {
     @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
     @Res() res: Response,
   ) {
-    const sessionId = headers['sessionId'];
+    const sessionId = headers['session-id'];
 
     if (!sessionId) {
       throw new HttpException(
-        'sessionId header is missing',
+        'session-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -198,11 +198,11 @@ export class LangchainChatController {
     @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
     @Res() res: Response,
   ) {
-    const sessionId = headers['sessionId'];
+    const sessionId = headers['session-id'];
 
     if (!sessionId) {
       throw new HttpException(
-        'sessionId header is missing',
+        'session-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -220,11 +220,11 @@ export class LangchainChatController {
     @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
     @Res() res: Response,
   ) {
-    const sessionId = headers['sessionId'];
+    const sessionId = headers['session-id'];
 
     if (!sessionId) {
       throw new HttpException(
-        'sessionId header is missing',
+        'session-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }
