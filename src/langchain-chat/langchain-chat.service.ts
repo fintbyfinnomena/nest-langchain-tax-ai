@@ -73,7 +73,6 @@ import {
 import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
-  taxSavingFundTool,
 } from 'src/langchain-chat/tools/customTools';
 import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
@@ -279,33 +278,30 @@ export class LangchainChatService {
     res: Response,
   ) {
     try {
-      const tools = [taxSavingFundTool];
       const { currentMessageContent } = this.scrapingContextMessage(
         contextAwareMessagesDto,
       );
-
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', recommendPrompt],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
-        new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const agentExecutor = await this.createAgentExecutor(tools, prompt);
+      const llm = this.loadModel();
+      const chain = prompt.pipe(llm);
 
-      // const response = await agentExecutor.invoke({
+      // const response = await chain.invoke({
       //   input: currentMessageContent,
       //   chat_history: formattedPreviousMessages,
       // });
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
-        agentExecutor,
+        chain,
       );
 
       await chatManager.StreamMessage(res, currentMessageContent);
-
-      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -318,11 +314,7 @@ export class LangchainChatService {
     res: Response,
   ) {
     try {
-      const tools = [
-        suggestPortProfileAllocationTool,
-        fundInformationTool,
-        taxSavingFundTool,
-      ];
+      const tools = [suggestPortProfileAllocationTool, fundInformationTool];
 
       const { currentMessageContent } = this.scrapingContextMessage(
         contextAwareMessagesDto,
