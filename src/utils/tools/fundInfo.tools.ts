@@ -18,19 +18,26 @@ export async function getFundInformation(
       'performance',
     );
     const fundFeeUrl = path.join(fundApiBaseUrl, `fee?funds[]=${fundName}`);
+    const fundPortfolioUrl = path.join(fundApiBaseUrl, fundName, 'portfolio');
 
     // Make parallel requests
-    const [fundInfoResponse, fundPerformanceResponse, fundFeeResponse] =
-      await Promise.all([
-        axios.get(fundInfoUrl),
-        axios.get(fundPerformanceUrl),
-        axios.get(fundFeeUrl),
-      ]);
+    const [
+      fundInfoResponse,
+      fundPerformanceResponse,
+      fundFeeResponse,
+      fundPortfolioResponse,
+    ] = await Promise.all([
+      axios.get(fundInfoUrl),
+      axios.get(fundPerformanceUrl),
+      axios.get(fundFeeUrl),
+      axios.get(fundPortfolioUrl),
+    ]);
 
     // TODO: To Check
     const fundInfo = fundInfoResponse.data.data;
     const fundPerf = fundPerformanceResponse.data.data;
     const fundFee = fundFeeResponse.data.data[0]['fees'];
+    const fundPortfolio = fundPortfolioResponse.data.data;
 
     const fundFeeExtracted = extractFee(fundFee);
 
@@ -58,6 +65,8 @@ export async function getFundInformation(
         sharpeRatio5y: fundPerf['sharpe_ratio_5y'],
         netAsset: fundPerf['net_assets'],
       },
+      topHoldings: fundPortfolio['top_holdings'],
+      assetAllocation: fundPortfolio['asset_allocation'],
       fee: {
         frontEnd: fundFeeExtracted.frontEnd,
         backEnd: fundFeeExtracted.backEnd,

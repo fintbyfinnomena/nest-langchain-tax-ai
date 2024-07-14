@@ -33,6 +33,7 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -57,16 +58,12 @@ import * as path from 'path';
 import { Document } from '@langchain/core/documents';
 import { DocumentDto } from './dtos/document.dto';
 import { PDF_BASE_PATH } from 'src/utils/constants/common.constants';
-import {
-  AgentExecutor,
-  createOpenAIFunctionsAgent,
-  createToolCallingAgent,
-} from 'langchain/agents';
+import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from '@langchain/core/prompts';
-
+import type { Response } from 'express';
 import {
   HumanMessage,
   AIMessage,
@@ -76,24 +73,38 @@ import {
 import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
+  taxSavingFundTool,
 } from 'src/langchain-chat/tools/customTools';
 import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
+import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
+import { ChatHistoryManager } from 'src/utils/history/interface';
+import { ChatStreamer } from 'src/utils/responses/chatStreamer';
 
 @Injectable()
 export class LangchainChatService {
-  // constructor(private vectorStoreService: VectorStoreService) {}
+  private chatHistoryManager: ChatHistoryManager;
 
-  async basicChat(basicMessageDto: BasicMessageDto) {
+  constructor(@Inject('REDIS_CLIENT') redisClient) {
+    this.chatHistoryManager = new ChatHistoryManagerImp(redisClient);
+  }
+
+  async basicChat(
+    sessionId: string,
+    basicMessageDto: BasicMessageDto,
+    res: Response,
+  ) {
     try {
-      const chain = this.loadSingleChainAnthropic(
-        TEMPLATES.BASIC_CHAT_TEMPLATE,
+      const model = this.loadSingleChainAnthropic();
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        model,
       );
 
-      const response = await chain.invoke(basicMessageDto.question);
-      return this.successResponseBasic(response.content as MessageContent);
+      await chatManager.StreamMessage(res, basicMessageDto.question);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -182,14 +193,17 @@ export class LangchainChatService {
     }
   }
 
-  async portAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async portAgentChat(
+    sessionId: string,
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [suggestPortProfileAllocationTool];
-      const messages = contextAwareMessagesDto.messages ?? [];
-      const formattedPreviousMessages = messages
-        .slice(0, -1)
-        .map(this.formatBaseMessages);
-      const currentMessageContent = messages[messages.length - 1].content;
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         [
@@ -202,42 +216,33 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const llm = new ChatOpenAI({
-        temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-        modelName: openAI.GPT_3_5_TURBO_1106.toString(),
-      });
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const agent = await createOpenAIFunctionsAgent({
-        llm,
-        tools,
-        prompt,
-      });
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
+      );
 
-      const agentExecutor = new AgentExecutor({
-        agent,
-        tools,
-        verbose: true,
-      });
+      await chatManager.StreamMessage(res, currentMessageContent);
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
-
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async fundInfoAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async fundInfoAgentChat(
+    sessionId: string,
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
       const tools = [fundInformationTool];
-      const messages = contextAwareMessagesDto.messages ?? [];
-      const formattedPreviousMessages = messages
-        .slice(0, -1)
-        .map(this.formatBaseMessages);
-      const currentMessageContent = messages[messages.length - 1].content;
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', fundInfoPrompt],
@@ -246,76 +251,82 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const llm = new ChatAnthropic({
-        model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
-        temperature: 0,
-      });
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const agent = await createToolCallingAgent({
-        llm,
-        tools,
-        prompt,
-      });
+      // const response = await agentExecutor.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
 
-      const agentExecutor = new AgentExecutor({
-        agent,
-        tools,
-        verbose: true,
-      });
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
+      );
 
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      await chatManager.StreamMessage(res, currentMessageContent);
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
+  //WORKED
   async taxSavingFundAgentChat(
+    sessionId: string,
     contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
   ) {
     try {
-      const messages = contextAwareMessagesDto.messages ?? [];
-      const formattedPreviousMessages = messages
-        .slice(0, -1)
-        .map(this.formatBaseMessages);
-      const currentMessageContent = messages[messages.length - 1].content;
+      const tools = [taxSavingFundTool];
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', recommendPrompt],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
+        new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const llm = new ChatAnthropic({
-        model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
-        temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
-      });
-      const chain = prompt.pipe(llm);
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const response = await chain.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await agentExecutor.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
+      await chatManager.StreamMessage(res, currentMessageContent);
+
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async agentMultiToolsChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async agentMultiToolsChat(
+    sessionId: string,
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
-      const tools = [suggestPortProfileAllocationTool, fundInformationTool];
+      const tools = [
+        suggestPortProfileAllocationTool,
+        fundInformationTool,
+        taxSavingFundTool,
+      ];
 
-      const messages = contextAwareMessagesDto.messages ?? [];
-      const formattedPreviousMessages = messages
-        .slice(0, -1)
-        .map(this.formatBaseMessages);
-      const currentMessageContent = messages[messages.length - 1].content;
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
 
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', 'You are a helpful assistant and master of fund'],
@@ -324,71 +335,102 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
       ]);
 
-      const llm = new ChatOpenAI({
-        temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-        modelName: openAI.GPT_3_5_TURBO_1106.toString(),
-      });
+      const agentExecutor = await this.createAgentExecutor(tools, prompt);
 
-      const agent = await createOpenAIFunctionsAgent({
-        llm,
-        tools,
-        prompt,
-      });
+      // const response = await agentExecutor.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
+      );
 
-      const agentExecutor = new AgentExecutor({
-        agent,
-        tools,
-        verbose: true,
-      });
-
-      const response = await agentExecutor.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
-
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
+      await chatManager.StreamMessage(res, currentMessageContent);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
-  async knowledgeAgentChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
+  //WORKED
+  async knowledgeAgentChat(
+    sessionId: string,
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
     try {
-      const messages = contextAwareMessagesDto.messages ?? [];
-      const formattedPreviousMessages = messages
-        .slice(0, -1)
-        .map(this.formatBaseMessages);
-      const currentMessageContent = messages[messages.length - 1].content;
-
+      const { currentMessageContent } = this.scrapingContextMessage(
+        contextAwareMessagesDto,
+      );
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', knowledgePrompt],
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
       ]);
 
-      const llm = new ChatAnthropic({
-        model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
-        temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
-      });
+      const llm = this.loadModel();
       const chain = prompt.pipe(llm);
 
-      const response = await chain.invoke({
-        input: currentMessageContent,
-        chat_history: formattedPreviousMessages,
-      });
+      // const response = await chain.invoke({
+      //   input: currentMessageContent,
+      //   chat_history: formattedPreviousMessages,
+      // });
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        chain,
+      );
 
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
+      await chatManager.StreamMessage(res, currentMessageContent);
+      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
+
+  private loadModel = () => {
+    return new ChatOpenAI({
+      temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
+      modelName: openAI.GPT_4_openAI.toString(),
+    });
+
+    // return new ChatAnthropic({
+    //   model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
+    //   temperature: 0,
+    // });
+  };
+
+  private createAgentExecutor = async (tools: any, prompt: any) => {
+    const llm = this.loadModel();
+    // return await createOpenAIFunctionsAgent({
+    //   llm,
+    //   tools,
+    //   prompt,
+    // });
+
+    const agent = await createToolCallingAgent({
+      llm,
+      tools,
+      prompt,
+    });
+
+    const agentExecutor = new AgentExecutor({
+      agent,
+      tools,
+      verbose: true,
+    });
+
+    return agentExecutor;
+  };
 
   private loadSingleChain = (template: string) => {
     const prompt = PromptTemplate.fromTemplate(template);
 
     const model = new ChatOpenAI({
       temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-      modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+      modelName: openAI.GPT_4_openAI.toString(),
     });
 
     const outputParser = new HttpResponseOutputParser();
@@ -396,7 +438,7 @@ export class LangchainChatService {
     return prompt.pipe(model).pipe(outputParser);
   };
 
-  private loadSingleChainAnthropic = (template: string) => {
+  private loadSingleChainAnthropic = () => {
     const model = new ChatAnthropic({
       modelName: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
       temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
@@ -434,5 +476,23 @@ export class LangchainChatService {
       ),
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
+  };
+
+  private scrapingContextMessage = (
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+  ): {
+    formattedPreviousMessages: (HumanMessage | AIMessage)[];
+    currentMessageContent: string;
+  } => {
+    const messages = contextAwareMessagesDto.messages ?? [];
+    const formattedPreviousMessages = messages
+      .slice(0, -1)
+      .map(this.formatBaseMessages);
+    const currentMessageContent = messages[messages.length - 1].content;
+
+    return {
+      formattedPreviousMessages: formattedPreviousMessages,
+      currentMessageContent: currentMessageContent,
+    };
   };
 }
