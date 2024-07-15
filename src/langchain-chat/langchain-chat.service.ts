@@ -377,15 +377,15 @@ export class LangchainChatService {
   }
 
   private loadModel = () => {
-    // return new ChatOpenAI({
-    //   temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-    //   modelName: openAI.GPT_3_5_TURBO_1106.toString(),
-    // });
-
-    return new ChatAnthropic({
-      model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
-      temperature: 0,
+    return new ChatOpenAI({
+      temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
+      modelName: openAI.GPT_4_openAI.toString(),
     });
+
+    // return new ChatAnthropic({
+    //   model: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
+    //   temperature: 0,
+    // });
   };
 
   private createAgentExecutor = async (tools: any, prompt: any) => {
