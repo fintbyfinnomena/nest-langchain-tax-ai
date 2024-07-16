@@ -69,7 +69,32 @@ export const taxSavingFundTool = new DynamicTool({
   name: "tax-saving-fund-recommendation",
   description: "useful for to give a tax saving fund recommendation",
   func: async() => {
+    // console.log("--> taxSavingFundTool doing!!")
     const result = await getTaxSavingFundRecommendation()
     return JSON.stringify(result)
   },
 });
+
+export const completeOrEscalate = new DynamicTool({
+  name: "complete-or-escalate",
+  description:
+    "A tool to mark the current task as completed and/or to escalate control of the dialog to the main assistant, who can re-route the dialog based on the user's needs.",
+  func: async () => {
+    // console.log("--> completeOrEscalate doing!!")
+    const schema_extra = {
+      "example": {
+        "cancel": true,
+        "reason": "User changed their mind about the current task.",
+      },
+      "example 2": {
+        "cancel": true,
+        "reason": "I have fully completed the task.",
+      },
+      "example 3": {
+        "cancel": false,
+        "reason": "I need to search the user's emails or calendar for more information.",
+      }
+    }
+    return JSON.stringify(schema_extra)
+  }
+})

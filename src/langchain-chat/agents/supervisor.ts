@@ -28,6 +28,7 @@ import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
   taxSavingFundTool,
+  completeOrEscalate,
 } from 'src/langchain-chat/tools/customTools';
 
 import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
@@ -89,10 +90,10 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 	  // select the first one
 	  .pipe((x) => (x[0].args));
 
-	const portAgentNode = await generatorAgentNode(llm,[suggestPortProfileAllocationTool],portfolioAllocationWithoutHistoryPrompt)
-	const fundInfoAgentNode = await generatorAgentNode(llm,[fundInformationTool],fundInfoPrompt)
-	const taxSavingAgentNode = await generatorAgentNode(llm,[taxSavingFundTool],recommendPrompt)
-	const knowledgeAgentNode = await generatorAgentNode(llm,[],knowledgePrompt)
+	const portAgentNode = await generatorAgentNode(llm,[suggestPortProfileAllocationTool, completeOrEscalate],portfolioAllocationWithoutHistoryPrompt)
+	const fundInfoAgentNode = await generatorAgentNode(llm,[fundInformationTool, completeOrEscalate],fundInfoPrompt)
+	const taxSavingAgentNode = await generatorAgentNode(llm,[taxSavingFundTool, completeOrEscalate],recommendPrompt)
+	const knowledgeAgentNode = await generatorAgentNode(llm,[completeOrEscalate],knowledgePrompt)
 
 	const workflow = new StateGraph<AgentStateChannelsInterface, unknown, string>({
 	  channels: agentStateChannels,
