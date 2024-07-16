@@ -49,15 +49,9 @@ export async function createOpenAIAgent(
   llm: ChatOpenAI,
   tools: any[],
   systemPrompt: string,
+  chatHistory?: boolean,
 ): Promise<Runnable> {
-  const prompt = await ChatPromptTemplate.fromMessages([
-    ['system', systemPrompt],
-    // new MessagesPlaceholder({ variableName: 'chat_history' }),
-    // ['user', '{input}'],
-    new MessagesPlaceholder({ variableName: 'messages' }),
-    new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
-  ]);
-
+  const prompt = await promptMessageSequenceGenerate(systemPrompt, chatHistory)
   const agent = await createOpenAIToolsAgent({ llm, tools, prompt });
   return new AgentExecutor({ agent, tools });
   // return new AgentExecutor({ agent, tools, verbose: true });
@@ -74,15 +68,10 @@ export async function createAnthropicAgent(
   llm: ChatAnthropic,
   tools: any[],
   systemPrompt: string,
+  chatHistory?: boolean,
 ): Promise<Runnable> {
-  const prompt = await ChatPromptTemplate.fromMessages([
-    ['system', systemPrompt],
-    // new MessagesPlaceholder({ variableName: 'chat_history' }),
-    // ['user', '{input}'],
-    new MessagesPlaceholder({ variableName: 'messages' }),
-    new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
-  ]);
 
+  const prompt = await promptMessageSequenceGenerate(systemPrompt, chatHistory)
   const agent = await createToolCallingAgent({ llm, tools, prompt });
   return new AgentExecutor({ agent, tools });
   // return new AgentExecutor({ agent, tools, verbose: true });
@@ -93,7 +82,7 @@ export async function loadAgentExecutor(
   systemPrompt: string,
 ) : Promise<Runnable> {
   const llm = await createAnthropicModel()
-  return await createAnthropicAgent(llm, tools, systemPrompt)
+  return await createAnthropicAgent(llm, tools, systemPrompt, true)
 }
 
 export async function generatorAgentNode(
@@ -122,4 +111,23 @@ export async function generatorAgentNode(
 
   return agentNode
 
+}
+
+async function promptMessageSequenceGenerate(systemPrompt: string, chatHistory?: boolean): Promise<any>{
+  let prompt :any
+  if (chatHistory) {
+     prompt = ChatPromptTemplate.fromMessages([
+      ['system', systemPrompt],
+      new MessagesPlaceholder({ variableName: 'chat_history' }),
+      ['user', '{input}'],
+      new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
+    ]);
+  }else{
+    prompt = ChatPromptTemplate.fromMessages([
+      ['system', systemPrompt],
+      new MessagesPlaceholder({ variableName: 'messages' }),
+      new MessagesPlaceholder({ variableName: 'agent_scratchpad' }),
+    ]);
+  }
+  return prompt
 }

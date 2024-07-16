@@ -33,17 +33,23 @@
  */
 
 import {
+  Headers,
   Body,
   Controller,
   HttpCode,
   Post,
   UploadedFile,
   UseInterceptors,
-  Res
+  Res,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { LangchainChatService } from './langchain-chat.service';
 import { BasicMessageDto } from './dtos/basic-message.dto';
-import { ContextAwareMessagesDto } from './dtos/context-aware-messages.dto';
+import {
+  ChatHeader,
+  ContextAwareMessagesDto,
+} from './dtos/context-aware-messages.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { DocumentDto } from './dtos/document.dto';
@@ -57,8 +63,21 @@ export class LangchainChatController {
 
   @Post('basic-chat')
   @HttpCode(200)
-  async basicChat(@Body() messagesDto: BasicMessageDto, @Res() res: Response) {
-    return this.langchainChatService.basicChat(messagesDto, res);
+  async basicChat(
+    @Headers() headers: ChatHeader,
+    @Body() messagesDto: BasicMessageDto,
+    @Res() res: Response,
+  ) {
+    const sessionId = headers['session-id'];
+
+    if (!sessionId) {
+      throw new HttpException(
+        'session-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.langchainChatService.basicChat(sessionId, messagesDto, res);
   }
 
   @Post('context-aware-chat')
@@ -106,35 +125,113 @@ export class LangchainChatController {
   @Post('port-agent-chat')
   @HttpCode(200)
   async portAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
-    return await this.langchainChatService.portAgentChat(contextAwareMessagesDto,res);
+    @Headers() headers: ChatHeader,
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+    @Res() res: Response,
+  ) {
+    const sessionId = headers['session-id'];
+
+    if (!sessionId) {
+      throw new HttpException(
+        'Session-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return await this.langchainChatService.portAgentChat(
+      sessionId,
+      contextAwareMessagesDto,
+      res,
+    );
   }
 
   @Post('fund-info-agent-chat')
   @HttpCode(200)
   async fundInfoAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
-    return await this.langchainChatService.fundInfoAgentChat(contextAwareMessagesDto,res);
+    @Headers() headers: ChatHeader,
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+    @Res() res: Response,
+  ) {
+    const sessionId = headers['session-id'];
+
+    if (!sessionId) {
+      throw new HttpException(
+        'session-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return await this.langchainChatService.fundInfoAgentChat(
+      sessionId,
+      contextAwareMessagesDto,
+      res,
+    );
   }
 
   @Post('agent-multi-tools-chat')
   @HttpCode(200)
-  async agentMultiToolsChat(@Body() contextAwareMessagesDto: ContextAwareMessagesDto, @Res() res: Response) {
-    return await this.langchainChatService.agentMultiToolsChat(contextAwareMessagesDto,res);
+  async agentMultiToolsChat(
+    @Headers() headers: ChatHeader,
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+    @Res() res: Response,
+  ) {
+    const sessionId = headers['session-id'];
+
+    if (!sessionId) {
+      throw new HttpException(
+        'session-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.langchainChatService.agentMultiToolsChat(
+      sessionId,
+      contextAwareMessagesDto,
+      res,
+    );
   }
 
   @Post('tax-saving-fund-agent')
   @HttpCode(200)
   async taxSavingFundAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
-    return await this.langchainChatService.taxSavingFundAgentChat(contextAwareMessagesDto,res);
+    @Headers() headers: ChatHeader,
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+    @Res() res: Response,
+  ) {
+    const sessionId = headers['session-id'];
+
+    if (!sessionId) {
+      throw new HttpException(
+        'session-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.langchainChatService.taxSavingFundAgentChat(
+      sessionId,
+      contextAwareMessagesDto,
+      res,
+    );
   }
 
   @Post('knowledge-agent')
   @HttpCode(200)
   async knowledgeAgentChat(
-    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,@Res() res: Response) {
-    return await this.langchainChatService.knowledgeAgentChat(contextAwareMessagesDto,res);
+    @Headers() headers: ChatHeader,
+    @Body() contextAwareMessagesDto: ContextAwareMessagesDto,
+    @Res() res: Response,
+  ) {
+    const sessionId = headers['session-id'];
+
+    if (!sessionId) {
+      throw new HttpException(
+        'session-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.langchainChatService.knowledgeAgentChat(
+      sessionId,
+      contextAwareMessagesDto,
+      res,
+    );
   }
 
   @Post('question')
