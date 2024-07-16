@@ -15,7 +15,7 @@ export enum anthropic {
   CLAUDE_3_SONNET_20240229 = 'claude-3-sonnet-20240229',
   CLAUDE_3_HAIKU_20240307 = 'claude-3-haiku-20240307',
   CLAUDE_3_OPUS_20240229 = 'claude-3-opus-20240229',
-  BASIC_CHAT_ANTHROPIC_TEMPERATURE = 0,
+  BASIC_CHAT_ANTHROPIC_TEMPERATURE = 0.4,
 }
 
 export enum vercelRolesAnthropic {
