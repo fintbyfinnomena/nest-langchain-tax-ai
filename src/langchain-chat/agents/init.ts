@@ -97,12 +97,12 @@ export async function loadAgentExecutor(
 }
 
 export async function generatorAgentNode(
-  llm: ChatAnthropic,
+  llm: ChatOpenAI,
   tools: any[],
   systemPrompt: string,
 ): Promise<Object> {
 
-  const agent = await createAnthropicAgent(
+  const agent = await createOpenAIAgent(
     llm,
     tools,
     systemPrompt,

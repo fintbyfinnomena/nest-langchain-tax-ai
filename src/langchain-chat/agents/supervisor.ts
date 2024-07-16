@@ -16,7 +16,6 @@ import {
 import { JsonOutputToolsParser } from "langchain/output_parsers";
 
 import { 
-	createAnthropicModel,
 	createOpenAIModel,
 	createAnthropicAgent,
 	generatorAgentNode,
@@ -90,12 +89,10 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 	  // select the first one
 	  .pipe((x) => (x[0].args));
 
-	const llmAnthropic = await createAnthropicModel()
-
-	const portAgentNode = await generatorAgentNode(llmAnthropic,[suggestPortProfileAllocationTool],portfolioAllocationWithoutHistoryPrompt)
-	const fundInfoAgentNode = await generatorAgentNode(llmAnthropic,[fundInformationTool],fundInfoPrompt)
-	const taxSavingAgentNode = await generatorAgentNode(llmAnthropic,[taxSavingFundTool],recommendPrompt)
-	const knowledgeAgentNode = await generatorAgentNode(llmAnthropic,[],knowledgePrompt)
+	const portAgentNode = await generatorAgentNode(llm,[suggestPortProfileAllocationTool],portfolioAllocationWithoutHistoryPrompt)
+	const fundInfoAgentNode = await generatorAgentNode(llm,[fundInformationTool],fundInfoPrompt)
+	const taxSavingAgentNode = await generatorAgentNode(llm,[taxSavingFundTool],recommendPrompt)
+	const knowledgeAgentNode = await generatorAgentNode(llm,[],knowledgePrompt)
 
 	const workflow = new StateGraph<AgentStateChannelsInterface, unknown, string>({
 	  channels: agentStateChannels,
