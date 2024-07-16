@@ -20,7 +20,8 @@ function streamMessage(res: Response, stream: any) {
     }
   })();
 
-  res.writeHead(200, { 'Content-Type': 'text/event-stream','Transfer-Encoding': 'chunked', 'Connection' : 'keep-alive' });
+  // res.writeHead(200, { 'Content-Type': 'text/event-stream','Transfer-Encoding': 'chunked', 'Connection' : 'keep-alive' });
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
   readableStream.pipe(res);
 
   // Attach error event listener to the readable stream

@@ -39,9 +39,13 @@ export const agentStateChannels: StateGraphArgs<AgentStateChannelsInterface>["ch
 };
 
 export async function createOpenAIModel(): Promise<ChatOpenAI> {
-  return new ChatOpenAI({
+  // return new ChatOpenAI({
+  //   temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
+  //   modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+  // });
+ return new ChatOpenAI({
     temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-    modelName: openAI.GPT_3_5_TURBO_1106.toString(),
+    modelName: openAI.GPT_4_openAI.toString(),
   });
 }
 
@@ -81,8 +85,8 @@ export async function loadAgentExecutor(
   tools: any[],
   systemPrompt: string,
 ) : Promise<Runnable> {
-  const llm = await createAnthropicModel()
-  return await createAnthropicAgent(llm, tools, systemPrompt, true)
+  const llm = await createOpenAIModel()
+  return await createOpenAIAgent(llm, tools, systemPrompt, true)
 }
 
 export async function generatorAgentNode(
