@@ -1,10 +1,11 @@
-import { DynamicStructuredTool } from '@langchain/core/tools';
+import { DynamicTool, DynamicStructuredTool } from "@langchain/core/tools"
 
 import { z } from 'zod';
 import * as Type from 'src/types/tax-saving-fund/portfolioAllocationn.types';
 import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools';
 import { RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
 import { getFundInformation } from 'src/utils/tools/fundInfo.tools';
+import { getTaxSavingFundRecommendation } from 'src/utils/tools/tax-saving-fund/recommend.tools';
 
 export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   name: 'suggest-port-profile-allocation',
@@ -61,5 +62,14 @@ export const fundInformationTool = new DynamicStructuredTool({
   func: async ({ fundName }) => {
     const result = await getFundInformation(fundName);
     return JSON.stringify(result);
+  },
+});
+
+export const taxSavingFundTool = new DynamicTool({
+  name: "tax-saving-fund-recommendation",
+  description: "useful for to give a tax saving fund recommendation",
+  func: async() => {
+    const result = await getTaxSavingFundRecommendation()
+    return JSON.stringify(result)
   },
 });

@@ -73,6 +73,7 @@ import {
 import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
+  taxSavingFundTool,
 } from 'src/langchain-chat/tools/customTools';
 
 import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';

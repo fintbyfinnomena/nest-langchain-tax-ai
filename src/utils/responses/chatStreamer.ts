@@ -57,7 +57,7 @@ export class ChatStreamer {
       }
     })();
 
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.writeHead(200, { 'Content-Type': 'text/event-stream','Transfer-Encoding': 'chunked', 'Connection' : 'keep-alive' });
     readableStream.pipe(res);
 
     // Attach error event listener to the readable stream
