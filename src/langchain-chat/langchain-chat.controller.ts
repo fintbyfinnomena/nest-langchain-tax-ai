@@ -237,8 +237,22 @@ export class LangchainChatController {
   @Post('question')
   @HttpCode(200)
   async supervisorAgentChat(
-    @Body() basicMessageDto: BasicMessageDto,@Res() res: Response
+    @Headers() headers: ChatHeader,
+    @Body() basicMessageDto: BasicMessageDto,
+    @Res() res: Response,
   ) {
-    return await this.langchainChatService.supervisorAgentChat(basicMessageDto,res);
+    const sessionId = headers['session-id'];
+
+    if (!sessionId) {
+      throw new HttpException(
+        'session-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.langchainChatService.supervisorAgentChat(
+      sessionId,
+      basicMessageDto,
+      res,
+    );
   }
 }

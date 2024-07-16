@@ -224,8 +224,6 @@ export class LangchainChatService {
       );
 
       await chatManager.StreamMessage(res, currentMessageContent);
-
-      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -242,14 +240,7 @@ export class LangchainChatService {
       const { currentMessageContent } = this.scrapingContextMessage(
         contextAwareMessagesDto,
       );
-
       const agentExecutor = await loadAgentExecutor(tools, fundInfoPrompt)
-
-      // const response = await agentExecutor.invoke({
-      //   input: currentMessageContent,
-      //   chat_history: formattedPreviousMessages,
-      // });
-
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
@@ -257,8 +248,6 @@ export class LangchainChatService {
       );
 
       await chatManager.StreamMessage(res, currentMessageContent);
-
-      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -274,22 +263,13 @@ export class LangchainChatService {
       const tools = [taxSavingFundTool];
       const { formattedPreviousMessages, currentMessageContent } =
         this.scrapingContextMessage(contextAwareMessagesDto);
-
       const agentExecutor = await loadAgentExecutor(tools, recommendPrompt)
-
-      //const response = await agentExecutor.invoke({
-      //  input: currentMessageContent,
-      //  chat_history: formattedPreviousMessages,
-      //});
-
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
         agentExecutor,
       );
-
       await chatManager.StreamMessage(res, currentMessageContent);
-      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -303,26 +283,17 @@ export class LangchainChatService {
   ) {
     try {
       const tools = [suggestPortProfileAllocationTool, fundInformationTool];
-
       const { currentMessageContent } = this.scrapingContextMessage(
         contextAwareMessagesDto,
       );
-
       const agentExecutor = await loadAgentExecutor(tools, 'You are a helpful assistant and master of fund')
-
-      //const response = await agentExecutor.invoke({
-      //  input: currentMessageContent,
-      //  chat_history: formattedPreviousMessages,
-      //});
 
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
         agentExecutor,
       );
-
       await chatManager.StreamMessage(res, currentMessageContent);
-      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response.output);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -343,55 +314,32 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
       ]);
-
       const llm = await createAnthropicModel()
       const chain = prompt.pipe(llm);
-
-      // const response = await chain.invoke({
-      //   input: currentMessageContent,
-      //   chat_history: formattedPreviousMessages,
-      // });
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
         chain,
       );
-
       await chatManager.StreamMessage(res, currentMessageContent);
-      // return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
   }
 
   async supervisorAgentChat(
+    sessionId: string,
     basicMessageDto: BasicMessageDto,
     res: Response,
   ) {
     try {
-
       const supervisorGraph = await initSupervisorAgent()
-
-      let stream = supervisorGraph.stream(
-        {
-          messages: [
-            new HumanMessage({
-              content: basicMessageDto.question,
-            }),
-          ],
-        },
-        { recursionLimit: 100 },
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        supervisorGraph,
       );
-      const results = []; 
-      for await (const output of await stream) {
-        if (!output?.__end__) {
-          results.push(output)
-        }
-      }
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.write(JSON.stringify(results))
-      res.end();
+      await chatManager.StreamMessage(res, basicMessageDto.question);
 
     } catch (e: unknown) {
       this.exceptionHandling(e);
@@ -410,15 +358,6 @@ export class LangchainChatService {
 
     return prompt.pipe(model).pipe(outputParser);
   };
-
-  // private loadSingleChainAnthropic = (template: string) => {
-  //   const model = new ChatAnthropic({
-  //     modelName: anthropic.CLAUDE_3_5_SONNET_20240229.toString(),
-  //     temperature: +anthropic.BASIC_CHAT_ANTHROPIC_TEMPERATURE,
-  //   });
-
-  //   return model;
-  // };
 
   private formatMessage = (message: VercelChatMessage) =>
     `${message.role}: ${message.content}`;
