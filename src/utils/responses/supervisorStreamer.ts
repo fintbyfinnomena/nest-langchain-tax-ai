@@ -4,11 +4,15 @@ import type { Response } from 'express';
 import { IterableReadableStream } from '@langchain/core/utils/stream';
 import { StreamEvent } from '@langchain/core/tracers/log_stream';
 
+import {
+  HumanMessage,
+} from '@langchain/core/messages';
+
 interface ChainStreamer {
   streamEvents(...args: any): IterableReadableStream<StreamEvent>;
 }
 
-export class ChatStreamer {
+export class SupervisorStreamer {
   private chatHistoryManager: ChatHistoryManager;
   private sessionId: string;
   private chainStreamer: ChainStreamer;
@@ -30,25 +34,42 @@ export class ChatStreamer {
 
     let resMsg = '';
 
+    let messagesReq: any[] = [
+        new HumanMessage({
+          content: message,
+        }),
+      ]
+
+    const historysMessage = await history.getMessages()
+
+    if (historysMessage.length > 0) {
+      messagesReq = [...historysMessage, ...messagesReq]
+    }
+
     const stream = this.chainStreamer.streamEvents(
       {
-        input: message,
-        chat_history: await history.getMessages(),
+        messages: messagesReq
       },
+      // {
+      //   input: message,
+      //   chat_history: await history.getMessages(),
+      // },
       { version: 'v1' },
     );
 
     const readableStream = new Readable({
       read() {},
     });
-    // Push data from the stream to the readable stream
-    //basic-chat no longer work with this method
+
     (async () => {
       try {
         for await (const event of stream) {
           if (event.event == 'on_llm_stream') {
             readableStream.push(event.data.chunk.text);
             resMsg += event.data.chunk.text;
+          }else{
+            console.log("\x1b[42m%s\x1b[0m",event.event)
+            console.log(event.data," -> ",JSON.stringify(event.data))
           }
         }
         readableStream.push(null); // Signal the end of the stream
@@ -57,6 +78,7 @@ export class ChatStreamer {
       }
     })();
 
+    // res.writeHead(200, { 'Content-Type': 'text/event-stream','Transfer-Encoding': 'chunked', 'Connection' : 'keep-alive' });
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     readableStream.pipe(res);
 

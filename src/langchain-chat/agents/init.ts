@@ -12,8 +12,6 @@ import { anthropic } from 'src/utils/constants/anthropic.constants';
 
 import {
   HumanMessage,
-  // AIMessage,
-  // MessageContent,
 } from '@langchain/core/messages';
 
 import { BaseMessage } from "@langchain/core/messages";
@@ -39,11 +37,7 @@ export const agentStateChannels: StateGraphArgs<AgentStateChannelsInterface>["ch
 };
 
 export async function createOpenAIModel(): Promise<ChatOpenAI> {
-  // return new ChatOpenAI({
-  //   temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-  //   modelName: openAI.GPT_3_5_TURBO_1106.toString(),
-  // });
- return new ChatOpenAI({
+  return new ChatOpenAI({
     temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
     modelName: openAI.GPT_4_openAI.toString(),
   });
@@ -89,12 +83,13 @@ export async function loadAgentExecutor(
   return await createOpenAIAgent(llm, tools, systemPrompt, true)
 }
 
-export async function generatorAgentNode(
+export async function generatorAgentNode(params: {
+  name: string,
   llm: ChatOpenAI,
   tools: any[],
   systemPrompt: string,
-): Promise<Object> {
-
+}): Promise<Object> {
+  const { name, llm, tools, systemPrompt } = params;
   const agent = await createOpenAIAgent(
     llm,
     tools,
@@ -108,7 +103,7 @@ export async function generatorAgentNode(
     const result = await agent.invoke(state, config);
     return {
       messages: [
-        new HumanMessage({ content: result.output, name: "Port" }),
+        new HumanMessage({ content: result.output, name }),
       ],
     };
   };

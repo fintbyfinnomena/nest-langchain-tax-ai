@@ -1,12 +1,4 @@
-// import { BaseMessage } from "@langchain/core/messages";
-// import { END, StateGraphArgs } from "@langchain/langgraph";
 import { START, END, StateGraph } from "@langchain/langgraph";
-
-// import {
-//   HumanMessage,
-//   // AIMessage,
-//   // MessageContent,
-// } from '@langchain/core/messages';
 
 import {
   ChatPromptTemplate,
@@ -32,6 +24,7 @@ import {
 } from 'src/langchain-chat/tools/customTools';
 
 import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
+import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocation.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
@@ -49,6 +42,10 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 	    title: "routeSchema",
 	    type: "object",
 	    properties: {
+	    	reasoning: {
+          title: "Reasoning",
+          type: "string",
+        },
 	      next: {
 	        title: "Next",
 	        anyOf: [
@@ -56,7 +53,8 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 	        ],
 	      },
 	    },
-	    required: ["next"],
+	    required: ["reasoning","next"],
+	    // required: ["next"],
 	  },
 	};
 
@@ -76,10 +74,10 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 	  members: members.join(", "),
 	});
 
-	const llm = await createOpenAIModel()
+	const llmModle = await createOpenAIModel()
 
 	const supervisorChain = formattedPrompt
-	  .pipe(llm.bindTools(
+	  .pipe(llmModle.bindTools(
 	    [toolDef],
 	    {
 	      tool_choice: { type: "function", function: { name: "route" } },
@@ -90,10 +88,32 @@ export async function initSupervisorAgent() : Promise<Runnable> {
 	  // select the first one
 	  .pipe((x) => (x[0].args));
 
-	const portAgentNode = await generatorAgentNode(llm,[suggestPortProfileAllocationTool, completeOrEscalate],portfolioAllocationWithoutHistoryPrompt)
-	const fundInfoAgentNode = await generatorAgentNode(llm,[fundInformationTool, completeOrEscalate],fundInfoPrompt)
-	const taxSavingAgentNode = await generatorAgentNode(llm,[taxSavingFundTool, completeOrEscalate],recommendPrompt)
-	const knowledgeAgentNode = await generatorAgentNode(llm,[completeOrEscalate],knowledgePrompt)
+	// const combinedPrompt = "\nWork autonomously according to your specialty, using the tools available to you. Do not ask for clarification. You are chosen for a reason!"
+	const portAgentNode = await generatorAgentNode({
+		name: "port_profile_allocation",
+		llm: llmModle,
+		tools: [suggestPortProfileAllocationTool, completeOrEscalate],
+		// systemPrompt: portfolioAllocationPrompt
+		systemPrompt: portfolioAllocationWithoutHistoryPrompt
+	})
+	const fundInfoAgentNode = await generatorAgentNode({
+		name:"fund_information",
+		llm: llmModle,
+		tools: [fundInformationTool, completeOrEscalate],
+		systemPrompt: fundInfoPrompt
+	})
+	const taxSavingAgentNode = await generatorAgentNode({
+		name:"tax_saving_fund",
+		llm: llmModle,
+		tools: [taxSavingFundTool, completeOrEscalate],
+		systemPrompt: recommendPrompt
+	})
+	const knowledgeAgentNode = await generatorAgentNode({ 
+		name:"knowledge",
+		llm: llmModle,
+		tools: [completeOrEscalate],
+		systemPrompt: knowledgePrompt
+	})
 
 	const workflow = new StateGraph<AgentStateChannelsInterface, unknown, string>({
 	  channels: agentStateChannels,

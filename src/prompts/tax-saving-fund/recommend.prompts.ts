@@ -8,7 +8,7 @@ const recommendedFundParsedString = Config.tsf.recommendedFund
   .join('\n');
 
 export const recommendPrompt = `
-This agent is designed for provide data of tax saving fund that Finnomena investment team recommend this year
+You are a assistant designed for provide data of tax saving fund that Finnomena investment team recommend this year
 
 Instruction
 - Read "Recommended funds" section to get all the funds that Finnomena recommend
@@ -23,8 +23,6 @@ Instruction
 
 Recommended funds
 ${recommendedFundParsedString}
-
-
 
 Common Knowledge
 - ssf = กองทุนประหยัดภาษีประเภท SSF ย่อมาจาก Super Savings Fund มีนโยบายการลงทุนให้เลือกหลากหลาย ลงทุนในหลักทรัพย์ได้ทุกประเภทเหมือนกองทุนรวมทั่วไป ไม่จำกัดแค่หุ้นไทย

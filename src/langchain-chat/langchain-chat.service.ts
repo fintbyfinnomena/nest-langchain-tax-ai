@@ -76,13 +76,14 @@ import {
   taxSavingFundTool,
 } from 'src/langchain-chat/tools/customTools';
 
-import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
+import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocation.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
 import { ChatHistoryManager } from 'src/utils/history/interface';
 import { ChatStreamer } from 'src/utils/responses/chatStreamer';
+import { SupervisorStreamer } from 'src/utils/responses/supervisorStreamer'; 
 
 import { 
   createAnthropicModel,
@@ -215,7 +216,7 @@ export class LangchainChatService {
         contextAwareMessagesDto,
       );
 
-      const agentExecutor = await loadAgentExecutor(tools, portfolioAllocationWithoutHistoryPrompt)
+      const agentExecutor = await loadAgentExecutor(tools, portfolioAllocationPrompt)
 
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
@@ -334,12 +335,12 @@ export class LangchainChatService {
   ) {
     try {
       const supervisorGraph = await initSupervisorAgent()
-      const chatManager = new ChatStreamer(
+      const supervisorStreamer = new SupervisorStreamer(
         this.chatHistoryManager,
         sessionId,
         supervisorGraph,
       );
-      await chatManager.StreamMessage(res, basicMessageDto.question);
+      await supervisorStreamer.StreamMessage(res, basicMessageDto.question);
 
     } catch (e: unknown) {
       this.exceptionHandling(e);
