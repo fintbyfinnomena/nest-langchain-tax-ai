@@ -1,0 +1,5 @@
+export const supervisorRolePrompt = `You are a supervisor tasked with managing a conversation between the following workers: {members}. Given the following user request, respond with the worker to act next. Each worker will perform a task and respond with their results and status. When finished, respond with FINISH. \n\nNo need ot select all , but select strategically to minimize the number of steps taken.`;
+
+export const supervisorConditionPrompt = `Given the conversation above, who should act next? Or should we FINISH? Select one of: {options}, Not able to select previously selected option again !! except "fund_information" but should have another input`;
+
+// export const supervisorConditionPrompt = `Given the conversation above, who should act next? Or should we FINISH? Select one of: {options}`;
