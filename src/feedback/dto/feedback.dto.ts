@@ -7,9 +7,3 @@ export class FeedbackDto {
     ai_text: string;
     user_id: string;
 }
-
-export class FeedBackResponseDto {
-    @IsNotEmpty()
-    @IsString()
-    response: string;
-}
