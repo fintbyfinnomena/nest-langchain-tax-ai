@@ -10,14 +10,6 @@ import { CreateFeedbackDto } from './dto/feedback.dto';
 export class FeedbackService {
   constructor(@InjectModel(Feedback.name) private catModel: Model<Feedback>) {}
 
-  async getFeedbackInfo(FeedbackName: string) {
-    try {
-      return "Hello World"
-    } catch (e: unknown) {
-      this.exceptionHandling(e);
-    }
-  }
-
   async create(CreateFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
     const createdFeedback = await this.catModel.create(CreateFeedbackDto);
     return createdFeedback.save();
