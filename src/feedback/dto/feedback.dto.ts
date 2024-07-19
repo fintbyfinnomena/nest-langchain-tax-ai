@@ -1,9 +1,15 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateFeedbackDto {
+export class FeedbackDto {
     @IsNotEmpty()
     @IsString()
     user_text: string;
     ai_text: string;
     user_id: string;
+}
+
+export class FeedBackResponseDto {
+    @IsNotEmpty()
+    @IsString()
+    response: string;
 }

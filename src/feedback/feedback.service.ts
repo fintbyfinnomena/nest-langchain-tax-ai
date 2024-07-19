@@ -4,15 +4,17 @@ import { MESSAGES } from 'src/utils/constants/messages.constants';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Feedback, FeedbackSchema } from '../schemas/feedback.schema';
-import { CreateFeedbackDto } from './dto/feedback.dto';
+import { FeedbackDto } from './dto/feedback.dto';
+
 
 @Injectable()
 export class FeedbackService {
-  constructor(@InjectModel(Feedback.name) private catModel: Model<Feedback>) {}
+  constructor(@InjectModel(Feedback.name) private FeedbackModel: Model<string>) {}
 
-  async create(CreateFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
-    const createdFeedback = await this.catModel.create(CreateFeedbackDto);
-    return createdFeedback.save();
+  async create(CreateFeedbackDto: FeedbackDto) {
+    const createdFeedback = await this.FeedbackModel.create(CreateFeedbackDto);
+    await createdFeedback.save();
+    return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, "Data Saved");
   }
 
   private exceptionHandling = (e: unknown) => {
