@@ -4,7 +4,7 @@ import { MESSAGES } from 'src/utils/constants/messages.constants';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Feedback, FeedbackSchema } from '../schemas/feedback.schema';
-import { CreateFeedbackDto } from './dto/creat-feedback.dto';
+import { CreateFeedbackDto } from './dto/feedback.dto';
 
 @Injectable()
 export class FeedbackService {

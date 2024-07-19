@@ -21,8 +21,5 @@ require('dotenv').config();
     FeedbackModule,
     MongooseModule.forRoot(`mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`),
   ],
-  // MongooseModule.forRoot(`mongodb+srv://ssatayamana:O1suwcefVVxEhIPq@finnomenafeedback.revivmp.mongodb.net/?retryWrites=true&w=majority&appName=FinnomenaFeedback`),
-// 
-  // providers: [VectorStoreService],
 })
 export class AppModule {}
