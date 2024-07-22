@@ -10,13 +10,24 @@ services:
     ports:
       - '8080:8080'
     environment:
-      NODE_ENV: development
+      NODE_ENV: local
     depends_on:
       - redis
+      - mongo
 
   redis:
-    image: 'redis'
+    image: 'redis:7.2.5-alpine'
     ports:
       - '6379:6379'
     volumes:
       - './docker_volume/redis/data:/data'
+
+  mongo:
+    image: 'mongo:7.0.12-jammy'
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - './docker_volume/mongo/data:/data/db'

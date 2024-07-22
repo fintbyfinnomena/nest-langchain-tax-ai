@@ -9,6 +9,9 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { MongooseModule } from '@nestjs/mongoose';
 require('dotenv').config();
 
+console.log('process.env.MONGO_USERNAME', process.env.MONGO_USERNAME);
+console.log('process.env.MONGO_PASSWORD', process.env.MONGO_PASSWORD);
+console.log('process.env.MONGO_HOST', process.env.MONGO_HOST);
 @Module({
   // imports: [ConfigModule.forRoot(), RedisModule],
 
@@ -19,7 +22,11 @@ require('dotenv').config();
     FundModule,
     ChatModule,
     FeedbackModule,
-    MongooseModule.forRoot(`mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`),
+    MongooseModule.forRoot(
+      process.env.NODE_ENV === 'local'
+        ? `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
+        : `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`,
+    ),
   ],
 })
 export class AppModule {}
