@@ -52,7 +52,7 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
       desiredAmount: desiredAmount,
     };
     const result = await suggestPortfolioAllocation(input);
-    return JSON.stringify(result.allocation);
+    return JSON.stringify(result);
   },
 });
 
