@@ -6,10 +6,8 @@ import {
 } from '@langchain/core/prompts';
 
 import { JsonOutputToolsParser } from 'langchain/output_parsers';
-import { BaseMessage } from '@langchain/core/messages';
 import {
   createOpenAIModel,
-  createAnthropicAgent,
   generatorAgentNode,
   AgentStateChannelsInterface,
   agentStateChannels,
@@ -19,6 +17,7 @@ import { Runnable } from '@langchain/core/runnables';
 import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
+  fundNameFussySearch,
   taxSavingFundTool,
   completeOrEscalate,
 } from 'src/langchain-chat/tools/customTools';
@@ -103,7 +102,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   const fundInfoAgentNode = await generatorAgentNode({
     name: 'fund_information',
     llm: llmModle,
-    tools: [fundInformationTool, completeOrEscalate],
+    tools: [fundInformationTool, fundNameFussySearch, completeOrEscalate],
     systemPrompt: fundInfoPrompt,
   });
   const tsfFundRecommenderNode = await generatorAgentNode({

@@ -13,6 +13,7 @@ export const supervisorRolePrompt = `You are a supervisor tasked with managing a
 <additional-instruction>
 - User might input mutual fund name with no context such as ASP-SME-A, BTP, KFJPINDX-I, etc. this should route to "fund_information" agent to get fund information.
 - If user seems not to know what to ask or just greet the agent, route to "tax_saving_fund_knowledge" agent.
+- If user want suggestion on what fund to invest such as "กองทุน RMF ความเสี่ยงต่ำ" / "ลงทุนกองทุนอะไรดี" / "กอง SSF ลงทุนในจีน", route to "tax_saving_fund_recommender" agent.
 </additional-instruction>
 `;
 
