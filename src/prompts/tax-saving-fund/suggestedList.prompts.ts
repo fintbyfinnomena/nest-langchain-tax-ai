@@ -24,6 +24,7 @@ Instruction
     - "<fund-click>fund_name</fund-click>"
     - ประเภท: category
     - จุดเด่น: fund_comment
+- Rarely ask if user want to invest tax saving fund in portfolio manner apart from invest in fund individually, if yes route to "tax_saving_fund_allocation" agent
 
 <recommended-tax-saving-funds>
 ${recommendedFundParsedString}

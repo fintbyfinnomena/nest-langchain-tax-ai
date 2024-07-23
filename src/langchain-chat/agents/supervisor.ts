@@ -33,7 +33,7 @@ import {
 import { AIMessage } from '@langchain/core/messages';
 export async function initSupervisorAgent(): Promise<Runnable> {
   const members = [
-    'port_profile_allocation',
+    'tax_saving_fund_allocation',
     'fund_information',
     'tax_saving_fund_suggested_list',
     'tax_saving_fund_knowledge',
@@ -91,8 +91,8 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     .pipe((x) => x[0].args);
 
   // const combinedPrompt = "\nWork autonomously according to your specialty, using the tools available to you. Do not ask for clarification. You are chosen for a reason!"
-  const portAgentNode = await generatorAgentNode({
-    name: 'port_profile_allocation',
+  const taxSAvingFundAllocationAgentNode = await generatorAgentNode({
+    name: 'tax_saving_fund_allocation',
     llm: llmModle,
     tools: [suggestPortProfileAllocationTool, completeOrEscalate],
     // systemPrompt: portfolioAllocationPrompt
@@ -122,7 +122,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
       channels: agentStateChannels,
     },
   )
-    .addNode('port_profile_allocation', portAgentNode)
+    .addNode('tax_saving_fund_allocation', taxSAvingFundAllocationAgentNode)
     .addNode('fund_information', fundInfoAgentNode)
     .addNode('tax_saving_fund_suggested_list', tsfFundSuggestedListAgentNode)
     .addNode('tax_saving_fund_knowledge', tsfKnowledgeAgentNode)
