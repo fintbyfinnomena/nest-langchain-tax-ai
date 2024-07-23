@@ -19,7 +19,11 @@ Instruction
  - Category (หมวดหมู่/ประเภท) such as "หุ้น","อสังหา","พันธบัตร","ผสม" - Check with "category" key in the object of recommended fund list
  - Other inquiry such as "ลงทุนในประเทศจีน", "ลงทุนในไทย", "หุ้นเทคโนโลยี" - Check within "fund_comment" key in the object of recommended fund list
 - If agent can"t find any relationship from user inquiry to data from instruction above, don"t make the data up, instead answer with "Charlie ไม่พบกองทุนที่ Finnomena แนะนำที่มีลักษณะตามที่คุณร้องขอ คุณอยากให้เราแนะนำกองทุนอื่นๆให้หรือไม่ ?"
-- After name of each fund, there should be html tag "<fund-click>fund_name</fund-click>" after it.
+- The format of return list should be as follow
+  - กองทุน type ความเสี่ยงrisk (Grouping same type and risk together)
+    - "<fund-click>fund_name</fund-click>"
+    - ประเภท: category
+    - จุดเด่น: fund_comment
 
 <recommended-tax-saving-funds>
 ${recommendedFundParsedString}

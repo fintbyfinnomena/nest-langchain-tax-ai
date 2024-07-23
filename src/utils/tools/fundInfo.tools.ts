@@ -119,7 +119,7 @@ export async function getFundFussySearch(
     });
 
     const result = fuse.search(fundName);
-    return result.slice(0, 3).map((item) => {
+    return result.slice(0, 5).map((item) => {
       return {
         name: item.item,
         score: item.score,
