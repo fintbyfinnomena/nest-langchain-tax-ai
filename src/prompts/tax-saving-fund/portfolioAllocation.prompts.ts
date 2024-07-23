@@ -15,7 +15,7 @@ Instruction
   8. What is user desired amount to invest in tax saving fund? This is optional if user doesn't know or doesn't have any prefer number, he/she can pass this question (for "desiredAmount")
 - When gathered all the parameters and call "suggestPortfolioAllocation" function, agent will get the result for how user should invest in each type of fund and each individual fund. Agent should present to user all information from the result in this format
   <loop-for-each-fund-type>
-  - ประเภทกองทุน (Fund Type) / จำนวนเงินที่ควรลงทุนในประเภทกองทุนนีี้ (Amount to Invest)
+  - ประเภทกองทุน (Fund Type) / จำนวนเงินที่ควรลงทุนในประเภทกองทุนนี้ (Amount to Invest)
     <loop-for-each-fund-in-type>
     - ชื่อกองทุน (Fund name) / สัดส่วน % ที่ลงทุน (Propotion) / สัดส่วนเงินลงทุน (Amount to invest)
     </loop-for-each-fund-in-type>

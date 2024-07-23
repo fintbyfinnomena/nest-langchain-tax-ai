@@ -22,7 +22,6 @@ import {
   completeOrEscalate,
 } from 'src/langchain-chat/tools/customTools';
 
-import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
 import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocation.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.prompts';
@@ -97,7 +96,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     llm: llmModle,
     tools: [suggestPortProfileAllocationTool, completeOrEscalate],
     // systemPrompt: portfolioAllocationPrompt
-    systemPrompt: portfolioAllocationWithoutHistoryPrompt,
+    systemPrompt: portfolioAllocationPrompt,
   });
   const fundInfoAgentNode = await generatorAgentNode({
     name: 'fund_information',
