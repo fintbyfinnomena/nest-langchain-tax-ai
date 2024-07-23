@@ -73,12 +73,12 @@ import {
 import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
-  taxSavingFundTool,
+  taxSavingFundSuggestedListTool,
 } from 'src/langchain-chat/tools/customTools';
 
 import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocation.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
-import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
+import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
 import { ChatHistoryManager } from 'src/utils/history/interface';
@@ -264,10 +264,10 @@ export class LangchainChatService {
     res: Response,
   ) {
     try {
-      const tools = [taxSavingFundTool];
+      const tools = [taxSavingFundSuggestedListTool];
       const { formattedPreviousMessages, currentMessageContent } =
         this.scrapingContextMessage(contextAwareMessagesDto);
-      const agentExecutor = await loadAgentExecutor(tools, recommendPrompt);
+      const agentExecutor = await loadAgentExecutor(tools, suggestedListPrompt);
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,

@@ -18,14 +18,14 @@ import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
   fundNameFussySearch,
-  taxSavingFundTool,
+  taxSavingFundSuggestedListTool,
   completeOrEscalate,
 } from 'src/langchain-chat/tools/customTools';
 
 import { portfolioAllocationWithoutHistoryPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocationWithoutHistory.prompts';
 import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocation.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
-import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
+import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import {
   supervisorRolePrompt,
@@ -36,7 +36,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   const members = [
     'port_profile_allocation',
     'fund_information',
-    'tax_fund_recommender',
+    'tax_saving_fund_suggested_list',
     'tax_saving_fund_knowledge',
   ];
   const options = [END, ...members];
@@ -105,11 +105,11 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     tools: [fundInformationTool, fundNameFussySearch, completeOrEscalate],
     systemPrompt: fundInfoPrompt,
   });
-  const tsfFundRecommenderNode = await generatorAgentNode({
-    name: 'tax_fund_recommender',
+  const tsfFundSuggestedListAgentNode = await generatorAgentNode({
+    name: 'tax_saving_fund_suggested_list',
     llm: llmModle,
-    tools: [taxSavingFundTool, completeOrEscalate],
-    systemPrompt: recommendPrompt,
+    tools: [taxSavingFundSuggestedListTool, completeOrEscalate],
+    systemPrompt: suggestedListPrompt,
   });
   const tsfKnowledgeAgentNode = await generatorAgentNode({
     name: 'tax_saving_fund_knowledge',
@@ -125,7 +125,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   )
     .addNode('port_profile_allocation', portAgentNode)
     .addNode('fund_information', fundInfoAgentNode)
-    .addNode('tax_fund_recommender', tsfFundRecommenderNode)
+    .addNode('tax_saving_fund_suggested_list', tsfFundSuggestedListAgentNode)
     .addNode('tax_saving_fund_knowledge', tsfKnowledgeAgentNode)
     .addNode('supervisor', supervisorChain);
 

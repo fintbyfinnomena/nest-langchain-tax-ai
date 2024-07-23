@@ -8,7 +8,7 @@ import {
   getFundInformation,
   getFundFussySearch,
 } from 'src/utils/tools/fundInfo.tools';
-import { getTaxSavingFundRecommendation } from 'src/utils/tools/tax-saving-fund/recommend.tools';
+import { getTaxSavingFundSuggestedList } from 'src/utils/tools/tax-saving-fund/suggestedFundList.tools';
 
 export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   name: 'suggest-port-profile-allocation',
@@ -98,13 +98,13 @@ export const fundNameFussySearch = new DynamicStructuredTool({
   },
 });
 
-export const taxSavingFundTool = new DynamicTool({
-  name: 'tax-saving-fund-recommendation',
+export const taxSavingFundSuggestedListTool = new DynamicTool({
+  name: 'tax-saving-fund-suggested-list',
   description:
-    'useful for to give a recommendation on tax saving fund from Finnomena this year',
+    'useful for to give a suggested list on each type of tax saving fund from Finnomena this year',
   func: async () => {
     // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundTool doing!!")
-    const result = await getTaxSavingFundRecommendation();
+    const result = await getTaxSavingFundSuggestedList();
     return JSON.stringify(result);
   },
 });

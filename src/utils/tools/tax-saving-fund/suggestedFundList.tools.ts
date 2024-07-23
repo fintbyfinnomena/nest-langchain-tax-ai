@@ -5,7 +5,7 @@ import {
 } from '../../../types/tax-saving-fund/enum.prompts';
 import Config from '../../../config/tax.chat.config';
 
-export function getTaxSavingFundRecommendation(): RecommendedFund[] {
+export function getTaxSavingFundSuggestedList(): RecommendedFund[] {
   const singleFundRecommendedList = Config.tsf.recommendedFund;
 
   const result = [];
