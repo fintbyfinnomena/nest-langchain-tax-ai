@@ -85,6 +85,8 @@ export async function getFundInformation(
       result.tsfRecommendation.comment = tsfComment;
     }
 
+    console.log(tsfComment);
+
     return result;
   } catch (error) {
     console.error(

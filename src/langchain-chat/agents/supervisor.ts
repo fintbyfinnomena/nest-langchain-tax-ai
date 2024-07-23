@@ -37,8 +37,8 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   const members = [
     'port_profile_allocation',
     'fund_information',
-    'tax_saving_fund',
-    'knowledge',
+    'tax_fund_recommender',
+    'tax_saving_fund_knowledge',
   ];
   const options = [END, ...members];
   // Define the routing function
@@ -106,14 +106,14 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     tools: [fundInformationTool, completeOrEscalate],
     systemPrompt: fundInfoPrompt,
   });
-  const taxSavingAgentNode = await generatorAgentNode({
-    name: 'tax_saving_fund',
+  const tsfFundRecommenderNode = await generatorAgentNode({
+    name: 'tax_fund_recommender',
     llm: llmModle,
     tools: [taxSavingFundTool, completeOrEscalate],
     systemPrompt: recommendPrompt,
   });
-  const knowledgeAgentNode = await generatorAgentNode({
-    name: 'knowledge',
+  const tsfKnowledgeAgentNode = await generatorAgentNode({
+    name: 'tax_saving_fund_knowledge',
     llm: llmModle,
     tools: [completeOrEscalate],
     systemPrompt: knowledgePrompt,
@@ -126,8 +126,8 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   )
     .addNode('port_profile_allocation', portAgentNode)
     .addNode('fund_information', fundInfoAgentNode)
-    .addNode('tax_saving_fund', taxSavingAgentNode)
-    .addNode('knowledge', knowledgeAgentNode)
+    .addNode('tax_fund_recommender', tsfFundRecommenderNode)
+    .addNode('tax_saving_fund_knowledge', tsfKnowledgeAgentNode)
     .addNode('supervisor', supervisorChain);
 
   members.forEach((member) => {
