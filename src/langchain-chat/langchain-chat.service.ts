@@ -73,23 +73,23 @@ import {
 import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
-  taxSavingFundTool,
+  taxSavingFundSuggestedListTool,
 } from 'src/langchain-chat/tools/customTools';
 
 import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocation.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
-import { recommendPrompt } from 'src/prompts/tax-saving-fund/recommend.prompts';
+import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
 import { ChatHistoryManager } from 'src/utils/history/interface';
 import { ChatStreamer } from 'src/utils/responses/chatStreamer';
-import { SupervisorStreamer } from 'src/utils/responses/supervisorStreamer'; 
+import { SupervisorStreamer } from 'src/utils/responses/supervisorStreamer';
 
-import { 
+import {
   createAnthropicModel,
-  loadAgentExecutor 
-} from 'src/langchain-chat/agents/init'
-import { initSupervisorAgent } from 'src/langchain-chat/agents/supervisor'
+  loadAgentExecutor,
+} from 'src/langchain-chat/agents/init';
+import { initSupervisorAgent } from 'src/langchain-chat/agents/supervisor';
 
 @Injectable()
 export class LangchainChatService {
@@ -108,7 +108,7 @@ export class LangchainChatService {
       // const chain = this.loadSingleChainAnthropic(
       //   TEMPLATES.BASIC_CHAT_TEMPLATE,
       // );
-      const model = await createAnthropicModel()
+      const model = await createAnthropicModel();
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
@@ -216,7 +216,10 @@ export class LangchainChatService {
         contextAwareMessagesDto,
       );
 
-      const agentExecutor = await loadAgentExecutor(tools, portfolioAllocationPrompt)
+      const agentExecutor = await loadAgentExecutor(
+        tools,
+        portfolioAllocationPrompt,
+      );
 
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
@@ -241,7 +244,7 @@ export class LangchainChatService {
       const { currentMessageContent } = this.scrapingContextMessage(
         contextAwareMessagesDto,
       );
-      const agentExecutor = await loadAgentExecutor(tools, fundInfoPrompt)
+      const agentExecutor = await loadAgentExecutor(tools, fundInfoPrompt);
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
@@ -261,10 +264,10 @@ export class LangchainChatService {
     res: Response,
   ) {
     try {
-      const tools = [taxSavingFundTool];
+      const tools = [taxSavingFundSuggestedListTool];
       const { formattedPreviousMessages, currentMessageContent } =
         this.scrapingContextMessage(contextAwareMessagesDto);
-      const agentExecutor = await loadAgentExecutor(tools, recommendPrompt)
+      const agentExecutor = await loadAgentExecutor(tools, suggestedListPrompt);
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
@@ -287,7 +290,10 @@ export class LangchainChatService {
       const { currentMessageContent } = this.scrapingContextMessage(
         contextAwareMessagesDto,
       );
-      const agentExecutor = await loadAgentExecutor(tools, 'You are a helpful assistant and master of fund')
+      const agentExecutor = await loadAgentExecutor(
+        tools,
+        'You are a helpful assistant and master of fund',
+      );
 
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
@@ -315,7 +321,8 @@ export class LangchainChatService {
         new MessagesPlaceholder({ variableName: 'chat_history' }),
         ['user', '{input}'],
       ]);
-      const llm = await createAnthropicModel()
+
+      const llm = await createAnthropicModel();
       const chain = prompt.pipe(llm);
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
@@ -334,14 +341,14 @@ export class LangchainChatService {
     res: Response,
   ) {
     try {
-      const supervisorGraph = await initSupervisorAgent()
+      const supervisorGraph = await initSupervisorAgent();
+
       const supervisorStreamer = new SupervisorStreamer(
         this.chatHistoryManager,
         sessionId,
         supervisorGraph,
       );
       await supervisorStreamer.StreamMessage(res, basicMessageDto.question);
-
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
@@ -352,7 +359,7 @@ export class LangchainChatService {
 
     const model = new ChatOpenAI({
       temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
-      modelName: openAI.GPT_4_openAI.toString(),
+      modelName: openAI.GPT_4o_MINI.toString(),
     });
 
     const outputParser = new HttpResponseOutputParser();

@@ -227,6 +227,7 @@ export class LangchainChatController {
         HttpStatus.BAD_REQUEST,
       );
     }
+
     return await this.langchainChatService.knowledgeAgentChat(
       sessionId,
       contextAwareMessagesDto,

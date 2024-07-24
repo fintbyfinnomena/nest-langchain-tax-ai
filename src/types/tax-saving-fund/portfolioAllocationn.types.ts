@@ -30,6 +30,7 @@ export type FundTypeAllocation = {
 export type ComboAllocation = {
   allocation: FundTypeAllocation[];
   note: string;
+  reason: string;
 };
 
 export type MaximumAllowAmountEachType = {

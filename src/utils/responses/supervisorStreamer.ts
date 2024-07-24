@@ -4,9 +4,7 @@ import type { Response } from 'express';
 import { IterableReadableStream } from '@langchain/core/utils/stream';
 import { StreamEvent } from '@langchain/core/tracers/log_stream';
 
-import {
-  HumanMessage,
-} from '@langchain/core/messages';
+import { HumanMessage } from '@langchain/core/messages';
 
 interface ChainStreamer {
   streamEvents(...args: any): IterableReadableStream<StreamEvent>;
@@ -35,20 +33,20 @@ export class SupervisorStreamer {
     let resMsg = '';
 
     let messagesReq: any[] = [
-        new HumanMessage({
-          content: message,
-        }),
-      ]
+      new HumanMessage({
+        content: message,
+      }),
+    ];
 
-    const historysMessage = await history.getMessages()
+    const historysMessage = await history.getMessages();
 
     if (historysMessage.length > 0) {
-      messagesReq = [...historysMessage, ...messagesReq]
+      messagesReq = [...historysMessage, ...messagesReq];
     }
 
     const stream = this.chainStreamer.streamEvents(
       {
-        messages: messagesReq
+        messages: messagesReq,
       },
       // {
       //   input: message,
@@ -67,9 +65,9 @@ export class SupervisorStreamer {
           if (event.event == 'on_llm_stream') {
             readableStream.push(event.data.chunk.text);
             resMsg += event.data.chunk.text;
-          }else{
-            console.log("\x1b[42m%s\x1b[0m",event.event)
-            console.log(event.data," -> ",JSON.stringify(event.data))
+          } else {
+            console.log('\x1b[42m%s\x1b[0m', event.event);
+            console.log(event.data, ' -> ', JSON.stringify(event.data));
           }
         }
         readableStream.push(null); // Signal the end of the stream

@@ -12,8 +12,9 @@
  */
 export enum openAI {
   GPT_3_5_TURBO_1106 = 'gpt-3.5-turbo-1106',
-  GPT_4_openAI = 'gpt-4o',
-  BASIC_CHAT_OPENAI_TEMPERATURE = 0.8,
+  GPT_4o = 'gpt-4o',
+  GPT_4o_MINI = 'gpt-4o-mini',
+  BASIC_CHAT_OPENAI_TEMPERATURE = 0.2,
 }
 
 export enum vercelRoles {

@@ -2,6 +2,7 @@ import axios from 'axios';
 import Config from '../../config/tax.chat.config';
 import path from 'path';
 import { FundInfoCard, FundFee } from '../../types/fundInfo.types';
+import Fuse from 'fuse.js';
 
 export async function getFundInformation(
   fundName: string,
@@ -85,6 +86,8 @@ export async function getFundInformation(
       result.tsfRecommendation.comment = tsfComment;
     }
 
+    console.log(tsfComment);
+
     return result;
   } catch (error) {
     console.error(
@@ -92,6 +95,39 @@ export async function getFundInformation(
       error,
     );
     return `error: can't find the information for fund ${fundName}`;
+  }
+}
+
+type FundFussyResult = {
+  name: string;
+  score: number;
+};
+export async function getFundFussySearch(
+  fundName: string,
+): Promise<FundFussyResult[]> {
+  const fundListUrl = Config.fundApi.baseUrl;
+  try {
+    const response = await axios.get(fundListUrl);
+    const fundList = response.data.data;
+
+    const fundNames = fundList.map((fund: any) => fund['short_code']);
+
+    const fuse = new Fuse(fundNames, {
+      shouldSort: true,
+      includeScore: true,
+      threshold: 0.5,
+    });
+
+    const result = fuse.search(fundName);
+    return result.slice(0, 5).map((item) => {
+      return {
+        name: item.item,
+        score: item.score,
+      };
+    }) as FundFussyResult[];
+  } catch (error) {
+    console.error('Error fetching fund list:', error);
+    return [];
   }
 }
 
