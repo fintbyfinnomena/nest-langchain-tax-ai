@@ -11,7 +11,7 @@ const redisProvider = {
       username: process.env.REDIS_USERNAME,
       password: process.env.REDIS_PASSWORD,
       tls: {
-        rejectUnauthorized: false,
+        host: process.env.REDIS_HOST,
       },
     });
   },
