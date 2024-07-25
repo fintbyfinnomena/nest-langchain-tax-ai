@@ -43,6 +43,7 @@ import {
   Res,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { LangchainChatService } from './langchain-chat.service';
 import { BasicMessageDto } from './dtos/basic-message.dto';
@@ -56,8 +57,10 @@ import { DocumentDto } from './dtos/document.dto';
 import { diskStorage } from 'multer';
 import { PDF_BASE_PATH } from 'src/utils/constants/common.constants';
 import { Response } from 'express';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('langchain-chat')
+@UseGuards(ThrottlerGuard)
 export class LangchainChatController {
   constructor(private readonly langchainChatService: LangchainChatService) {}
 
