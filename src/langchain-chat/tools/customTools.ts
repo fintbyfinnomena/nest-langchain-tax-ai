@@ -3,13 +3,15 @@ import { DynamicTool, DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import * as Type from 'src/types/tax-saving-fund/portfolioAllocationn.types';
 import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools';
+import { ltfKnowledge } from 'src/utils/tools/tax-saving-fund/ltf.tool';
+import { finnomenaKnowledge } from 'src/utils/tools/finnomena.tools';
+import { eventAndPromotion } from 'src/utils/tools/eventAndPromotion.tools';
 import { RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
 import {
   getFundInformation,
   getFundFussySearch,
 } from 'src/utils/tools/fundInfo.tools';
 import { getTaxSavingFundSuggestedList } from 'src/utils/tools/tax-saving-fund/suggestedFundList.tools';
-
 export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   name: 'suggest-port-profile-allocation',
   // description:
@@ -130,5 +132,40 @@ export const completeOrEscalate = new DynamicTool({
       },
     };
     return JSON.stringify(schema_extra);
+  },
+});
+
+export const ltfKnowledgeTool = new DynamicStructuredTool({
+  name: 'ltf-knowledge',
+  description: 'useful for get information about LTF fund',
+  schema: z.object({}),
+  func: async ({}) => {
+    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
+    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    return ltfKnowledge();
+  },
+});
+
+export const eventAndPromotionTool = new DynamicStructuredTool({
+  name: 'event-promotion',
+  description:
+    'useful for get information about tax saving fund event and promotion from Finnomena',
+  schema: z.object({}),
+  func: async ({}) => {
+    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
+    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    return eventAndPromotion();
+  },
+});
+
+export const finnomenaKnowledgeTool = new DynamicStructuredTool({
+  name: 'finnomena-knowledge',
+  description:
+    'useful for get about what is Finnomena, who is co-founder, product and services, FAQ, how to open account and invest with Finnomena',
+  schema: z.object({}),
+  func: async ({}) => {
+    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
+    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    return finnomenaKnowledge();
   },
 });

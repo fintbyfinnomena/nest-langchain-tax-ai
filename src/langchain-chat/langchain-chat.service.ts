@@ -40,13 +40,11 @@ import {
 import { BasicMessageDto } from './dtos/basic-message.dto';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { ChatOpenAI } from '@langchain/openai';
-import { ChatAnthropic } from '@langchain/anthropic';
 import { HttpResponseOutputParser } from 'langchain/output_parsers';
 import { TEMPLATES } from 'src/utils/constants/templates.constants';
 import customMessage from 'src/utils/responses/customMessage.response';
 import { MESSAGES } from 'src/utils/constants/messages.constants';
 import { openAI, vercelRoles } from 'src/utils/constants/openAI.constants';
-import { anthropic } from 'src/utils/constants/anthropic.constants';
 import { ContextAwareMessagesDto } from './dtos/context-aware-messages.dto';
 import { Message as VercelChatMessage } from 'ai';
 
@@ -58,7 +56,6 @@ import * as path from 'path';
 import { Document } from '@langchain/core/documents';
 import { DocumentDto } from './dtos/document.dto';
 import { PDF_BASE_PATH } from 'src/utils/constants/common.constants';
-import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
