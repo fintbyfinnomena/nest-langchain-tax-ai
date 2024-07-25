@@ -19,6 +19,9 @@ import {
   fundInformationTool,
   fundNameFussySearch,
   taxSavingFundSuggestedListTool,
+  finnomenaKnowledgeTool,
+  ltfKnowledgeTool,
+  eventAndPromotionTool,
   completeOrEscalate,
 } from 'src/langchain-chat/tools/customTools';
 
@@ -113,7 +116,12 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   const tsfKnowledgeAgentNode = await generatorAgentNode({
     name: 'tax_saving_fund_knowledge',
     llm: llmModle,
-    tools: [completeOrEscalate],
+    tools: [
+      completeOrEscalate,
+      finnomenaKnowledgeTool,
+      ltfKnowledgeTool,
+      eventAndPromotionTool,
+    ],
     systemPrompt: knowledgePrompt,
   });
 
