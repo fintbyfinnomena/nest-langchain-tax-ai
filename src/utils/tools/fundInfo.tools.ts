@@ -47,6 +47,7 @@ export async function getFundInformation(
         shortCode: fundInfo['short_code'],
         nameTh: fundInfo['name_th'],
         investmentStrategy: fundInfo['investment_strategy'],
+        dividendPolicy: fundInfo['dividend_policy'],
         riskSpectrum: fundInfo['risk_spectrum'],
         fundFactSheetUrl: fundInfo['fund_fact_sheet'],
         shortDescription: fundInfo['fund_short_desc'],
@@ -85,8 +86,6 @@ export async function getFundInformation(
       result.tsfRecommendation.isRecommended = true;
       result.tsfRecommendation.comment = tsfComment;
     }
-
-    console.log(tsfComment);
 
     return result;
   } catch (error) {

@@ -5,6 +5,7 @@ export type FundInfoCard = {
     investmentStrategy: string;
     riskSpectrum: string;
     fundFactSheetUrl: string;
+    dividendPolicy: string;
     shortDescription: string;
     categoryThName: string;
     broadCategoryThName: string;
