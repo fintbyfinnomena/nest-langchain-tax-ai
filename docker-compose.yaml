@@ -1,19 +1,19 @@
 services:
-  nestjs:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: nestjs_dev
-    volumes:
-      - ./:/app
-      - /app/node_modules
-    ports:
-      - '8080:8080'
-    environment:
-      NODE_ENV: local
-    depends_on:
-      - redis
-      - mongo
+  # nestjs:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   container_name: nestjs_dev
+  #   volumes:
+  #     - ./:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - '8080:8080'
+  #   environment:
+  #     NODE_ENV: local
+  #   depends_on:
+  #     - redis
+  #     - mongo
 
   redis:
     image: 'redis:7.2.5-alpine'

@@ -1,8 +1,4 @@
-import {
-  AIMessage,
-  HumanMessage,
-  StoredMessageData,
-} from '@langchain/core/messages';
+import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 
 export interface ChatHistoryManager {
@@ -12,9 +8,4 @@ export interface ChatHistoryManager {
     messages: (AIMessage | HumanMessage)[],
   ): Promise<void>;
   ClearHistoryMessagesBySessionID(sessionId: string): Promise<void>;
-}
-
-export interface CustomMessage {
-  actor: 'ai' | 'human';
-  baseMessage: StoredMessageData;
 }

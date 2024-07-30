@@ -87,13 +87,23 @@ import {
   loadAgentExecutor,
 } from 'src/langchain-chat/agents/init';
 import { initSupervisorAgent } from 'src/langchain-chat/agents/supervisor';
+import { InjectModel } from '@nestjs/mongoose';
+import { TaxChatHistory } from 'src/schemas/chatHistory.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class LangchainChatService {
   private chatHistoryManager: ChatHistoryManager;
 
-  constructor(@Inject('REDIS_CLIENT') redisClient) {
-    this.chatHistoryManager = new ChatHistoryManagerImp(redisClient);
+  constructor(
+    @Inject('REDIS_CLIENT') redisClient,
+    @InjectModel('chat_histories')
+    private taxChatHistoryModel: Model<TaxChatHistory>,
+  ) {
+    this.chatHistoryManager = new ChatHistoryManagerImp(
+      redisClient,
+      taxChatHistoryModel,
+    );
   }
 
   async basicChat(

@@ -14,14 +14,24 @@ import {
 import { Runnable, RunnableConfig } from '@langchain/core/runnables';
 import { ChatHistoryManager } from 'src/utils/history/interface';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
+import { InjectModel } from '@nestjs/mongoose';
+import { TaxChatHistory } from 'src/schemas/chatHistory.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ChatService {
   private chain: Runnable<any, AIMessageChunk, RunnableConfig>;
   private chatHistoryManager: ChatHistoryManager;
 
-  constructor(@Inject('REDIS_CLIENT') redisClient) {
-    this.chatHistoryManager = new ChatHistoryManagerImp(redisClient);
+  constructor(
+    @Inject('REDIS_CLIENT') redisClient,
+    @InjectModel('chat_histories')
+    private taxChatHistoryModel: Model<TaxChatHistory>,
+  ) {
+    this.chatHistoryManager = new ChatHistoryManagerImp(
+      redisClient,
+      taxChatHistoryModel,
+    );
     const prompt = ChatPromptTemplate.fromMessages([
       [
         'system',
