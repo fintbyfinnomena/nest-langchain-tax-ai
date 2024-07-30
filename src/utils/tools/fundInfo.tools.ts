@@ -1,7 +1,11 @@
 import axios from 'axios';
 import Config from '../../config/tax.chat.config';
 import path from 'path';
-import { FundInfoCard, FundFee } from '../../types/fundInfo.types';
+import {
+  FundInfoCard,
+  FundFee,
+  FundPromotion,
+} from '../../types/fundInfo.types';
 import Fuse from 'fuse.js';
 
 export async function getFundInformation(
@@ -13,7 +17,6 @@ export async function getFundInformation(
   } catch (error) {
     // Do fussy search
     const fussyResult = await getFundFussySearch(fundName);
-    console.log(fussyResult);
     if (fussyResult.length != 0 && fussyResult[0].score < 0.1) {
       try {
         const fundInfo = await fetchFundApi(fussyResult[0].name);
@@ -61,6 +64,7 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
     const fundPortfolio = fundPortfolioResponse.data.data;
 
     const fundFeeExtracted = extractFee(fundFee);
+    const fundPromotion = extractPromotion(fundInfo['promotions']);
 
     const result: FundInfoCard = {
       info: {
@@ -75,6 +79,8 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
         broadCategoryThName: fundInfo['aimc_broad_category_name_th'],
         isFinnnoPick: fundInfo['is_nter_pick'],
         fundTaxType: fundInfo['fund_tax_type'],
+        isEligibleForFintCashback: fundPromotion.fintCashback,
+        isEligibleForFintEarn: fundPromotion.fintEarn,
       },
       performance: {
         return3m: fundPerf['total_return_3m'],
@@ -168,4 +174,25 @@ function extractFee(fundFeeSecList: any): FundFee {
     backEnd: backendElem ? backendElem['actual_value'] : '',
     management: mgtElem ? mgtElem['actual_value'] : '',
   };
+}
+
+function extractPromotion(promotionList: any): FundPromotion {
+  const result = {
+    fintEarn: false,
+    fintCashback: false,
+  };
+
+  const fintEarnElem = promotionList.find((i: any) => (i.campaign = 'fint'));
+  if (fintEarnElem) {
+    result.fintEarn = true;
+  }
+
+  const fintCashbackElem = promotionList.find(
+    (i: any) => (i.campaign = 'fint-cashback'),
+  );
+  if (fintCashbackElem) {
+    result.fintCashback = true;
+  }
+
+  return result;
 }
