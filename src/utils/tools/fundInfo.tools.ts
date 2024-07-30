@@ -7,6 +7,26 @@ import Fuse from 'fuse.js';
 export async function getFundInformation(
   fundName: string,
 ): Promise<FundInfoCard | string> {
+  try {
+    const fundInfo = await fetchFundApi(fundName);
+    return fundInfo as FundInfoCard;
+  } catch (error) {
+    // Do fussy search
+    const fussyResult = await getFundFussySearch(fundName);
+    console.log(fussyResult);
+    if (fussyResult.length != 0 && fussyResult[0].score < 0.1) {
+      try {
+        const fundInfo = await fetchFundApi(fussyResult[0].name);
+        return fundInfo as FundInfoCard;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    return `error: can't find the information for fund ${fundName}`;
+  }
+}
+
+async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
   const fundApiBaseUrl = Config.fundApi.baseUrl;
   const fundQuoteBaseUrl = Config.fundQuote.baseUrl;
 
@@ -89,11 +109,7 @@ export async function getFundInformation(
 
     return result;
   } catch (error) {
-    console.error(
-      'Error fetching fund information or performance or fees:',
-      error,
-    );
-    return `error: can't find the information for fund ${fundName}`;
+    throw error;
   }
 }
 
