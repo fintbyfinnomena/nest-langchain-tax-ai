@@ -92,31 +92,31 @@ export class LangchainChatController {
     );
   }
 
-  @Post('upload-document')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: PDF_BASE_PATH,
-        filename: (req, file, callback) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          callback(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
-  @HttpCode(200)
-  async loadPDF(
-    @Body() documentDto: DocumentDto,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    if (file.filename) {
-      documentDto.file = file.filename;
-    }
-    return await this.langchainChatService.uploadPDF(documentDto);
-  }
+  // @Post('upload-document')
+  // @UseInterceptors(
+  //   FileInterceptor('file', {
+  //     storage: diskStorage({
+  //       destination: PDF_BASE_PATH,
+  //       filename: (req, file, callback) => {
+  //         const randomName = Array(32)
+  //           .fill(null)
+  //           .map(() => Math.round(Math.random() * 16).toString(16))
+  //           .join('');
+  //         callback(null, `${randomName}${extname(file.originalname)}`);
+  //       },
+  //     }),
+  //   }),
+  // )
+  // @HttpCode(200)
+  // async loadPDF(
+  //   @Body() documentDto: DocumentDto,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ) {
+  //   if (file.filename) {
+  //     documentDto.file = file.filename;
+  //   }
+  //   return await this.langchainChatService.uploadPDF(documentDto);
+  // }
 
   @Post('document-chat')
   @HttpCode(200)

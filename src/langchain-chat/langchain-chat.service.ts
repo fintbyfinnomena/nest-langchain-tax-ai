@@ -49,7 +49,7 @@ import { ContextAwareMessagesDto } from './dtos/context-aware-messages.dto';
 import { Message as VercelChatMessage } from 'ai';
 
 import { existsSync } from 'fs';
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
+// import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 // import { VectorStoreService } from 'src/services/vector-store.service';
 import * as path from 'path';
@@ -159,47 +159,47 @@ export class LangchainChatService {
     }
   }
 
-  async uploadPDF(documentDto: DocumentDto) {
-    try {
-      // Load the file
-      const file = PDF_BASE_PATH + '/' + documentDto.file;
-      const resolvedPath = path.resolve(file);
-      // Check if the file exists
-      if (!existsSync(resolvedPath)) {
-        throw new BadRequestException('File does not exist.');
-      }
+  // async uploadPDF(documentDto: DocumentDto) {
+  //   try {
+  //     // Load the file
+  //     const file = PDF_BASE_PATH + '/' + documentDto.file;
+  //     const resolvedPath = path.resolve(file);
+  //     // Check if the file exists
+  //     if (!existsSync(resolvedPath)) {
+  //       throw new BadRequestException('File does not exist.');
+  //     }
 
-      // Load the PDF using PDFLoader
-      const pdfLoader = new PDFLoader(resolvedPath);
-      const pdf = await pdfLoader.load();
+  //     // Load the PDF using PDFLoader
+  //     const pdfLoader = new PDFLoader(resolvedPath);
+  //     const pdf = await pdfLoader.load();
 
-      // Split the PDF into texts using RecursiveCharacterTextSplitter
-      const textSplitter = new RecursiveCharacterTextSplitter({
-        chunkSize: 1000,
-        chunkOverlap: 50,
-      });
-      const texts = await textSplitter.splitDocuments(pdf);
-      let embeddings: Document[] = [];
+  //     // Split the PDF into texts using RecursiveCharacterTextSplitter
+  //     const textSplitter = new RecursiveCharacterTextSplitter({
+  //       chunkSize: 1000,
+  //       chunkOverlap: 50,
+  //     });
+  //     const texts = await textSplitter.splitDocuments(pdf);
+  //     let embeddings: Document[] = [];
 
-      for (let index = 0; index < texts.length; index++) {
-        const page = texts[index];
-        const splitTexts = await textSplitter.splitText(page.pageContent);
-        const pageEmbeddings = splitTexts.map((text) => ({
-          pageContent: text,
-          metadata: {
-            pageNumber: index,
-          },
-        }));
-        embeddings = embeddings.concat(pageEmbeddings);
-      }
-      // await this.vectorStoreService.addDocuments(embeddings);
-      return customMessage(HttpStatus.OK, MESSAGES.SUCCESS);
-    } catch (e: unknown) {
-      console.log(e);
+  //     for (let index = 0; index < texts.length; index++) {
+  //       const page = texts[index];
+  //       const splitTexts = await textSplitter.splitText(page.pageContent);
+  //       const pageEmbeddings = splitTexts.map((text) => ({
+  //         pageContent: text,
+  //         metadata: {
+  //           pageNumber: index,
+  //         },
+  //       }));
+  //       embeddings = embeddings.concat(pageEmbeddings);
+  //     }
+  //     // await this.vectorStoreService.addDocuments(embeddings);
+  //     return customMessage(HttpStatus.OK, MESSAGES.SUCCESS);
+  //   } catch (e: unknown) {
+  //     console.log(e);
 
-      this.exceptionHandling(e);
-    }
-  }
+  //     this.exceptionHandling(e);
+  //   }
+  // }
 
   //WORKED
   async portAgentChat(
