@@ -4,7 +4,6 @@ import { z } from 'zod';
 import * as Type from 'src/types/tax-saving-fund/portfolioAllocationn.types';
 import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools';
 import { ltfKnowledge } from 'src/utils/tools/tax-saving-fund/ltf.tool';
-import { finnomenaKnowledge } from 'src/utils/tools/finnomena.tools';
 import { eventAndPromotion } from 'src/utils/tools/eventAndPromotion.tools';
 import { RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
 import {
@@ -155,17 +154,5 @@ export const eventAndPromotionTool = new DynamicStructuredTool({
     // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
     // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
     return eventAndPromotion();
-  },
-});
-
-export const finnomenaKnowledgeTool = new DynamicStructuredTool({
-  name: 'finnomena-knowledge',
-  description:
-    'useful for get about what is Finnomena, who is co-founder, product and services, FAQ, how to open account and invest with Finnomena',
-  schema: z.object({}),
-  func: async ({}) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
-    return finnomenaKnowledge();
   },
 });

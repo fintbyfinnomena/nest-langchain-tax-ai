@@ -5,10 +5,13 @@ export type FundInfoCard = {
     investmentStrategy: string;
     riskSpectrum: string;
     fundFactSheetUrl: string;
+    dividendPolicy: string;
     shortDescription: string;
     categoryThName: string;
     broadCategoryThName: string;
     isFinnnoPick: boolean;
+    isEligibleForFintCashback: boolean;
+    isEligibleForFintEarn: boolean;
     fundTaxType: string | null;
   };
   performance: {
@@ -50,4 +53,9 @@ export type FundFee = {
   frontEnd: string;
   backEnd: string;
   management: string;
+};
+
+export type FundPromotion = {
+  fintEarn: boolean;
+  fintCashback: boolean;
 };

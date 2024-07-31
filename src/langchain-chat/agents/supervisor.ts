@@ -19,7 +19,6 @@ import {
   fundInformationTool,
   fundNameFussySearch,
   taxSavingFundSuggestedListTool,
-  finnomenaKnowledgeTool,
   ltfKnowledgeTool,
   eventAndPromotionTool,
   completeOrEscalate,
@@ -29,6 +28,7 @@ import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolio
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
+import { finnomenaPrompts } from 'src/prompts/finnomena.prompts';
 import {
   supervisorRolePrompt,
   supervisorConditionPrompt,
@@ -40,6 +40,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     'fund_information',
     'tax_saving_fund_suggested_list',
     'tax_saving_fund_knowledge',
+    'finnomena_knowledge',
   ];
   const options = [END, ...members];
   // Define the routing function
@@ -94,7 +95,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     .pipe((x) => x[0].args);
 
   // const combinedPrompt = "\nWork autonomously according to your specialty, using the tools available to you. Do not ask for clarification. You are chosen for a reason!"
-  const taxSAvingFundAllocationAgentNode = await generatorAgentNode({
+  const taxSavingFundAllocationAgentNode = await generatorAgentNode({
     name: 'tax_saving_fund_allocation',
     llm: llmModle,
     tools: [suggestPortProfileAllocationTool, completeOrEscalate],
@@ -116,13 +117,15 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   const tsfKnowledgeAgentNode = await generatorAgentNode({
     name: 'tax_saving_fund_knowledge',
     llm: llmModle,
-    tools: [
-      completeOrEscalate,
-      finnomenaKnowledgeTool,
-      ltfKnowledgeTool,
-      eventAndPromotionTool,
-    ],
+    tools: [completeOrEscalate, ltfKnowledgeTool, eventAndPromotionTool],
     systemPrompt: knowledgePrompt,
+  });
+
+  const finnomenaAgentNode = await generatorAgentNode({
+    name: 'finnomena_knowledge',
+    llm: llmModle,
+    tools: [completeOrEscalate, eventAndPromotionTool],
+    systemPrompt: finnomenaPrompts,
   });
 
   const workflow = new StateGraph<AgentStateChannelsInterface, unknown, string>(
@@ -130,10 +133,11 @@ export async function initSupervisorAgent(): Promise<Runnable> {
       channels: agentStateChannels,
     },
   )
-    .addNode('tax_saving_fund_allocation', taxSAvingFundAllocationAgentNode)
+    .addNode('tax_saving_fund_allocation', taxSavingFundAllocationAgentNode)
     .addNode('fund_information', fundInfoAgentNode)
     .addNode('tax_saving_fund_suggested_list', tsfFundSuggestedListAgentNode)
     .addNode('tax_saving_fund_knowledge', tsfKnowledgeAgentNode)
+    .addNode('finnomena_knowledge', finnomenaAgentNode)
     .addNode('supervisor', supervisorChain);
 
   members.forEach((member) => {
