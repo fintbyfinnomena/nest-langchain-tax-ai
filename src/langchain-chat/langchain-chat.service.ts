@@ -412,4 +412,26 @@ export class LangchainChatService {
       currentMessageContent: currentMessageContent,
     };
   };
+
+  async temporaryChatHistory(
+    sessionId: string,
+  ) {
+    try {
+      const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
+        sessionId,
+      );
+      const messages = await history.getMessages()
+      const result = [];
+      for (const h of messages) {
+        if (h instanceof HumanMessage) {
+          result.push({"human":h.content})
+        }else if(h instanceof AIMessage) {
+          result.push({"ai":h.content})
+        }
+      }
+      return await customMessage(HttpStatus.OK, MESSAGES.SUCCESS, result);
+    } catch (e: unknown) {
+      this.exceptionHandling(e);
+    }
+  }
 }

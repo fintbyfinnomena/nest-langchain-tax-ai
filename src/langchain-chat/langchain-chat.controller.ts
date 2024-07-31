@@ -35,9 +35,11 @@
 import {
   Headers,
   Body,
+  Param,
   Controller,
   HttpCode,
   Post,
+  Get,
   UploadedFile,
   UseInterceptors,
   Res,
@@ -254,6 +256,16 @@ export class LangchainChatController {
       sessionId,
       basicMessageDto,
       res,
+    );
+  }
+
+  @Get('history/temporary/:id')
+  @HttpCode(200)
+  async temporaryChatHistory(
+    @Param('id') id
+  ) {
+    return await this.langchainChatService.temporaryChatHistory(
+      id,
     );
   }
 }
