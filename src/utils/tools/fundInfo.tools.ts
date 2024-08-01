@@ -1,12 +1,35 @@
 import axios from 'axios';
 import Config from '../../config/tax.chat.config';
 import path from 'path';
-import { FundInfoCard, FundFee } from '../../types/fundInfo.types';
+import {
+  FundInfoCard,
+  FundFee,
+  FundPromotion,
+} from '../../types/fundInfo.types';
 import Fuse from 'fuse.js';
 
 export async function getFundInformation(
   fundName: string,
 ): Promise<FundInfoCard | string> {
+  try {
+    const fundInfo = await fetchFundApi(fundName);
+    return fundInfo as FundInfoCard;
+  } catch (error) {
+    // Do fussy search
+    const fussyResult = await getFundFussySearch(fundName);
+    if (fussyResult.length != 0 && fussyResult[0].score < 0.1) {
+      try {
+        const fundInfo = await fetchFundApi(fussyResult[0].name);
+        return fundInfo as FundInfoCard;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    return `error: can't find the information for fund ${fundName}`;
+  }
+}
+
+async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
   const fundApiBaseUrl = Config.fundApi.baseUrl;
   const fundQuoteBaseUrl = Config.fundQuote.baseUrl;
 
@@ -41,12 +64,14 @@ export async function getFundInformation(
     const fundPortfolio = fundPortfolioResponse.data.data;
 
     const fundFeeExtracted = extractFee(fundFee);
+    const fundPromotion = extractPromotion(fundInfo['promotions']);
 
     const result: FundInfoCard = {
       info: {
         shortCode: fundInfo['short_code'],
         nameTh: fundInfo['name_th'],
         investmentStrategy: fundInfo['investment_strategy'],
+        dividendPolicy: fundInfo['dividend_policy'],
         riskSpectrum: fundInfo['risk_spectrum'],
         fundFactSheetUrl: fundInfo['fund_fact_sheet'],
         shortDescription: fundInfo['fund_short_desc'],
@@ -54,6 +79,8 @@ export async function getFundInformation(
         broadCategoryThName: fundInfo['aimc_broad_category_name_th'],
         isFinnnoPick: fundInfo['is_nter_pick'],
         fundTaxType: fundInfo['fund_tax_type'],
+        isEligibleForFintCashback: fundPromotion.fintCashback,
+        isEligibleForFintEarn: fundPromotion.fintEarn,
       },
       performance: {
         return3m: fundPerf['total_return_3m'],
@@ -86,15 +113,9 @@ export async function getFundInformation(
       result.tsfRecommendation.comment = tsfComment;
     }
 
-    console.log(tsfComment);
-
     return result;
   } catch (error) {
-    console.error(
-      'Error fetching fund information or performance or fees:',
-      error,
-    );
-    return `error: can't find the information for fund ${fundName}`;
+    throw error;
   }
 }
 
@@ -153,4 +174,25 @@ function extractFee(fundFeeSecList: any): FundFee {
     backEnd: backendElem ? backendElem['actual_value'] : '',
     management: mgtElem ? mgtElem['actual_value'] : '',
   };
+}
+
+function extractPromotion(promotionList: any): FundPromotion {
+  const result = {
+    fintEarn: false,
+    fintCashback: false,
+  };
+
+  const fintEarnElem = promotionList.find((i: any) => (i.campaign = 'fint'));
+  if (fintEarnElem) {
+    result.fintEarn = true;
+  }
+
+  const fintCashbackElem = promotionList.find(
+    (i: any) => (i.campaign = 'fint-cashback'),
+  );
+  if (fintCashbackElem) {
+    result.fintCashback = true;
+  }
+
+  return result;
 }
