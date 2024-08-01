@@ -256,4 +256,20 @@ export class LangchainChatController {
       res,
     );
   }
+
+  @Post('chat')
+  @HttpCode(200)
+  async chat(@Headers() headers: any, @Res() res: Response) {
+    const userId = headers['user-id'];
+
+    if (!userId) {
+      throw new HttpException(
+        'user-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const responsePayload = await this.langchainChatService.InitChat(userId);
+    return res.json(responsePayload);
+  }
 }

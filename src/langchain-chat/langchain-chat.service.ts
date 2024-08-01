@@ -128,6 +128,11 @@ export class LangchainChatService {
     }
   }
 
+  async InitChat(user_id: string): Promise<{ chat_id: string }> {
+    const chat = await this.chatHistoryManager.InitChat(user_id);
+    return { chat_id: chat._id.toString() };
+  }
+
   async contextAwareChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
       const messages = contextAwareMessagesDto.messages ?? [];

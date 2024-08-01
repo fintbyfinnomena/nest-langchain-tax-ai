@@ -19,4 +19,5 @@ export interface ChatHistoryManager {
   GetChatHistoryByChatID(
     chatId: string,
   ): Promise<HydratedDocument<TaxChatHistory>>;
+  InitChat(user_id: string): Promise<HydratedDocument<TaxChatHistory>>;
 }
