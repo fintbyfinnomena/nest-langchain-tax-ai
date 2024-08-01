@@ -4,7 +4,8 @@ import type { Response } from 'express';
 import { IterableReadableStream } from '@langchain/core/utils/stream';
 import { StreamEvent } from '@langchain/core/tracers/log_stream';
 
-import { HumanMessage } from '@langchain/core/messages';
+import { AIMessage, HumanMessage } from '@langchain/core/messages';
+import { TaxChatMessage } from 'src/types/chatHistory.types';
 
 interface ChainStreamer {
   streamEvents(...args: any): IterableReadableStream<StreamEvent>;
@@ -88,13 +89,37 @@ export class SupervisorStreamer {
 
     // Attach end event listener to the readable stream
     readableStream.on('end', async () => {
-      history.addUserMessage(message);
-      history.addAIMessage(resMsg);
-      this.chatHistoryManager.SaveHistoryMessages(
-        this.sessionId,
-        await history.getMessages(),
-      );
+      try {
+        history.addUserMessage(message);
+        history.addAIMessage(resMsg);
+        this.chatHistoryManager.AddMessagesToChatHistoryDB(this.sessionId, [
+          convertMessageToCustomMessage(new HumanMessage(message)),
+          convertMessageToCustomMessage(new AIMessage(resMsg)),
+        ]);
+        this.chatHistoryManager.SaveHistoryMessagesCache(
+          this.sessionId,
+          await history.getMessages(),
+        );
+      } catch (error) {
+        console.error('Error occurred while streaming end:', error);
+      }
       res.end(); // End the response when the stream ends
     });
   }
 }
+
+const convertMessageToCustomMessage = (
+  message: AIMessage | HumanMessage,
+): TaxChatMessage => {
+  if (message instanceof AIMessage) {
+    return {
+      actor: 'ai',
+      baseMessage: message.toDict().data,
+    };
+  } else if (message instanceof HumanMessage) {
+    return {
+      actor: 'human',
+      baseMessage: message.toDict().data,
+    };
+  }
+};

@@ -68,7 +68,7 @@ export class ChatService {
 
     try {
       const historyMessages = await chatHistory.getMessages();
-      await this.chatHistoryManager.SaveHistoryMessages(
+      await this.chatHistoryManager.SaveHistoryMessagesCache(
         sessiongID,
         historyMessages,
       );

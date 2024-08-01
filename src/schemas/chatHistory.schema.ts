@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { StoredMessageData } from '@langchain/core/messages';
 import { TaxChatMessage } from 'src/types/chatHistory.types';
+import { HydratedDocument } from 'mongoose';
 
 // this TaxChatMessageImp use for declare type of mongoose schema only, please use TaxChatMessage instead for implementation
 export class TaxChatMessageImp implements TaxChatMessage {
@@ -11,8 +12,10 @@ export class TaxChatMessageImp implements TaxChatMessage {
   baseMessage: StoredMessageData;
 
   @Prop({ type: Boolean, default: false })
-  is_thump_down: boolean;
+  is_thumb_down: boolean;
 }
+
+export type TaxChatHistoryDocument = HydratedDocument<TaxChatHistory>;
 
 @Schema({ timestamps: true })
 export class TaxChatHistory {
@@ -20,7 +23,7 @@ export class TaxChatHistory {
   user_id: string;
 
   @Prop({ default: false })
-  has_thump_down: boolean;
+  has_thumb_down: boolean;
 
   @Prop({ type: [TaxChatMessageImp], default: [] })
   messages: TaxChatMessage[];

@@ -70,7 +70,7 @@ export class ChatStreamer {
     readableStream.on('end', async () => {
       history.addUserMessage(message);
       history.addAIMessage(resMsg);
-      this.chatHistoryManager.SaveHistoryMessages(
+      this.chatHistoryManager.SaveHistoryMessagesCache(
         this.sessionId,
         await history.getMessages(),
       );
