@@ -43,9 +43,10 @@ import {
   Res,
   HttpException,
   HttpStatus,
+  Param,
 } from '@nestjs/common';
 import { LangchainChatService } from './langchain-chat.service';
-import { BasicMessageDto } from './dtos/basic-message.dto';
+import { BasicMessageDto, ThumbDownBody } from './dtos/basic-message.dto';
 import {
   ChatHeader,
   ContextAwareMessagesDto,
@@ -257,7 +258,7 @@ export class LangchainChatController {
     );
   }
 
-  @Post('chat')
+  @Post('chats')
   @HttpCode(200)
   async chat(@Headers() headers: any, @Res() res: Response) {
     const userId = headers['user-id'];
@@ -268,8 +269,46 @@ export class LangchainChatController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    try {
+      const responsePayload = await this.langchainChatService.InitChat(userId);
+      return res.json(responsePayload);
+    } catch (error) {
+      res.status(500).send('Error occurred while initializing chat');
+    }
+  }
 
-    const responsePayload = await this.langchainChatService.InitChat(userId);
-    return res.json(responsePayload);
+  @Post('chats/:id')
+  @HttpCode(200)
+  async chatById(
+    @Headers() headers: ChatHeader,
+    @Body() basicMessageDto: BasicMessageDto,
+    @Res() res: Response,
+    @Param('id') id: string,
+  ) {
+    const chatId = id;
+
+    return await this.langchainChatService.supervisorAgentChat(
+      chatId,
+      basicMessageDto,
+      res,
+    );
+  }
+
+  @Post('chats/:id/thumb-down')
+  @HttpCode(200)
+  async thumbDown(
+    @Headers() headers: ChatHeader,
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() body: ThumbDownBody,
+  ) {
+    const chatId = id;
+
+    try {
+      await this.langchainChatService.SetThumbDown(chatId, body.index);
+      return res.json({ message: 'Thumb down set successfully' });
+    } catch (error) {
+      res.status(500).send('Error occurred while initializing chat');
+    }
   }
 }

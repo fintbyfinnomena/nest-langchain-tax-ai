@@ -133,6 +133,10 @@ export class LangchainChatService {
     return { chat_id: chat._id.toString() };
   }
 
+  async SetThumbDown(chat_id: string, index: number): Promise<void> {
+    await this.chatHistoryManager.SetThumbDownInChatHistoryDB(chat_id, index);
+  }
+
   async contextAwareChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
     try {
       const messages = contextAwareMessagesDto.messages ?? [];

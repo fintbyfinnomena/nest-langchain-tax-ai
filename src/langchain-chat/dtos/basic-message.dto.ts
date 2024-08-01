@@ -11,10 +11,16 @@
  * @property user_query - The query string provided by the user.
  *                        It must be a non-empty string.
  */
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
 export class BasicMessageDto {
   @IsNotEmpty()
   @IsString()
   question: string;
+}
+
+export class ThumbDownBody {
+  @IsInt()
+  @Min(0)
+  index: number;
 }

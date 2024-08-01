@@ -82,7 +82,7 @@ export class ChatHistoryManagerImp implements ChatHistoryManager {
   ): Promise<void> {
     const payload: UpdateQuery<TaxChatHistory> = {
       $push: {
-        messages,
+        messages: { $each: messages },
       },
     };
     await this.chatHistoryModel.updateOne({ _id: chatId }, payload);
