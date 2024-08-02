@@ -67,7 +67,91 @@ export class SupervisorStreamer {
             readableStream.push(event.data.chunk.text);
             resMsg += event.data.chunk.text;
           } else {
-            console.log('\x1b[42m%s\x1b[0m', event.event);
+            // console.log('\x1b[42m%s\x1b[0m', event.event);
+            if (event.event == 'on_chain_end') {
+              console.log(event.data);
+            }
+          }
+        }
+        readableStream.push(null); // Signal the end of the stream
+      } catch (error) {
+        readableStream.destroy(error); // Destroy the stream on error
+      }
+    })();
+
+    // res.writeHead(200, { 'Content-Type': 'text/event-stream','Transfer-Encoding': 'chunked', 'Connection' : 'keep-alive' });
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    readableStream.pipe(res);
+
+    // Attach error event listener to the readable stream
+    readableStream.on('error', (error) => {
+      console.error('Error occurred while streaming:', error);
+      res.end(); // End the response to prevent hanging
+    });
+
+    // Attach end event listener to the readable stream
+    readableStream.on('end', async () => {
+      try {
+        history.addUserMessage(message);
+        history.addAIMessage(resMsg);
+        // this.chatHistoryManager.AddMessagesToChatHistoryDB(this.chatId, [
+        //   convertMessageToCustomMessage(new HumanMessage(message)),
+        //   convertMessageToCustomMessage(new AIMessage(resMsg)),
+        // ]);
+        this.chatHistoryManager.SaveHistoryMessagesCache(
+          this.chatId,
+          await history.getMessages(),
+        );
+      } catch (error) {
+        console.error('Error occurred while streaming end:', error);
+      }
+      res.end(); // End the response when the stream ends
+    });
+  }
+
+  // TODO: merge this with V1 above when V1 is deprecated
+  async StreamMessageV2(res: Response, message: string) {
+    const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
+      this.chatId,
+    );
+
+    let resMsg = '';
+
+    let messagesReq: any[] = [
+      new HumanMessage({
+        content: message,
+      }),
+    ];
+
+    const historysMessage = await history.getMessages();
+
+    if (historysMessage.length > 0) {
+      messagesReq = [...historysMessage, ...messagesReq];
+    }
+
+    const stream = this.chainStreamer.streamEvents(
+      {
+        messages: messagesReq,
+      },
+      // {
+      //   input: message,
+      //   chat_history: await history.getMessages(),
+      // },
+      { version: 'v1' },
+    );
+
+    const readableStream = new Readable({
+      read() {},
+    });
+
+    (async () => {
+      try {
+        for await (const event of stream) {
+          if (event.event == 'on_llm_stream') {
+            readableStream.push(event.data.chunk.text);
+            resMsg += event.data.chunk.text;
+          } else {
+            // console.log('\x1b[42m%s\x1b[0m', event.event);
             if (event.event == 'on_chain_end') {
               console.log(event.data);
             }
