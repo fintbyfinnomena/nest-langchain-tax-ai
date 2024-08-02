@@ -67,8 +67,8 @@ export class SupervisorStreamer {
             resMsg += event.data.chunk.text;
           } else {
             console.log('\x1b[42m%s\x1b[0m', event.event);
-            if (event.event == 'on_chain_end') {
-              console.log(event.data);
+            if (event.event == "on_chain_end" || event.event == "on_chain_stream"){
+              console.log(event.data,JSON.stringify(event.data))
             }
           }
         }

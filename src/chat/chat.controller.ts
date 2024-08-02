@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Delete, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Delete, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @Controller('chat')
@@ -16,5 +16,12 @@ export class ChatController {
   @Delete(':id')
   async deleteChat(@Param('id') id: string): Promise<void> {
     await this.chatService.clearChat(id);
+  }
+
+  @Get(':id')
+  async temporaryChatHistory(
+    @Param('id') id
+  ) {
+    return await this.chatService.temporaryChatHistory(id,);
   }
 }
