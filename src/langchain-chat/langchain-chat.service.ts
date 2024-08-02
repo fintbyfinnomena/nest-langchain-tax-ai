@@ -378,6 +378,25 @@ export class LangchainChatService {
     }
   }
 
+  async supervisorAgentChat2(
+    sessionId: string,
+    basicMessageDto: BasicMessageDto,
+    res: Response,
+  ) {
+    try {
+      const supervisorGraph = await initSupervisorAgent();
+
+      const supervisorStreamer = new SupervisorStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        supervisorGraph,
+      );
+      await supervisorStreamer.StreamMessageV2(res, basicMessageDto.question);
+    } catch (e: unknown) {
+      this.exceptionHandling(e);
+    }
+  }
+
   private loadSingleChain = (template: string) => {
     const prompt = PromptTemplate.fromTemplate(template);
 

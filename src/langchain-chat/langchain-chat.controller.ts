@@ -286,7 +286,7 @@ export class LangchainChatController {
     @Res() res: Response,
     @Param('id') id: string,
   ) {
-    return await this.langchainChatService.supervisorAgentChat(
+    return await this.langchainChatService.supervisorAgentChat2(
       id,
       basicMessageDto,
       res,
