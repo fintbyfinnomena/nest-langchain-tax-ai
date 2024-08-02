@@ -44,6 +44,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Get,
 } from '@nestjs/common';
 import { LangchainChatService } from './langchain-chat.service';
 import { BasicMessageDto, ThumbDownBody } from './dtos/basic-message.dto';
@@ -285,10 +286,8 @@ export class LangchainChatController {
     @Res() res: Response,
     @Param('id') id: string,
   ) {
-    const chatId = id;
-
     return await this.langchainChatService.supervisorAgentChat(
-      chatId,
+      id,
       basicMessageDto,
       res,
     );
@@ -302,13 +301,32 @@ export class LangchainChatController {
     @Param('id') id: string,
     @Body() body: ThumbDownBody,
   ) {
-    const chatId = id;
-
     try {
-      await this.langchainChatService.SetThumbDown(chatId, body.index);
+      await this.langchainChatService.SetThumbDown(id, body.index);
       return res.json({ message: 'Thumb down set successfully' });
     } catch (error) {
       res.status(500).send('Error occurred while initializing chat');
+    }
+  }
+
+  @Get('chats/latest')
+  @HttpCode(200)
+  async getLatestChat(@Headers() headers: any, @Res() res: Response) {
+    const userId = headers['user-id'];
+
+    if (!userId) {
+      throw new HttpException(
+        'user-id header is missing',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      const responsePayload =
+        await this.langchainChatService.GetLatestChatByUserID(userId);
+      return res.json(responsePayload);
+    } catch (error) {
+      res.status(500).send('Error occurred while fetching chat');
     }
   }
 }

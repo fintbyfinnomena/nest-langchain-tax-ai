@@ -13,22 +13,22 @@ interface ChainStreamer {
 
 export class SupervisorStreamer {
   private chatHistoryManager: ChatHistoryManager;
-  private sessionId: string;
+  private chatId: string;
   private chainStreamer: ChainStreamer;
 
   constructor(
     historyManager: ChatHistoryManager,
-    sessionId: string,
+    chatId: string,
     chainStreamer: ChainStreamer,
   ) {
     this.chatHistoryManager = historyManager;
-    this.sessionId = sessionId;
+    this.chatId = chatId;
     this.chainStreamer = chainStreamer;
   }
 
   async StreamMessage(res: Response, message: string) {
     const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
-      this.sessionId,
+      this.chatId,
     );
 
     let resMsg = '';
@@ -94,12 +94,12 @@ export class SupervisorStreamer {
       try {
         history.addUserMessage(message);
         history.addAIMessage(resMsg);
-        this.chatHistoryManager.AddMessagesToChatHistoryDB(this.sessionId, [
+        this.chatHistoryManager.AddMessagesToChatHistoryDB(this.chatId, [
           convertMessageToCustomMessage(new HumanMessage(message)),
           convertMessageToCustomMessage(new AIMessage(resMsg)),
         ]);
         this.chatHistoryManager.SaveHistoryMessagesCache(
-          this.sessionId,
+          this.chatId,
           await history.getMessages(),
         );
       } catch (error) {

@@ -49,11 +49,11 @@ export class ChatService {
     this.chain = chain;
   }
 
-  async postChat(sessiongID: string, message: string): Promise<string> {
+  async postChat(chatId: string, message: string): Promise<string> {
     let chatHistory = new ChatMessageHistory();
     try {
       chatHistory =
-        await this.chatHistoryManager.GetHistoryMessagesBySessionID(sessiongID);
+        await this.chatHistoryManager.GetHistoryMessagesBySessionID(chatId);
     } catch (error) {
       // catch something in this
     }
@@ -69,7 +69,7 @@ export class ChatService {
     try {
       const historyMessages = await chatHistory.getMessages();
       await this.chatHistoryManager.SaveHistoryMessagesCache(
-        sessiongID,
+        chatId,
         historyMessages,
       );
     } catch (error) {
@@ -79,9 +79,9 @@ export class ChatService {
     return aiResp.content.toString();
   }
 
-  async clearChat(sessiongID: string): Promise<void> {
+  async clearChat(chatId: string): Promise<void> {
     try {
-      await this.chatHistoryManager.ClearHistoryMessagesBySessionID(sessiongID);
+      await this.chatHistoryManager.ClearHistoryMessagesBySessionID(chatId);
     } catch (error) {
       // catch something in this
     }

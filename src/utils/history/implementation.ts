@@ -100,4 +100,13 @@ export class ChatHistoryManagerImp implements ChatHistoryManager {
     };
     await this.chatHistoryModel.updateOne({ _id: chatId }, payload);
   }
+
+  async GetLatestChatHistoryByUserID(
+    user_id: string,
+  ): Promise<HydratedDocument<TaxChatHistory>> {
+    const chat = await this.chatHistoryModel.findOne({ user_id }).sort({
+      createdAt: -1,
+    });
+    return chat;
+  }
 }

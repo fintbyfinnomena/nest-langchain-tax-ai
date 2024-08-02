@@ -20,4 +20,7 @@ export interface ChatHistoryManager {
     chatId: string,
   ): Promise<HydratedDocument<TaxChatHistory>>;
   InitChat(user_id: string): Promise<HydratedDocument<TaxChatHistory>>;
+  GetLatestChatHistoryByUserID(
+    user_id: string,
+  ): Promise<HydratedDocument<TaxChatHistory>>;
 }

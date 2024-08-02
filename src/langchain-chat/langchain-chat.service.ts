@@ -89,7 +89,7 @@ import {
 import { initSupervisorAgent } from 'src/langchain-chat/agents/supervisor';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaxChatHistory } from 'src/schemas/chatHistory.schema';
-import { Model } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 
 @Injectable()
 export class LangchainChatService {
@@ -126,6 +126,14 @@ export class LangchainChatService {
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
+  }
+
+  async GetLatestChatByUserID(
+    user_id: string,
+  ): Promise<HydratedDocument<TaxChatHistory>> {
+    const chat =
+      await this.chatHistoryManager.GetLatestChatHistoryByUserID(user_id);
+    return chat;
   }
 
   async InitChat(user_id: string): Promise<{ chat_id: string }> {
