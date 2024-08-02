@@ -27,10 +27,12 @@ async function fetchFundRankingApi(
     if (input.sort) {
       console.log(`Sort: ${input.sort}, Order: ${input.order}`);
       fundRankingUrl = fundRankingUrl + `?sort=${input.sort},${input.order}`;
-    } else if (input.category) {
+    }
+    if (input.category) {
       console.log(`Category: ${input.category}`);
       fundRankingUrl = fundRankingUrl + `&where[]=category,=,${input.category}`;
-    } else if (input.type) {
+    }
+    if (input.type) {
       console.log(`Type: ${input.type}`);
       fundRankingUrl = fundRankingUrl + `&where[]=type,=,${input.type}`;
     }
