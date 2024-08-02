@@ -2,6 +2,7 @@ import { DynamicTool, DynamicStructuredTool } from '@langchain/core/tools';
 
 import { z } from 'zod';
 import * as Type from 'src/types/tax-saving-fund/portfolioAllocationn.types';
+import * as FundRankingType from 'src/types/fundRanking.types';
 import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools';
 import { ltfKnowledge } from 'src/utils/tools/tax-saving-fund/ltf.tool';
 import { eventAndPromotion } from 'src/utils/tools/eventAndPromotion.tools';
@@ -11,6 +12,7 @@ import {
   getFundFussySearch,
 } from 'src/utils/tools/fundInfo.tools';
 import { getTaxSavingFundSuggestedList } from 'src/utils/tools/tax-saving-fund/suggestedFundList.tools';
+import { getFundRanking } from 'src/utils/tools/fundRanking.tools';
 export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   name: 'suggest-port-profile-allocation',
   // description:
@@ -154,5 +156,29 @@ export const eventAndPromotionTool = new DynamicStructuredTool({
     // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
     // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
     return eventAndPromotion();
+  },
+});
+
+export const fundRankingTool = new DynamicStructuredTool({
+  name: 'fund-ranking',
+  description:
+    'useful for get ranking of funds based on return, period, category and type',
+  schema: z.object({
+    category: z.string().describe(''),
+    type: z.string().describe(''),
+    sort: z.string().describe(''),
+    order: z.string().describe(''),
+  }),
+  func: async ({ category, type, sort, order }) => {
+    const input: FundRankingType.FundFilterInput = {
+      category: category,
+      type: type,
+      sort: sort,
+      order: order,
+    };
+    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
+    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    const result = await getFundRanking(input);
+    return JSON.stringify(result);
   },
 });
