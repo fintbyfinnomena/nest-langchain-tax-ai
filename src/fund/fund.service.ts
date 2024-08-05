@@ -8,6 +8,7 @@ export class FundService {
   async getFundInfo(fundName: string) {
     try {
       const response = await getFundInformation(fundName);
+
       return customMessage(HttpStatus.OK, MESSAGES.SUCCESS, response);
     } catch (e: unknown) {
       this.exceptionHandling(e);

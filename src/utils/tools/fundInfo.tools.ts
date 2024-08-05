@@ -104,7 +104,7 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
         isRecommended: false,
         comment: null,
       },
-      fundQuoteLink: path.join(fundQuoteBaseUrl, fundInfo['short_code']),
+      fundQuoteLink: new URL(fundInfo['short_code'], fundQuoteBaseUrl).href,
     };
 
     const tsfComment = fetchTSFComment(fundName);
