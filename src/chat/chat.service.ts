@@ -1,5 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, HttpStatus, HttpException, Logger } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
+import { openAI } from 'src/utils/constants/openAI.constants';
 import {
   HumanMessage,
   AIMessage,
@@ -17,6 +18,8 @@ import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaxChatHistory } from 'src/schemas/chatHistory.schema';
 import { Model } from 'mongoose';
+import customMessage from 'src/utils/responses/customMessage.response';
+import { MESSAGES } from 'src/utils/constants/messages.constants';
 
 @Injectable()
 export class ChatService {
@@ -41,7 +44,7 @@ export class ChatService {
     ]);
 
     const chatModel = new ChatOpenAI({
-      modelName: 'gpt-3.5-turbo',
+      modelName: openAI.GPT_4o_MINI.toString(),
       openAIApiKey: process.env.OPEN_AI_API_KEY,
     });
 
@@ -86,4 +89,32 @@ export class ChatService {
       // catch something in this
     }
   }
+
+  async temporaryChatHistory(sessionId: string) {
+    try {
+      const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
+        sessionId,
+      );
+      const messages = await history.getMessages()
+      const result = [];
+      for (const h of messages) {
+        if (h instanceof HumanMessage) {
+          result.push({"human":h.content})
+        }else if(h instanceof AIMessage) {
+          result.push({"ai":h.content})
+        }
+      }
+      return await customMessage(HttpStatus.OK, MESSAGES.SUCCESS, result);
+    } catch (e: unknown) {
+      Logger.error(e);
+      throw new HttpException(
+        customMessage(
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          MESSAGES.EXTERNAL_SERVER_ERROR,
+        ),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      )
+    }
+  }
+
 }

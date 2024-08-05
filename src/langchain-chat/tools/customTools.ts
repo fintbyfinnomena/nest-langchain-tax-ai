@@ -72,7 +72,7 @@ export const fundInformationTool = new DynamicStructuredTool({
   }),
   func: async ({ fundName }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
     const result = await getFundInformation(fundName);
     return JSON.stringify(result);
   },
@@ -92,8 +92,7 @@ export const fundNameFussySearch = new DynamicStructuredTool({
       ),
   }),
   func: async ({ fundName }) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> fundNameFussySearch doing!!")
     const result = await getFundFussySearch(fundName);
     return JSON.stringify(result);
   },
@@ -104,7 +103,7 @@ export const taxSavingFundSuggestedListTool = new DynamicTool({
   description:
     'useful for to give a suggested list on each type of tax saving fund from Finnomena this year',
   func: async () => {
-    // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundTool doing!!")
+    // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundSuggestedListTool doing!!")
     const result = await getTaxSavingFundSuggestedList();
     return JSON.stringify(result);
   },
@@ -139,8 +138,7 @@ export const ltfKnowledgeTool = new DynamicStructuredTool({
   description: 'useful for get information about LTF fund',
   schema: z.object({}),
   func: async ({}) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> ltfKnowledgeTool doing!!")
     return ltfKnowledge();
   },
 });
@@ -151,8 +149,7 @@ export const eventAndPromotionTool = new DynamicStructuredTool({
     'useful for get information about tax saving fund event and promotion from Finnomena',
   schema: z.object({}),
   func: async ({}) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> eventAndPromotionTool doing!!")
     return eventAndPromotion();
   },
 });
