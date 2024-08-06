@@ -30,6 +30,8 @@ export async function getFundInformation(
 }
 
 async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
+  fundName = encodeURIComponent(fundName);
+
   const fundApiBaseUrl = Config.fundApi.baseUrl;
   const fundQuoteBaseUrl = Config.fundQuote.baseUrl;
 
