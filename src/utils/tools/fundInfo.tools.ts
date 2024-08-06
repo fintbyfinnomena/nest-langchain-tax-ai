@@ -108,10 +108,7 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
         backEnd: fundFeeExtracted.backEnd,
         management: fundFeeExtracted.management,
       },
-      tsfRecommendation: {
-        isRecommended: false,
-        comment: null,
-      },
+      tsfComment: null,
       fundQuoteLink: new URL(fundInfo['short_code'], fundQuoteBaseUrl).href,
     };
 
@@ -119,8 +116,7 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
     const mapFundName = decodeURIComponent(fundName);
     const tsfComment = fetchTSFComment(mapFundName);
     if (tsfComment) {
-      result.tsfRecommendation.isRecommended = true;
-      result.tsfRecommendation.comment = tsfComment;
+      result.tsfComment = tsfComment;
     }
 
     return result;
