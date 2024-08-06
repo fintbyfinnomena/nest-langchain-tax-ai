@@ -403,6 +403,7 @@ export class LangchainChatService {
     const model = new ChatOpenAI({
       temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
       modelName: openAI.GPT_4o_MINI.toString(),
+      topP: openAI.TOP_P,
     });
 
     const outputParser = new HttpResponseOutputParser();
