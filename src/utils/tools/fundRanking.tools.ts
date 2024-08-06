@@ -9,9 +9,10 @@ export async function getFundRanking(
 ): Promise<FundInfoCard[]> {
   try {
     const fundsRanking = await fetchFundRankingApi(input);
-    return fundsRanking as FundInfoCard[];
+    return fundsRanking;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching fund ranking:', error);
+    throw new Error('error: fetching fund ranking');
   }
 }
 
@@ -21,26 +22,30 @@ async function fetchFundRankingApi(
   const fundApiBaseUrl = Config.fundApi.baseUrl;
 
   try {
-    var fundRankingUrl = path.join(fundApiBaseUrl, '/filter');
+    let fundRankingUrl = path.join(fundApiBaseUrl, '/filter');
+
+    const queryParameters = [];
 
     if (input.period) {
-      fundRankingUrl = fundRankingUrl + `?sort=${input.period},${input.order}`;
+      queryParameters.push(`sort=${input.period},${input.order}`);
     }
     if (input.category) {
-      fundRankingUrl = fundRankingUrl + `&where[]=category,=,${input.category}`;
+      queryParameters.push(`where[]=category,=,${input.category}`);
     }
     if (input.types) {
-      for (let i = 0; i < input.types.length; i++) {
-        const type = input.types[i];
-        fundRankingUrl = fundRankingUrl + `&where[]=type,=,${type}`;
-      }
+      input.types.forEach((type) => {
+        queryParameters.push(`where[]=type,=,${type}`);
+      });
+    }
+
+    if (queryParameters.length > 0) {
+      fundRankingUrl += '?' + queryParameters.join('&');
     }
 
     const response = await axios.get(fundRankingUrl);
-    const fundsRanking: FundInfoCard[] = response.data.data.funds;
-
-    return fundsRanking;
+    return response.data.data.funds;
   } catch (error) {
-    throw error;
+    console.error('Error: making fund filter api call', error);
+    throw new Error('error: making fund filter api call');
   }
 }
