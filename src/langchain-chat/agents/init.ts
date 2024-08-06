@@ -44,6 +44,7 @@ export async function createOpenAIModel(): Promise<ChatOpenAI> {
   return new ChatOpenAI({
     temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE,
     modelName: openAI.GPT_4o_MINI.toString(),
+    topP: openAI.TOP_P,
   });
 }
 
