@@ -1,6 +1,6 @@
 export type FundFilterInput = {
   category?: string;
-  type?: string;
-  sort?: string;
+  types?: string[];
+  period?: string;
   order?: string;
 };

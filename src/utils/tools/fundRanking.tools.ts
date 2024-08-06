@@ -11,7 +11,7 @@ export async function getFundRanking(
     const fundsRanking = await fetchFundRankingApi(input);
     return fundsRanking as FundInfoCard[];
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -21,30 +21,23 @@ async function fetchFundRankingApi(
   const fundApiBaseUrl = Config.fundApi.baseUrl;
 
   try {
-    // Construct URLs
     var fundRankingUrl = path.join(fundApiBaseUrl, '/filter');
 
-    if (input.sort) {
-      console.log(`Sort: ${input.sort}, Order: ${input.order}`);
-      fundRankingUrl = fundRankingUrl + `?sort=${input.sort},${input.order}`;
+    if (input.period) {
+      fundRankingUrl = fundRankingUrl + `?sort=${input.period},${input.order}`;
     }
     if (input.category) {
-      console.log(`Category: ${input.category}`);
       fundRankingUrl = fundRankingUrl + `&where[]=category,=,${input.category}`;
     }
-    if (input.type) {
-      console.log(`Type: ${input.type}`);
-      fundRankingUrl = fundRankingUrl + `&where[]=type,=,${input.type}`;
+    if (input.types) {
+      for (let i = 0; i < input.types.length; i++) {
+        const type = input.types[i];
+        fundRankingUrl = fundRankingUrl + `&where[]=type,=,${type}`;
+      }
     }
 
-    console.log(fundRankingUrl);
-
-    // Make parallel requests
     const response = await axios.get(fundRankingUrl);
-
     const fundsRanking: FundInfoCard[] = response.data.data.funds;
-
-    // console.log(fundsRanking);
 
     return fundsRanking;
   } catch (error) {

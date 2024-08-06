@@ -164,16 +164,16 @@ export const fundRankingTool = new DynamicStructuredTool({
   description:
     'useful for get ranking of funds based on return, period, category and type',
   schema: z.object({
-    category: z.string().describe(''),
-    type: z.string().describe(''),
-    sort: z.string().describe(''),
-    order: z.string().describe(''),
+    category: z.string().describe('fund category'),
+    types: z.string().array().describe('fund types'),
+    period: z.string().describe('sorting of period'),
+    order: z.string().describe('ordering of returns'),
   }),
-  func: async ({ category, type, sort, order }) => {
+  func: async ({ category, types, period, order }) => {
     const input: FundRankingType.FundFilterInput = {
       category: category,
-      type: type,
-      sort: sort,
+      types: types,
+      period: period,
       order: order,
     };
     // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
