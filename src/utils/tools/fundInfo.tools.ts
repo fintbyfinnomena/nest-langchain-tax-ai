@@ -30,19 +30,28 @@ export async function getFundInformation(
 }
 
 async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
+  const encodedFundName = encodeURIComponent(fundName);
+
   const fundApiBaseUrl = Config.fundApi.baseUrl;
   const fundQuoteBaseUrl = Config.fundQuote.baseUrl;
 
   try {
     // Construct URLs
-    const fundInfoUrl = path.join(fundApiBaseUrl, fundName);
+    const fundInfoUrl = path.join(fundApiBaseUrl, encodedFundName);
     const fundPerformanceUrl = path.join(
       fundApiBaseUrl,
-      fundName,
+      encodedFundName,
       'performance',
     );
-    const fundFeeUrl = path.join(fundApiBaseUrl, `fee?funds[]=${fundName}`);
-    const fundPortfolioUrl = path.join(fundApiBaseUrl, fundName, 'portfolio');
+    const fundFeeUrl = path.join(
+      fundApiBaseUrl,
+      `fee?funds[]=${encodedFundName}`,
+    );
+    const fundPortfolioUrl = path.join(
+      fundApiBaseUrl,
+      encodedFundName,
+      'portfolio',
+    );
 
     // Make parallel requests
     const [
@@ -57,7 +66,6 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
       axios.get(fundPortfolioUrl),
     ]);
 
-    // TODO: To Check
     const fundInfo = fundInfoResponse.data.data;
     const fundPerf = fundPerformanceResponse.data.data;
     const fundFee = fundFeeResponse.data.data[0]['fees'];
