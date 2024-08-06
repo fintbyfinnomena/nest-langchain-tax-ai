@@ -115,7 +115,9 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
       fundQuoteLink: new URL(fundInfo['short_code'], fundQuoteBaseUrl).href,
     };
 
-    const tsfComment = fetchTSFComment(fundName);
+    // decode fundname before sending
+    const mapFundName = decodeURIComponent(fundName);
+    const tsfComment = fetchTSFComment(mapFundName);
     if (tsfComment) {
       result.tsfRecommendation.isRecommended = true;
       result.tsfRecommendation.comment = tsfComment;
