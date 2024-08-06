@@ -14,14 +14,24 @@ import {
 import { Runnable, RunnableConfig } from '@langchain/core/runnables';
 import { ChatHistoryManager } from 'src/utils/history/interface';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
+import { InjectModel } from '@nestjs/mongoose';
+import { TaxChatHistory } from 'src/schemas/chatHistory.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ChatService {
   private chain: Runnable<any, AIMessageChunk, RunnableConfig>;
   private chatHistoryManager: ChatHistoryManager;
 
-  constructor(@Inject('REDIS_CLIENT') redisClient) {
-    this.chatHistoryManager = new ChatHistoryManagerImp(redisClient);
+  constructor(
+    @Inject('REDIS_CLIENT') redisClient,
+    @InjectModel('chat_histories')
+    private taxChatHistoryModel: Model<TaxChatHistory>,
+  ) {
+    this.chatHistoryManager = new ChatHistoryManagerImp(
+      redisClient,
+      taxChatHistoryModel,
+    );
     const prompt = ChatPromptTemplate.fromMessages([
       [
         'system',
@@ -39,11 +49,11 @@ export class ChatService {
     this.chain = chain;
   }
 
-  async postChat(sessiongID: string, message: string): Promise<string> {
+  async postChat(chatId: string, message: string): Promise<string> {
     let chatHistory = new ChatMessageHistory();
     try {
       chatHistory =
-        await this.chatHistoryManager.GetHistoryMessagesBySessionID(sessiongID);
+        await this.chatHistoryManager.GetHistoryMessagesBySessionID(chatId);
     } catch (error) {
       // catch something in this
     }
@@ -58,8 +68,8 @@ export class ChatService {
 
     try {
       const historyMessages = await chatHistory.getMessages();
-      await this.chatHistoryManager.SaveHistoryMessages(
-        sessiongID,
+      await this.chatHistoryManager.SaveHistoryMessagesCache(
+        chatId,
         historyMessages,
       );
     } catch (error) {
@@ -69,9 +79,9 @@ export class ChatService {
     return aiResp.content.toString();
   }
 
-  async clearChat(sessiongID: string): Promise<void> {
+  async clearChat(chatId: string): Promise<void> {
     try {
-      await this.chatHistoryManager.ClearHistoryMessagesBySessionID(sessiongID);
+      await this.chatHistoryManager.ClearHistoryMessagesBySessionID(chatId);
     } catch (error) {
       // catch something in this
     }

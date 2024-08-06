@@ -87,13 +87,23 @@ import {
   loadAgentExecutor,
 } from 'src/langchain-chat/agents/init';
 import { initSupervisorAgent } from 'src/langchain-chat/agents/supervisor';
+import { InjectModel } from '@nestjs/mongoose';
+import { TaxChatHistory } from 'src/schemas/chatHistory.schema';
+import { HydratedDocument, Model } from 'mongoose';
 
 @Injectable()
 export class LangchainChatService {
   private chatHistoryManager: ChatHistoryManager;
 
-  constructor(@Inject('REDIS_CLIENT') redisClient) {
-    this.chatHistoryManager = new ChatHistoryManagerImp(redisClient);
+  constructor(
+    @Inject('REDIS_CLIENT') redisClient,
+    @InjectModel('chat_histories')
+    private taxChatHistoryModel: Model<TaxChatHistory>,
+  ) {
+    this.chatHistoryManager = new ChatHistoryManagerImp(
+      redisClient,
+      taxChatHistoryModel,
+    );
   }
 
   async basicChat(
@@ -116,6 +126,23 @@ export class LangchainChatService {
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }
+  }
+
+  async GetLatestChatByUserID(
+    user_id: string,
+  ): Promise<HydratedDocument<TaxChatHistory>> {
+    const chat =
+      await this.chatHistoryManager.GetLatestChatHistoryByUserID(user_id);
+    return chat;
+  }
+
+  async InitChat(user_id: string): Promise<{ chat_id: string }> {
+    const chat = await this.chatHistoryManager.InitChat(user_id);
+    return { chat_id: chat._id.toString() };
+  }
+
+  async SetThumbDown(chat_id: string, index: number): Promise<void> {
+    await this.chatHistoryManager.SetThumbDownInChatHistoryDB(chat_id, index);
   }
 
   async contextAwareChat(contextAwareMessagesDto: ContextAwareMessagesDto) {
@@ -346,6 +373,25 @@ export class LangchainChatService {
         supervisorGraph,
       );
       await supervisorStreamer.StreamMessage(res, basicMessageDto.question);
+    } catch (e: unknown) {
+      this.exceptionHandling(e);
+    }
+  }
+
+  async supervisorAgentChat2(
+    sessionId: string,
+    basicMessageDto: BasicMessageDto,
+    res: Response,
+  ) {
+    try {
+      const supervisorGraph = await initSupervisorAgent();
+
+      const supervisorStreamer = new SupervisorStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        supervisorGraph,
+      );
+      await supervisorStreamer.StreamMessageV2(res, basicMessageDto.question);
     } catch (e: unknown) {
       this.exceptionHandling(e);
     }

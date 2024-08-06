@@ -10,22 +10,22 @@ interface ChainStreamer {
 
 export class ChatStreamer {
   private chatHistoryManager: ChatHistoryManager;
-  private sessionId: string;
+  private chatId: string;
   private chainStreamer: ChainStreamer;
 
   constructor(
     historyManager: ChatHistoryManager,
-    sessionId: string,
+    chatId: string,
     chainStreamer: ChainStreamer,
   ) {
     this.chatHistoryManager = historyManager;
-    this.sessionId = sessionId;
+    this.chatId = chatId;
     this.chainStreamer = chainStreamer;
   }
 
   async StreamMessage(res: Response, message: string) {
     const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
-      this.sessionId,
+      this.chatId,
     );
 
     let resMsg = '';
@@ -70,8 +70,8 @@ export class ChatStreamer {
     readableStream.on('end', async () => {
       history.addUserMessage(message);
       history.addAIMessage(resMsg);
-      this.chatHistoryManager.SaveHistoryMessages(
-        this.sessionId,
+      this.chatHistoryManager.SaveHistoryMessagesCache(
+        this.chatId,
         await history.getMessages(),
       );
       res.end(); // End the response when the stream ends
