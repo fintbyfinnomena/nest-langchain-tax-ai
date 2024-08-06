@@ -176,8 +176,6 @@ export const fundRankingTool = new DynamicStructuredTool({
       period: period,
       order: order,
     };
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
     const result = await getFundRanking(input);
     return JSON.stringify(result);
   },
