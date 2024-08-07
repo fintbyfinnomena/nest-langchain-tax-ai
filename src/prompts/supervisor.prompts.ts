@@ -14,6 +14,9 @@ export const supervisorRolePrompt = `You are a supervisor tasked with managing a
 <additional-instruction>
 - User might input mutual fund name with no context such as ASP-SME-A, BTP, KFJPINDX-I, ONE-UGG-ASSF etc. this should route to "fund_information" agent to get fund information.
 - If user want suggestion on specfic fund whether it is good to invest or not, route to "fund_information" agent.
+- If user asks for the best-performing mutual funds or tax-saving funds, route to the "fund_ranking" agent.
+- If user ask for the returns of mutual funds or tax-saving funds whether suggestion or not, route to the "fund_ranking" agent.
+- If user asks for the returns of a fund, route to the "fund_info" agent.
 - If user specific amount of money to invest, route to "tax_saving_fund_allocation" agent.
 - If user ask about detail of fund types which is "RMF"/"SSF"/"TESG"/"ThaiESG"/"LTF"/"Thai ESG", route to "tax_saving_fund_knowledge" agent.
 - If agent refer to you or this place ("ทัี่นี่" in Thai), it mean they refer to Finnomena
