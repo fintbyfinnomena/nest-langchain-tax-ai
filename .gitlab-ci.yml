@@ -1,0 +1,80 @@
+variables:
+  USERNAME: tech_finnomena
+  APP_PASSWORD: $APP_PASSWORD
+  TEAM_NAME: nextspace
+  NOTI_HOOK_TEAM: nextspace
+  SUB_GROUP_NAME: ai
+  REPO_CONFIG: https://tech_finnomena:$GITLAB_ACCESS_TOKEN@gitlab.finnomena.com/finnomena/$TEAM_NAME/$SUB_GROUP_NAME/$CI_PROJECT_NAME-config.git
+
+include:
+  - project: "finnomena/finno-template-ci"
+    ref: "v1.0.0"
+    file:
+      - build-deploy-template.yml
+      - notification-template.yml
+      - container-scanning-template.yml
+
+stages:
+  - publish_staging
+  - container_scanning
+  - update_staging
+  - publish_prod
+  - update_prod
+  - send_noti
+
+update_development:
+  stage: update_staging
+  rules:
+    - if: $GITLAB_CI # Always true so skip the job (which is inherited from the Finno's ci-template)
+      when: never
+  only: null
+
+update_integration:
+  stage: update_staging
+  before_script:
+    - apt-get update -y && apt-get install -yqqf openssh-client git unzip sshpass rsync --fix-missing
+    - git config --global user.email "tech@finnomena.com"
+    - git config --global user.name "tech_finnomena"
+  script:
+    - cat variable-gitlab
+    - export SHORT_SHA=$(cat variable-gitlab)
+    - git clone $REPO_CONFIG
+    - cd $CI_PROJECT_NAME-config
+    - git checkout integration
+    - git pull
+    - cat kubernetes/values-staging.yaml
+    - sed -i "s/tag:\s.*/tag:\ \"$SHORT_SHA\"/g" kubernetes/values-staging.yaml
+    - cat kubernetes/values-staging.yaml
+    - git add -A
+    - git commit -m "Auto release $CI_PROJECT_NAME:$SHORT_SHA on staging"
+    - git remote add gitlab $REPO_CONFIG
+    - git push -f gitlab integration
+  only:
+    - integration
+
+update_prod:
+  stage: update_prod
+  before_script:
+    - apt-get update -y && apt-get install -yqqf openssh-client git unzip sshpass rsync --fix-missing
+    - git config --global user.email "tech@finnomena.com"
+    - git config --global user.name "tech_finnomena"
+  script:
+    - cat variable-gitlab
+    - export COMMIT_TAG=$(cat variable-gitlab)
+    - git clone $REPO_CONFIG
+    - cd $CI_PROJECT_NAME-config
+    - git checkout main
+    - git pull
+    - cat kubernetes/values-production.yaml
+    - sed -i "s/tag:\s.*/tag:\ \"$COMMIT_TAG\"/g" kubernetes/values-production.yaml
+    - cat kubernetes/values-production.yaml
+    - git add -A
+    - git commit -m "Auto release $CI_PROJECT_NAME:$COMMIT_TAG on production"
+    - git tag "$COMMIT_TAG"
+    - git remote add gitlab $REPO_CONFIG
+    - git push gitlab main "$COMMIT_TAG"
+  when: manual
+  only:
+    - tags
+  except:
+    - branches
