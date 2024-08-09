@@ -1,0 +1,63 @@
+variables:
+  USERNAME: tech_finnomena
+  APP_PASSWORD: $APP_PASSWORD
+  TEAM_NAME: nextspace
+
+include:
+  - project: "finnomena/finno-template-ci"
+    ref: "v1.0.0"
+    file:
+      - build-deploy-template.yml
+      - notification-template.yml
+      - container-scanning-template.yml
+
+stages:
+  - go_unit_test
+  - go_test_build
+  - publish_staging
+  - container_scanning
+  - update_staging
+  - update_development
+  - update_qa-6
+  - publish_prod
+  - update_prod
+
+.config_private_repo:
+  before_script:
+    - apk add git
+    - go env -w GOPRIVATE="gitlab.finnomena.com,bitbucket.org/finnomena"
+    - touch ~/.netrc
+    - chmod 600 ~/.netrc
+    - echo machine gitlab.finnomena.com login $GITLAB_USERNAME password $GITLAB_ACCESS_TOKEN >> ~/.netrc
+    - git config --global url."https://$BITBUCKET_USERNAME:$BITBUCKET_APP_PASSWORD@bitbucket.org".insteadOf "https://bitbucket.org"
+
+
+go_unit_test:
+  stage: go_unit_test
+  image: golang:1.20-alpine
+  variables:
+    GO111MODULE: "on"
+    GOOS: "linux"
+    CGO_ENABLED: "0"
+  extends: 
+    - .config_private_repo
+  script:
+    - go test -v ./... -coverprofile="coverage.out"
+  only:
+    - /^feature\/.*$/
+
+go_test_build:
+  stage: go_test_build
+  image: golang:1.20-alpine
+  extends:
+    - .config_private_repo
+  variables:
+    GOPRIVATE: "bitbucket.org/finnomena,gitlab.finnomena.com/finnomena"
+    GO111MODULE: "on"
+    GOOS: "linux"
+    CGO_ENABLED: "0"
+  script:
+    - "go mod download"
+    - "go build -a -installsuffix cgo -o taxi-service ."
+  only:
+    - /^feature\/.*$/
