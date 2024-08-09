@@ -1,0 +1,23 @@
+variables:
+  USERNAME: tech_finnomena
+  APP_PASSWORD: $APP_PASSWORD
+  TEAM_NAME: nextspace
+  NOTI_HOOK_TEAM: nextspace
+
+include:
+  - project: "finnomena/finno-template-ci"
+    ref: "v1.0.0"
+    file:
+      - build-deploy-template.yml
+      - notification-template.yml
+      - container-scanning-template.yml
+
+stages:
+  - publish_staging
+  - container_scanning
+  - update_staging
+  - update_development
+  - update_qa-6
+  - publish_prod
+  - update_prod
+  - send_noti
