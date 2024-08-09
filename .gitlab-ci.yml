@@ -2,6 +2,7 @@ variables:
   USERNAME: tech_finnomena
   APP_PASSWORD: $APP_PASSWORD
   TEAM_NAME: nextspace
+  NOTI_HOOK_TEAM: nextspace
 
 include:
   - project: "finnomena/finno-template-ci"
@@ -21,6 +22,7 @@ stages:
   - update_qa-6
   - publish_prod
   - update_prod
+  - send_noti
 
 .config_private_repo:
   before_script:
