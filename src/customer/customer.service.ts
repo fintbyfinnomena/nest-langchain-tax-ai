@@ -1,13 +1,13 @@
 import { BatchPayload } from 'src/types/order.types';
-import { BatchOrderDto } from './dto/order.dto';
-import { OrderRepo } from './order.repository';
+import { BatchOrderDto } from './dto/cutomer.dto';
+import { CustomerRepo } from './customer.repository';
 import { AccountIdentifier, BankAccount } from 'src/types/account.types';
 import { v4 as uuidv4 } from 'uuid';
 
-export class OrderService {
-  private readonly orderRepo: OrderRepo;
+export class CustomerService {
+  private readonly orderRepo: CustomerRepo;
   constructor() {
-    this.orderRepo = new OrderRepo();
+    this.orderRepo = new CustomerRepo();
   }
 
   public async GenerateBatchOrderPayload(

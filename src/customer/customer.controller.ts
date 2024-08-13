@@ -7,14 +7,14 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { BatchOrderDto } from './dto/order.dto';
-import { OrderService } from './order.service';
+import { BatchOrderDto } from './dto/cutomer.dto';
+import { CustomerService } from './customer.service';
 import { ChatHeader } from 'src/langchain-chat/dtos/context-aware-messages.dto';
 import { Response } from 'express';
 
 @Controller('order')
-export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+export class CustomerController {
+  constructor(private readonly orderService: CustomerService) {}
 
   @Post('batch-order')
   async batchOrder(

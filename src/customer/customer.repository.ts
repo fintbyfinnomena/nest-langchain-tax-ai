@@ -5,7 +5,7 @@ import {
   GetBankSubscriptionsResponse,
 } from 'src/types/account.types';
 
-export class OrderRepo {
+export class CustomerRepo {
   private registrarBaseUrl: string;
   constructor() {
     this.registrarBaseUrl = process.env.REGISTRAR_BASE_URL;
@@ -13,7 +13,7 @@ export class OrderRepo {
   async GetAllAccountIdentifierByUserID(
     userID: number,
   ): Promise<AccountIdentifier[]> {
-    const url = `${process.env.REGISTRAR_BASE_URL}/registrar-service/private/api/v1/customer/account-identifier`;
+    const url = `${this.registrarBaseUrl}/registrar-service/private/api/v1/customer/account-identifier`;
     const headers = {
       'Content-Type': 'application/json',
       'Finno-User-ID': userID,
@@ -43,7 +43,7 @@ export class OrderRepo {
     userID: number,
     accountCode: string,
   ): Promise<GetBankSubscriptionsResponse> {
-    const url = `${process.env.REGISTRAR_BASE_URL}/registrar-service/private/api/v1/account/account-code/${accountCode}?scope=subscription_banks`;
+    const url = `${this.registrarBaseUrl}/registrar-service/private/api/v1/account/account-code/${accountCode}?scope=subscription_banks`;
     const headers = {
       'Content-Type': 'application/json',
       'Finno-User-ID': userID,

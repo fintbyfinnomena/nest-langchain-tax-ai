@@ -7,7 +7,7 @@ import { FundModule } from './fund/fund.module';
 import { FeedbackModule } from './feedback/feedback.module';
 // import { VectorStoreService } from './services/vector-store.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { OrderModule } from './order/order.module';
+import { CustomerModule } from './customer/customer.module';
 require('dotenv').config();
 
 @Module({
@@ -20,7 +20,7 @@ require('dotenv').config();
     FundModule,
     ChatModule,
     FeedbackModule,
-    OrderModule,
+    CustomerModule,
     MongooseModule.forRoot(
       process.env.NODE_ENV === 'local'
         ? `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
