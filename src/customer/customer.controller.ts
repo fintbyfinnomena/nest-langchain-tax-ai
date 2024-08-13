@@ -12,7 +12,7 @@ import { CustomerService } from './customer.service';
 import { ChatHeader } from 'src/langchain-chat/dtos/context-aware-messages.dto';
 import { Response } from 'express';
 
-@Controller('order')
+@Controller('customer')
 export class CustomerController {
   constructor(private readonly orderService: CustomerService) {}
 
