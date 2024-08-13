@@ -8,8 +8,6 @@ function getConfig() {
     fundApi: {
       baseUrl: 'https://api-int.finnomena.com/fund-service/public/api/v2/funds',
     },
-    registrarBaseUrl: process.env.REGISTRAR_BASE_URL,
-    tradeWebUrl: process.env.TRADE_WEB_URL,
     tsf: {
       portfolio: [
         {

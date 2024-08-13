@@ -1,5 +1,4 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import Config from '../config/tax.chat.config';
 import {
   AccountIdentifier,
   FinnoAPIResponse,
@@ -9,12 +8,12 @@ import {
 export class OrderRepo {
   private registrarBaseUrl: string;
   constructor() {
-    this.registrarBaseUrl = Config.registrarBaseUrl;
+    this.registrarBaseUrl = process.env.REGISTRAR_BASE_URL;
   }
   async GetAllAccountIdentifierByUserID(
     userID: number,
   ): Promise<AccountIdentifier[]> {
-    const url = `${this.registrarBaseUrl}/private/api/v1/customer/account-identifier`;
+    const url = `${process.env.REGISTRAR_BASE_URL}/registrar-service/private/api/v1/customer/account-identifier`;
     const headers = {
       'Content-Type': 'application/json',
       'Finno-User-ID': userID,
@@ -30,16 +29,21 @@ export class OrderRepo {
       data: bodyReq,
     };
 
-    const response =
-      await axios<FinnoAPIResponse<AccountIdentifier[]>>(axiosOptions);
-    return response.data.data;
+    try {
+      const response =
+        await axios<FinnoAPIResponse<AccountIdentifier[]>>(axiosOptions);
+      return response.data.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to get account identifier');
+    }
   }
 
   async GetBanksSubscription(
     userID: number,
     accountCode: string,
   ): Promise<GetBankSubscriptionsResponse> {
-    const url = `${this.registrarBaseUrl}/private/api/v1/account/account-code/${accountCode}?scope=subscription_banks`;
+    const url = `${process.env.REGISTRAR_BASE_URL}/registrar-service/private/api/v1/account/account-code/${accountCode}?scope=subscription_banks`;
     const headers = {
       'Content-Type': 'application/json',
       'Finno-User-ID': userID,
@@ -50,8 +54,15 @@ export class OrderRepo {
       headers,
     };
 
-    const response =
-      await axios<FinnoAPIResponse<GetBankSubscriptionsResponse>>(axiosOptions);
-    return response.data.data;
+    try {
+      const response =
+        await axios<FinnoAPIResponse<GetBankSubscriptionsResponse>>(
+          axiosOptions,
+        );
+      return response.data.data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to get bank subscriptions');
+    }
   }
 }
