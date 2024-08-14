@@ -42,10 +42,7 @@ export type FundInfoCard = {
     },
   ];
   fee: FundFee;
-  tsfRecommendation: {
-    isRecommended: boolean;
-    comment: string | null;
-  };
+  tsfComment: string | null;
   fundQuoteLink: string;
 };
 

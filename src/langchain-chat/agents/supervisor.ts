@@ -21,6 +21,7 @@ import {
   taxSavingFundSuggestedListTool,
   ltfKnowledgeTool,
   eventAndPromotionTool,
+  fundRankingTool,
   completeOrEscalate,
 } from 'src/langchain-chat/tools/customTools';
 
@@ -29,6 +30,7 @@ import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
 import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { finnomenaPrompts } from 'src/prompts/finnomena.prompts';
+import { fundRankingPrompt } from 'src/prompts/fundRanking.prompts';
 import {
   supervisorRolePrompt,
   supervisorConditionPrompt,
@@ -41,6 +43,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     'tax_saving_fund_suggested_list',
     'tax_saving_fund_knowledge',
     'finnomena_knowledge',
+    'fund_ranking',
   ];
   const options = [END, ...members];
   // Define the routing function
@@ -128,6 +131,13 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     systemPrompt: finnomenaPrompts,
   });
 
+  const fundRankingAgentNode = await generatorAgentNode({
+    name: 'fund_ranking',
+    llm: llmModle,
+    tools: [fundRankingTool, completeOrEscalate],
+    systemPrompt: fundRankingPrompt,
+  });
+
   const workflow = new StateGraph<AgentStateChannelsInterface, unknown, string>(
     {
       channels: agentStateChannels,
@@ -138,6 +148,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     .addNode('tax_saving_fund_suggested_list', tsfFundSuggestedListAgentNode)
     .addNode('tax_saving_fund_knowledge', tsfKnowledgeAgentNode)
     .addNode('finnomena_knowledge', finnomenaAgentNode)
+    .addNode('fund_ranking', fundRankingAgentNode)
     .addNode('supervisor', supervisorChain);
 
   members.forEach((member) => {
