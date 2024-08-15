@@ -12,7 +12,7 @@ const FUND_SELECTION_LOGIC = `
 
 สำหรับกอง TESG เราแนะนำไว้ท้ายสุดเนื่องจากเป็นกองทุนที่ไม่มีความยืดหยุ่นในประเภทสินทรัพย์ที่ลงทุนได้
 
-เมื่อ TAXi คำนวณสัดส่วนกองทุนทั้งหมดแล้ว จะทำการเลือกแนะนำกองทุนตามความเสี่ยงที่ผู้เสียภาษีต้องการ โดยกองทุนเหล่านี้ได้มีการคัดเลือกจากผู้เชี่ยวชาญและ TAXi ของทาง FINNOMENA ดูหลักการคัดเลือกกองทุนเต็ม ๆ ที่ https://www.finnomena.com/tumsuphakorn/finnomena-pick/`;
+เมื่อ TAXi คำนวณสัดส่วนกองทุนทั้งหมดแล้ว จะทำการเลือกแนะนำกองทุนตามความเสี่ยงที่ผู้เสียภาษีต้องการ โดยกองทุนเหล่านี้ได้มีการคัดเลือกจากผู้เชี่ยวชาญและ TAXi ของทาง FINNOMENA ดูหลักการคัดเลือกกองทุนเต็ม ๆ [คลิก](https://www.finnomena.com/finnomenafunds/ssf-rmf-for-diy/#screening-method)`;
 
 function validNumberInput(x: number): boolean {
   return x >= 0 && x < MAX_NUMBER_INPUT;
