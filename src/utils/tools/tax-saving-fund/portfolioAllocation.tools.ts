@@ -334,5 +334,18 @@ function calculateAllocationByOrder(
     }
   }
 
+  // Check portion not 100%
+  const totalAllocatedAmount = allocation.reduce(
+    (acc, curr) => acc + curr.funds.reduce((a, c) => a + c.proportion, 0),
+    0,
+  );
+
+  if (totalAllocatedAmount < 100) {
+    const lastType = allocation[allocation.length - 1];
+    const lastAllocation = lastType.funds[lastType.funds.length - 1];
+    console.log(lastAllocation);
+    lastAllocation.proportion += 100 - totalAllocatedAmount;
+  }
+
   return allocation;
 }
