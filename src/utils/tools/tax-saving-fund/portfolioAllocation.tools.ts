@@ -57,8 +57,10 @@ export function suggestPortfolioAllocation(
     desiredAmount = maximumAllowAmount.all;
   }
 
+  const ageAbove45 = input.age >= 45;
+
   let fundTypeOrder;
-  if (input.ageAbove45) {
+  if (ageAbove45) {
     fundTypeOrder = [
       TaxSavingFundType.RMF,
       TaxSavingFundType.SSF,
@@ -80,9 +82,8 @@ export function suggestPortfolioAllocation(
   );
 
   result.reason =
-    (input.ageAbove45
-      ? ABOVE_45_CONSTRUCTION_LOGIC
-      : BELOW_45_CONSTRUCTION_LOGIC) + FUND_SELECTION_LOGIC;
+    (ageAbove45 ? ABOVE_45_CONSTRUCTION_LOGIC : BELOW_45_CONSTRUCTION_LOGIC) +
+    FUND_SELECTION_LOGIC;
 
   return result;
 }
@@ -179,6 +180,9 @@ export function calculateMaximumAllowAmount(
 }
 
 function validateComboAllocationInput(input: Type.ComboAllocationInput): void {
+  if (!validNumberInput(input.age)) {
+    throw new Error('error: Please provide valid age');
+  }
   if (!validNumberInput(input.annualIncome)) {
     throw new Error('error: Please provide valid annual income');
   }

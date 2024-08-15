@@ -1,7 +1,7 @@
 import { RiskLevel, TaxSavingFundType } from './enum.prompts';
 
 export type ComboAllocationInput = {
-  ageAbove45: boolean;
+  age: number;
   annualIncome: number;
   alternativeRetirementFund: number; // กองทุนสำรองเลี้ยงชีพ, กองทุนสงเคราะห์ครูฯ
   govPensionFund: number; // กบข.
