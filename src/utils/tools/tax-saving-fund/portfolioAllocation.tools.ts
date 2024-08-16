@@ -3,7 +3,7 @@ import {
   RiskLevel,
   TaxSavingFundType,
 } from '../../../types/tax-saving-fund/enum.prompts';
-import Config from '../../../config/tax.chat.config';
+import { getConfig } from '../../../config/tax.chat.config';
 
 const MAX_NUMBER_INPUT = 9999999999;
 const BELOW_45_CONSTRUCTION_LOGIC = `สำหรับผู้เสียภาษีที่อายุ 45 ปีหรือต่ำกว่า  Charlie จะแนะนำให้ลงทุนในกองทุน SSF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน RMF และ TESG เนื่องจากตามกฎหมาย กองทุนประเภทนี้ไม่จำเป็นต้องถือถึงอายุ 55 ถึงจะขายกองทุนเหล่านั้นออกมาได้ เพียงแค่ถือเป็นระยะเวลา 10 ปีก็สามารถขายออกมาได้ทันที (ตัวอย่าง ผู้เสียภาษีอายุ 44 ปี สามารถขายกองทุนนำเงินออกมาได้ตั้งแต่อายุ 54 ปี) นอกจากนี้กองทุนประเภท SSF ยังไม่มีเงื่อนไขที่ต้องลงทุนต่อเนื่องทุกปีแบบ RMF อีกด้วย`;
@@ -257,7 +257,7 @@ function createFundTypeAllocation(
 }
 
 function getConfigMeta(key: string): string | number {
-  const elem = Config.tsf.meta.find((i) => i.key === key);
+  const elem = getConfig().tsf.meta.find((i) => i.key === key);
 
   if (!elem) {
     throw new Error(`error: config meta key: ${key} not found`);
@@ -271,7 +271,7 @@ function getConfigCombo(
 ): Type.ModelFundAllocation[] {
   const result: Type.ModelFundAllocation[] = [];
 
-  for (const i of Config.tsf.portfolio) {
+  for (const i of getConfig().tsf.portfolio) {
     if (i.type === (type as string) && i.risk === (risk as string)) {
       result.push({
         type,
@@ -347,7 +347,6 @@ function calculateAllocationByOrder(
   if (totalAllocatedAmount < 100) {
     const lastType = allocation[allocation.length - 1];
     const lastAllocation = lastType.funds[lastType.funds.length - 1];
-    console.log(lastAllocation);
     lastAllocation.proportion += 100 - totalAllocatedAmount;
   }
 

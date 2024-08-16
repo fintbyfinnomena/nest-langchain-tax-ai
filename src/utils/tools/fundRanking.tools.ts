@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Config from '../../config/tax.chat.config';
+import { getConfig } from '../../config/tax.chat.config';
 import path from 'path';
 import { FundInfoCard } from '../../types/fundInfo.types';
 import { FundFilterInput } from '../../types/fundRanking.types';
@@ -19,7 +19,7 @@ export async function getFundRanking(
 async function fetchFundRankingApi(
   input: FundFilterInput,
 ): Promise<FundInfoCard[]> {
-  const fundApiBaseUrl = Config.fundApi.baseUrl;
+  const fundApiBaseUrl = getConfig().fundApi.baseUrl;
 
   try {
     let fundRankingUrl = path.join(fundApiBaseUrl, '/filter');

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Config from '../../config/tax.chat.config';
+import { getConfig } from '../../config/tax.chat.config';
 import path from 'path';
 import {
   FundInfoCard,
@@ -32,8 +32,8 @@ export async function getFundInformation(
 async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
   const encodedFundName = encodeURIComponent(fundName);
 
-  const fundApiBaseUrl = Config.fundApi.baseUrl;
-  const fundQuoteBaseUrl = Config.fundQuote.baseUrl;
+  const fundApiBaseUrl = getConfig().fundApi.baseUrl;
+  const fundQuoteBaseUrl = getConfig().fundQuote.baseUrl;
 
   try {
     // Construct URLs
@@ -132,7 +132,7 @@ type FundFussyResult = {
 export async function getFundFussySearch(
   fundName: string,
 ): Promise<FundFussyResult[]> {
-  const fundListUrl = Config.fundApi.baseUrl;
+  const fundListUrl = getConfig().fundApi.baseUrl;
   try {
     const response = await axios.get(fundListUrl);
     const fundList = response.data.data;
@@ -159,7 +159,7 @@ export async function getFundFussySearch(
 }
 
 function fetchTSFComment(fundName: string): string | null {
-  const elem = Config.tsf.recommendedFund.find((i) => i.fund === fundName);
+  const elem = getConfig().tsf.recommendedFund.find((i) => i.fund === fundName);
   if (!elem) return null;
   return elem['fund_comment'];
 }
