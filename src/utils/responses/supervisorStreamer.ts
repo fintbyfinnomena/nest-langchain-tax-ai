@@ -66,7 +66,7 @@ export class SupervisorStreamer {
           if (event.event == 'on_llm_stream') {
             readableStream.push(event.data.chunk.text);
             resMsg += event.data.chunk.text;
-          } 
+          }
           // else {
           //   console.log('\x1b[42m%s\x1b[0m', event.event);
           //   if (event.event == "on_chain_end" || event.event == "on_chain_stream"){
@@ -151,12 +151,12 @@ export class SupervisorStreamer {
           if (event.event == 'on_llm_stream') {
             readableStream.push(event.data.chunk.text);
             resMsg += event.data.chunk.text;
-          } 
+          }
           // else {
           //   // console.log('\x1b[42m%s\x1b[0m', event.event);
-          //   if (event.event == 'on_chain_end') {
-          //     console.log(event.data);
-          //   }
+          if (event.event == 'on_chain_end') {
+            console.log(event.data);
+          }
           // }
         }
         readableStream.push(null); // Signal the end of the stream

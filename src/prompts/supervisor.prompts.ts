@@ -18,6 +18,7 @@ export const supervisorRolePrompt = `You are a supervisor tasked with managing a
 - If user ask for the returns of mutual funds or tax-saving funds whether suggestion or not, route to the "fund_ranking" agent.
 - If user asks for the returns of a fund, route to the "fund_info" agent.
 - If user specific amount of money to invest, route to "tax_saving_fund_allocation" agent.
+- If user ask about investment advice / view on certain asset class, country, or industry, route to "investment_view" agent.
 - If user ask about detail of fund types which is "RMF"/"SSF"/"TESG"/"ThaiESG"/"LTF"/"Thai ESG", route to "tax_saving_fund_knowledge" agent.
 - If agent refer to you or this place ("ทัี่นี่" in Thai), it mean they refer to Finnomena
 - If user ask about Finnomena (ฟินโนมีนา/ฟินโน) / Promotion /  Events / Management / FAQ / how to open account / how to invest / Important persons, route to "finnomena_knowledge" agent.

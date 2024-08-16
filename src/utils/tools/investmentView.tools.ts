@@ -17,7 +17,7 @@ const redisInvestmentViewKey = 'investment_view';
 const redisInvestmentViewUpdateTime = 'investment_view_updated_at';
 const updateIntervalMinute = 30;
 
-export const getAllInvestmentViews = async (): Promise<InvestmentView[]> => {
+export const getAllInvestmentViews = async (): Promise<string> => {
   const updatedTime = await GetLatestUpdateTime();
 
   if (
@@ -28,7 +28,7 @@ export const getAllInvestmentViews = async (): Promise<InvestmentView[]> => {
   }
 
   const investmentViews = await getRedisClient().get(redisInvestmentViewKey);
-  return investmentViews ? JSON.parse(investmentViews) : [];
+  return investmentViews;
 };
 
 const GetLatestUpdateTime = async (): Promise<DateTime | null> => {
