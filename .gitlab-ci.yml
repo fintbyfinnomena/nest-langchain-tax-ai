@@ -2,7 +2,6 @@ variables:
   USERNAME: tech_finnomena
   APP_PASSWORD: $APP_PASSWORD
   TEAM_NAME: nextspace
-  NOTI_HOOK_TEAM: nextspace
   SUB_GROUP_NAME: ai
   REPO_CONFIG: https://tech_finnomena:$GITLAB_ACCESS_TOKEN@gitlab.finnomena.com/finnomena/$TEAM_NAME/$SUB_GROUP_NAME/$CI_PROJECT_NAME-config.git
 
@@ -11,16 +10,14 @@ include:
     ref: "v1.0.0"
     file:
       - build-deploy-template.yml
-      - notification-template.yml
       - container-scanning-template.yml
 
 stages:
-  - publish_staging
   - container_scanning
+  - publish_staging
   - update_staging
   - publish_prod
   - update_prod
-  - send_noti
 
 update_development:
   stage: update_staging
@@ -51,6 +48,29 @@ update_integration:
     - git push -f gitlab integration
   only:
     - integration
+
+update_qa-6:
+  stage: update_staging
+  before_script:
+    - apt-get update -y && apt-get install -yqqf openssh-client git unzip sshpass rsync --fix-missing
+    - git config --global user.email "tech@finnomena.com"
+    - git config --global user.name "tech_finnomena"
+  script:
+    - cat variable-gitlab
+    - export SHORT_SHA=$(cat variable-gitlab)
+    - git clone $REPO_CONFIG
+    - cd $CI_PROJECT_NAME-config
+    - git checkout qa-6
+    - git pull
+    - cat kubernetes/values-qa-6.yaml
+    - sed -i "s/tag:\s.*/tag:\ \"$SHORT_SHA\"/g" kubernetes/values-qa-6.yaml
+    - cat kubernetes/values-qa-6.yaml
+    - git add -A
+    - git commit -m "Auto release $CI_PROJECT_NAME:$SHORT_SHA on UAT"
+    - git remote add gitlab $REPO_CONFIG
+    - git push -f gitlab qa-6
+  only:
+    - qa-6
 
 update_prod:
   stage: update_prod
