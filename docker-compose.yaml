@@ -31,3 +31,13 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - './docker_volume/mongo/data:/data/db'
+
+  # This has to forward by kube port-forward, need permission for access Finnomena kube cluster
+  registrar-service:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+    volumes:
+      - ~/.config/gcloud:/root/.config/gcloud
+    command: >
+      bash -c "gcloud container clusters get-credentials svcmesh01t --zone asia-southeast1-a --project finnomena-staging && kubectl port-forward -n registrar svc/befund-registrar-service --address 0.0.0.0 80:80"
+    ports:
+      - 127.0.0.1:6545:80
