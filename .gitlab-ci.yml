@@ -39,11 +39,11 @@ update_integration:
     - cd $CI_PROJECT_NAME-config
     - git checkout integration
     - git pull
-    - cat kubernetes/values-staging.yaml
-    - sed -i "s/tag:\s.*/tag:\ \"$SHORT_SHA\"/g" kubernetes/values-staging.yaml
-    - cat kubernetes/values-staging.yaml
+    - cat kubernetes/values-int.yaml
+    - sed -i "s/tag:\s.*/tag:\ \"$SHORT_SHA\"/g" kubernetes/values-int.yaml
+    - cat kubernetes/values-int.yaml
     - git add -A
-    - git commit -m "Auto release $CI_PROJECT_NAME:$SHORT_SHA on staging"
+    - git commit -m "Auto release $CI_PROJECT_NAME:$SHORT_SHA on Integration"
     - git remote add gitlab $REPO_CONFIG
     - git push -f gitlab integration
   only:
