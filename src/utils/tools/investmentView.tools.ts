@@ -17,13 +17,13 @@ const redisInvestmentViewKey = 'investment_view';
 const redisInvestmentViewUpdateTime = 'investment_view_updated_at';
 const updateIntervalMinute = 30;
 
-export const GetAllInvestmentViews = async (): Promise<InvestmentView[]> => {
+export const getAllInvestmentViews = async (): Promise<InvestmentView[]> => {
   const updatedTime = await GetLatestUpdateTime();
+
   if (
     !updatedTime ||
     updatedTime < DateTime.now().minus({ minutes: updateIntervalMinute })
   ) {
-    console.log('cache miss');
     await UpdateInvestmentView();
   }
 
@@ -61,7 +61,7 @@ const getInvestmentViewFromGGSheet = async (): Promise<InvestmentView[]> => {
 };
 
 const UpdateInvestmentView = async (): Promise<void> => {
-  const views = getInvestmentViewFromGGSheet();
+  const views = await getInvestmentViewFromGGSheet();
   await getRedisClient().set(redisInvestmentViewKey, JSON.stringify(views));
   await getRedisClient().set(
     redisInvestmentViewUpdateTime,
