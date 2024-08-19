@@ -1,4 +1,10 @@
-import { Inject, Injectable, HttpStatus, HttpException, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  HttpStatus,
+  HttpException,
+  Logger,
+} from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
 import { openAI } from 'src/utils/constants/openAI.constants';
 import {
@@ -92,16 +98,15 @@ export class ChatService {
 
   async temporaryChatHistory(sessionId: string) {
     try {
-      const history = await this.chatHistoryManager.GetHistoryMessagesBySessionID(
-        sessionId,
-      );
-      const messages = await history.getMessages()
+      const history =
+        await this.chatHistoryManager.GetHistoryMessagesBySessionID(sessionId);
+      const messages = await history.getMessages();
       const result = [];
       for (const h of messages) {
         if (h instanceof HumanMessage) {
-          result.push({"human":h.content})
-        }else if(h instanceof AIMessage) {
-          result.push({"ai":h.content})
+          result.push({ human: h.content });
+        } else if (h instanceof AIMessage) {
+          result.push({ ai: h.content });
         }
       }
       return await customMessage(HttpStatus.OK, MESSAGES.SUCCESS, result);
@@ -113,8 +118,7 @@ export class ChatService {
           MESSAGES.EXTERNAL_SERVER_ERROR,
         ),
         HttpStatus.INTERNAL_SERVER_ERROR,
-      )
+      );
     }
   }
-
 }

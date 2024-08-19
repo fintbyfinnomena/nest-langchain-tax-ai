@@ -19,9 +19,7 @@ export class ChatController {
   }
 
   @Get(':id')
-  async temporaryChatHistory(
-    @Param('id') id
-  ) {
-    return await this.chatService.temporaryChatHistory(id,);
+  async temporaryChatHistory(@Param('id') id) {
+    return await this.chatService.temporaryChatHistory(id);
   }
 }
