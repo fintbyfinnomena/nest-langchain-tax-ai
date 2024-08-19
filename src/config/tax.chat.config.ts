@@ -1,7 +1,24 @@
-// This is simulation of getting config from https://docs.google.com/spreadsheets/d/1FXn5lJXCPIiYXlstZ3apV2wN0umaRIbBR1zCh337xSw/edit?usp=sharing
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-function getConfig() {
+import { promises as fs } from 'fs';
+// This is simulation of getting config from https://docs.google.com/spreadsheets/d/1FXn5lJXCPIiYXlstZ3apV2wN0umaRIbBR1zCh337xSw/edit?usp=sharing
+export const getConfig = () => {
   return {
+    NODE_ENV: process.env.NODE_ENV,
+    investmentViewWorksheetId: process.env.INVESTMENT_VIEW_WORKSHEET_ID,
+    investmentViewSheetId: process.env.INVESTMENT_VIEW_SHEET_ID,
+
+    redisHost: process.env.REDIS_HOST,
+    redisPort: process.env.REDIS_PORT,
+    redisUsername: process.env.REDIS_USERNAME,
+    redisPassword: process.env.REDIS_PASSWORD,
+
+    mongoHost: process.env.MONGO_HOST,
+    mongoPort: process.env.MONGO_PORT,
+    mongoUsername: process.env.MONGO_USERNAME,
+    mongoPassword: process.env.MONGO_PASSWORD,
+
     fundQuote: {
       baseUrl: 'https://www.finnomena.com/fund/',
     },
@@ -488,6 +505,27 @@ function getConfig() {
       ],
     },
   };
-}
+};
 
-export default getConfig();
+export async function getGGServiceAccount() {
+  try {
+    // Ensure the environment variable is set
+    const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    if (!credentialsPath) {
+      throw new Error(
+        'GOOGLE_APPLICATION_CREDENTIALS environment variable is not set.',
+      );
+    }
+
+    // Read the file content
+    const fileContent = await fs.readFile(credentialsPath, 'utf8');
+
+    // Parse the JSON content
+    const credentials = JSON.parse(fileContent);
+
+    return credentials;
+  } catch (error) {
+    console.error('Failed to read Google Application Credentials:', error);
+    throw error; // Rethrow the error after logging
+  }
+}

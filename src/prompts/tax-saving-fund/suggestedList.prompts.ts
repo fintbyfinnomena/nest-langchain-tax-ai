@@ -1,7 +1,7 @@
-import Config from 'src/config/tax.chat.config';
+import { getConfig } from 'src/config/tax.chat.config';
 
-const recommendedFundParsedString = Config.tsf.recommendedFund
-  .map(
+const recommendedFundParsedString = getConfig()
+  .tsf.recommendedFund.map(
     (fund) =>
       `fund: ${fund.fund} / risk: ${fund.risk} / type: ${fund.type} / category: ${fund.category} / fund_comment: ${fund.fund_comment}`,
   )

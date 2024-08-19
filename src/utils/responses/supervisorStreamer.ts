@@ -154,9 +154,9 @@ export class SupervisorStreamer {
           }
           // else {
           //   // console.log('\x1b[42m%s\x1b[0m', event.event);
-          //   if (event.event == 'on_chain_end') {
-          //     console.log(event.data);
-          //   }
+          if (event.event == 'on_chain_end') {
+            console.log(event.data);
+          }
           // }
         }
         readableStream.push(null); // Signal the end of the stream
