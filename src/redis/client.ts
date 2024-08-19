@@ -22,11 +22,11 @@ const createClient = () => {
     password: config.redisPassword,
   };
 
-  if (!isLocalEnv) {
-    redisOptions.tls = {
-      host: config.redisHost,
-    };
-  }
+  // if (!isLocalEnv) {
+  //   redisOptions.tls = {
+  //     host: config.redisHost,
+  //   };
+  // }
 
   client = new Redis(redisOptions);
 };
