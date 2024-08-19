@@ -20,21 +20,25 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   description:
     'useful for create or suggest proper tax saving funds allocation and allocate you port.',
   schema: z.object({
-    ageAbove45: z.boolean().describe('age above 45 year old ?'),
-    annualIncome: z.number().describe('annual income'),
+    age: z.number().describe('age / อายุ'),
+    annualIncome: z.number().describe('annual income / รายได้ประจำปี'),
     alternativeRetirementFund: z
       .number()
-      .describe('sum of the alternative retirement fund'),
-    govPensionFund: z.number().describe('the total of government pension fund'),
+      .describe(
+        `sum of the investment in "กองทุนสำรองเลี้ยงชีพ", "กองทุนสงเคราะห์ครู" this year`,
+      ),
+    govPensionFund: z.number().describe('investment in "กบข." this year'),
     nationalSavingFund: z
       .number()
-      .describe('the total of national saving fund'),
-    pensionInsurance: z.number().describe('the total of pension insurance'),
-    riskLevel: z.nativeEnum(RiskLevel).describe('personal risk level.'),
+      .describe('investment in "กองทุนการออมแห่งชาติ" this year'),
+    pensionInsurance: z
+      .number()
+      .describe('investment in "ประกันบำนาญ" this year'),
+    riskLevel: z.nativeEnum(RiskLevel).describe('investor risk level.'),
     desiredAmount: z.number().describe('the desired amount'),
   }),
   func: async ({
-    ageAbove45,
+    age,
     annualIncome,
     alternativeRetirementFund,
     govPensionFund,
@@ -45,7 +49,7 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> suggestPortProfileAllocationTool doing!!")
     const input: Type.ComboAllocationInput = {
-      ageAbove45: ageAbove45,
+      age: age,
       annualIncome: annualIncome,
       alternativeRetirementFund: alternativeRetirementFund,
       govPensionFund: govPensionFund,
@@ -74,7 +78,7 @@ export const fundInformationTool = new DynamicStructuredTool({
   }),
   func: async ({ fundName }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    console.log('\x1b[36m%s\x1b[0m', '--> send request : ', fundName);
     const result = await getFundInformation(fundName);
     return JSON.stringify(result);
   },
@@ -94,8 +98,7 @@ export const fundNameFussySearch = new DynamicStructuredTool({
       ),
   }),
   func: async ({ fundName }) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> fundNameFussySearch doing!!")
     const result = await getFundFussySearch(fundName);
     return JSON.stringify(result);
   },
@@ -106,7 +109,7 @@ export const taxSavingFundSuggestedListTool = new DynamicTool({
   description:
     'useful for to give a suggested list on each type of tax saving fund from Finnomena this year',
   func: async () => {
-    // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundTool doing!!")
+    // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundSuggestedListTool doing!!")
     const result = await getTaxSavingFundSuggestedList();
     return JSON.stringify(result);
   },
@@ -141,8 +144,7 @@ export const ltfKnowledgeTool = new DynamicStructuredTool({
   description: 'useful for get information about LTF fund',
   schema: z.object({}),
   func: async ({}) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> ltfKnowledgeTool doing!!")
     return ltfKnowledge();
   },
 });
@@ -153,8 +155,7 @@ export const eventAndPromotionTool = new DynamicStructuredTool({
     'useful for get information about tax saving fund event and promotion from Finnomena',
   schema: z.object({}),
   func: async ({}) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> eventAndPromotionTool doing!!")
     return eventAndPromotion();
   },
 });

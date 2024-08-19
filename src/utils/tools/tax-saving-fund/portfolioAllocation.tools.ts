@@ -6,13 +6,13 @@ import {
 import Config from '../../../config/tax.chat.config';
 
 const MAX_NUMBER_INPUT = 9999999999;
-const BELOW_45_CONSTRUCTION_LOGIC = `สำหรับผู้เสียภาษีที่อายุ 45 ปีหรือต่ำกว่า  TAXi จะแนะนำให้ลงทุนในกองทุน SSF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน RMF และ TESG เนื่องจากตามกฎหมาย กองทุนประเภทนี้ไม่จำเป็นต้องถือถึงอายุ 55 ถึงจะขายกองทุนเหล่านั้นออกมาได้ เพียงแค่ถือเป็นระยะเวลา 10 ปีก็สามารถขายออกมาได้ทันที (ตัวอย่าง ผู้เสียภาษีอายุ 44 ปี สามารถขายกองทุนนำเงินออกมาได้ตั้งแต่อายุ 54 ปี) นอกจากนี้กองทุนประเภท SSF ยังไม่มีเงื่อนไขที่ต้องลงทุนต่อเนื่องทุกปีแบบ RMF อีกด้วย`;
-const ABOVE_45_CONSTRUCTION_LOGIC = `สำหรับ ผู้เสียภาษีที่อายุมากกว่า 45 ปี  TAXi จะแนะนำให้ลงทุนในกองทุน RMF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน SSF และ TESG เนื่องจากมีโอกาสที่จะขายกองทุนเหล่านี้ออกมาในระยะเวลาที่ต่ำกว่า 10 ปีของ SSF ได้ จากเงื่อนไขอายุที่เข้าใกล้ 55 ปี`;
+const BELOW_45_CONSTRUCTION_LOGIC = `สำหรับผู้เสียภาษีที่อายุ 45 ปีหรือต่ำกว่า  Charlie จะแนะนำให้ลงทุนในกองทุน SSF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน RMF และ TESG เนื่องจากตามกฎหมาย กองทุนประเภทนี้ไม่จำเป็นต้องถือถึงอายุ 55 ถึงจะขายกองทุนเหล่านั้นออกมาได้ เพียงแค่ถือเป็นระยะเวลา 10 ปีก็สามารถขายออกมาได้ทันที (ตัวอย่าง ผู้เสียภาษีอายุ 44 ปี สามารถขายกองทุนนำเงินออกมาได้ตั้งแต่อายุ 54 ปี) นอกจากนี้กองทุนประเภท SSF ยังไม่มีเงื่อนไขที่ต้องลงทุนต่อเนื่องทุกปีแบบ RMF อีกด้วย`;
+const ABOVE_45_CONSTRUCTION_LOGIC = `สำหรับ ผู้เสียภาษีที่อายุมากกว่า 45 ปี  Charlie จะแนะนำให้ลงทุนในกองทุน RMF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน SSF และ TESG เนื่องจากมีโอกาสที่จะขายกองทุนเหล่านี้ออกมาในระยะเวลาที่ต่ำกว่า 10 ปีของ SSF ได้ จากเงื่อนไขอายุที่เข้าใกล้ 55 ปี`;
 const FUND_SELECTION_LOGIC = `
 
 สำหรับกอง TESG เราแนะนำไว้ท้ายสุดเนื่องจากเป็นกองทุนที่ไม่มีความยืดหยุ่นในประเภทสินทรัพย์ที่ลงทุนได้
 
-เมื่อ TAXi คำนวณสัดส่วนกองทุนทั้งหมดแล้ว จะทำการเลือกแนะนำกองทุนตามความเสี่ยงที่ผู้เสียภาษีต้องการ โดยกองทุนเหล่านี้ได้มีการคัดเลือกจากผู้เชี่ยวชาญและ TAXi ของทาง FINNOMENA ดูหลักการคัดเลือกกองทุนเต็ม ๆ ที่ https://www.finnomena.com/tumsuphakorn/finnomena-pick/`;
+เมื่อ Charlie คำนวณสัดส่วนกองทุนทั้งหมดแล้ว จะทำการเลือกแนะนำกองทุนตามความเสี่ยงที่ผู้เสียภาษีต้องการ โดยกองทุนเหล่านี้ได้มีการคัดเลือกจากผู้เชี่ยวชาญและ Charlie ของทาง FINNOMENA ดูหลักการคัดเลือกกองทุนเต็ม ๆ [คลิก](https://www.finnomena.com/finnomenafunds/ssf-rmf-for-diy/#screening-method)`;
 
 function validNumberInput(x: number): boolean {
   return x >= 0 && x < MAX_NUMBER_INPUT;
@@ -57,8 +57,10 @@ export function suggestPortfolioAllocation(
     desiredAmount = maximumAllowAmount.all;
   }
 
+  const ageAbove45 = input.age >= 45;
+
   let fundTypeOrder;
-  if (input.ageAbove45) {
+  if (ageAbove45) {
     fundTypeOrder = [
       TaxSavingFundType.RMF,
       TaxSavingFundType.SSF,
@@ -80,9 +82,8 @@ export function suggestPortfolioAllocation(
   );
 
   result.reason =
-    (input.ageAbove45
-      ? ABOVE_45_CONSTRUCTION_LOGIC
-      : BELOW_45_CONSTRUCTION_LOGIC) + FUND_SELECTION_LOGIC;
+    (ageAbove45 ? ABOVE_45_CONSTRUCTION_LOGIC : BELOW_45_CONSTRUCTION_LOGIC) +
+    FUND_SELECTION_LOGIC;
 
   return result;
 }
@@ -179,6 +180,9 @@ export function calculateMaximumAllowAmount(
 }
 
 function validateComboAllocationInput(input: Type.ComboAllocationInput): void {
+  if (!validNumberInput(input.age)) {
+    throw new Error('error: Please provide valid age');
+  }
   if (!validNumberInput(input.annualIncome)) {
     throw new Error('error: Please provide valid annual income');
   }
@@ -332,6 +336,19 @@ function calculateAllocationByOrder(
       }
       remainingDesiredAmount -= suggestedAmount;
     }
+  }
+
+  // Check portion not 100%
+  const totalAllocatedAmount = allocation.reduce(
+    (acc, curr) => acc + curr.funds.reduce((a, c) => a + c.proportion, 0),
+    0,
+  );
+
+  if (totalAllocatedAmount < 100) {
+    const lastType = allocation[allocation.length - 1];
+    const lastAllocation = lastType.funds[lastType.funds.length - 1];
+    console.log(lastAllocation);
+    lastAllocation.proportion += 100 - totalAllocatedAmount;
   }
 
   return allocation;
