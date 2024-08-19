@@ -3,10 +3,10 @@ import {
   TaxSavingFundType,
   RiskLevel,
 } from '../../../types/tax-saving-fund/enum.prompts';
-import Config from '../../../config/tax.chat.config';
+import { getConfig } from '../../../config/tax.chat.config';
 
 export function getTaxSavingFundSuggestedList(): RecommendedFund[] {
-  const singleFundRecommendedList = Config.tsf.recommendedFund;
+  const singleFundRecommendedList = getConfig().tsf.recommendedFund;
 
   const result = [];
   for (const f of singleFundRecommendedList) {
