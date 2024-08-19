@@ -71,10 +71,12 @@ import {
   suggestPortProfileAllocationTool,
   fundInformationTool,
   taxSavingFundSuggestedListTool,
+  investmentViewTool,
 } from 'src/langchain-chat/tools/customTools';
 
 import { portfolioAllocationPrompt } from 'src/prompts/tax-saving-fund/portfolioAllocation.prompts';
 import { fundInfoPrompt } from 'src/prompts/fundInfo.prompts';
+import { investmentViewPrompt } from 'src/prompts/investmentView.prompts';
 import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.prompts';
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { ChatHistoryManagerImp } from 'src/utils/history/implementation';
@@ -292,6 +294,30 @@ export class LangchainChatService {
       const { formattedPreviousMessages, currentMessageContent } =
         this.scrapingContextMessage(contextAwareMessagesDto);
       const agentExecutor = await loadAgentExecutor(tools, suggestedListPrompt);
+      const chatManager = new ChatStreamer(
+        this.chatHistoryManager,
+        sessionId,
+        agentExecutor,
+      );
+      await chatManager.StreamMessage(res, currentMessageContent);
+    } catch (e: unknown) {
+      this.exceptionHandling(e);
+    }
+  }
+
+  async investmentViewAgent(
+    sessionId: string,
+    contextAwareMessagesDto: ContextAwareMessagesDto,
+    res: Response,
+  ) {
+    try {
+      const tools = [investmentViewTool];
+      const { formattedPreviousMessages, currentMessageContent } =
+        this.scrapingContextMessage(contextAwareMessagesDto);
+      const agentExecutor = await loadAgentExecutor(
+        tools,
+        investmentViewPrompt,
+      );
       const chatManager = new ChatStreamer(
         this.chatHistoryManager,
         sessionId,
