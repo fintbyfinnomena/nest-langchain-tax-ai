@@ -15,6 +15,7 @@ export const getConfig = () => {
     redisPassword: process.env.REDIS_PASSWORD,
 
     mongoHost: process.env.MONGO_HOST,
+    mongoDB: process.env.MONGO_DB,
     mongoPort: process.env.MONGO_PORT,
     mongoUsername: process.env.MONGO_USERNAME,
     mongoPassword: process.env.MONGO_PASSWORD,

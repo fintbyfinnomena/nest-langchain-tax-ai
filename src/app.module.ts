@@ -24,8 +24,8 @@ const config = getConfig();
     CustomerModule,
     MongooseModule.forRoot(
       process.env.NODE_ENV === 'local'
-        ? `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}:${process.env.MONGO_PORT}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
-        : `mongodb+srv://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`,
+        ? `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}:${config.mongoPort}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
+        : `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}/${config.mongoDB}?replicaSet=frontier&readPreference=secondary&authSource=admin`,
     ),
   ],
 })
