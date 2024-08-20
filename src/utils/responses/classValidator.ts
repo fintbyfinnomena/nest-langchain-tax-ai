@@ -11,7 +11,7 @@ export class CustomValidationPipe extends ValidationPipe {
     return new BadRequestException({
       status_code: 400,
       error_code: '00',
-      error_message: 'Request validation failed',
+      message: 'รูปแบบข้อมูลไม่ถูกต้อง',
       errors: constraints,
     });
   };
