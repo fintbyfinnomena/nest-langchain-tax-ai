@@ -24,14 +24,14 @@ export function suggestPortfolioAllocation(
   const allocation: Type.FundTypeAllocation[] = [];
   const result = {
     allocation,
-    note: '',
+    error: '',
     reason: '',
   };
 
   try {
     validateComboAllocationInput(input);
   } catch (e: any) {
-    result.note = e.message;
+    result.error = e.message;
     return result;
   }
 
@@ -48,7 +48,7 @@ export function suggestPortfolioAllocation(
   if (desiredAmount) {
     if (desiredAmount > maximumAllowAmount.all) {
       desiredAmount = maximumAllowAmount.all;
-      result.note =
+      result.error =
         'warning: desired amount is more than maximum allowed amount for all tax benefit fund, system will use maximum allowed amount for calculation';
     }
 
