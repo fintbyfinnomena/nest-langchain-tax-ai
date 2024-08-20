@@ -6,7 +6,6 @@ import {
 
 export class CustomValidationPipe extends ValidationPipe {
   protected exceptionFactory = (errors: ValidationError[]) => {
-    console.log('errors => ', errors);
     const constraints = getAllConstraints(errors);
 
     return new BadRequestException({
