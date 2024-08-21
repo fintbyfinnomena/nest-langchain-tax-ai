@@ -29,7 +29,7 @@ export type FundTypeAllocation = {
 
 export type ComboAllocation = {
   allocation: FundTypeAllocation[];
-  note: string;
+  error: string;
   reason: string;
 };
 
