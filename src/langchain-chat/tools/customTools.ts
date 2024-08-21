@@ -48,7 +48,7 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
     riskLevel,
     desiredAmount,
   }) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> suggestPortProfileAllocationTool doing!!")
+    console.log("\x1b[46m%s\x1b[0m","--> suggestPortProfileAllocationTool doing!!")
     const input: Type.ComboAllocationInput = {
       age: age,
       annualIncome: annualIncome,
@@ -59,6 +59,7 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
       riskLevel: riskLevel,
       desiredAmount: desiredAmount,
     };
+    console.log("input > ",input)
     const result = await suggestPortfolioAllocation(input);
     return JSON.stringify(result);
   },
