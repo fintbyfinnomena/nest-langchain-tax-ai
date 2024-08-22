@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import axios, { AxiosRequestConfig } from 'axios';
 import {
   AccountIdentifier,
@@ -35,7 +36,10 @@ export class CustomerRepo {
       return response.data.data;
     } catch (error) {
       console.error(error);
-      throw new Error('Failed to get account identifier');
+      throw new HttpException(
+        'ไม่สามารถร้องขอข้อมูลบัญชีได้',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
   }
 
@@ -62,7 +66,10 @@ export class CustomerRepo {
       return response.data.data;
     } catch (error) {
       console.error(error);
-      throw new Error('Failed to get bank subscriptions');
+      throw new HttpException(
+        'ไม่สามารถร้องขอข้อมูลบัญชีธนาคารได้',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
   }
 }
