@@ -8,8 +8,9 @@ import { FeedbackModule } from './feedback/feedback.module';
 // import { VectorStoreService } from './services/vector-store.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CustomerModule } from './customer/customer.module';
-require('dotenv').config();
+import { getConfig } from './config/tax.chat.config';
 
+const config = getConfig();
 @Module({
   // imports: [ConfigModule.forRoot(), RedisModule],
 
@@ -23,8 +24,8 @@ require('dotenv').config();
     CustomerModule,
     MongooseModule.forRoot(
       process.env.NODE_ENV === 'local'
-        ? `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
-        : `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`,
+        ? `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}:${process.env.MONGO_PORT}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
+        : `mongodb+srv://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`,
     ),
   ],
 })

@@ -22,6 +22,7 @@ import {
   ltfKnowledgeTool,
   eventAndPromotionTool,
   fundRankingTool,
+  investmentViewTool,
   completeOrEscalate,
 } from 'src/langchain-chat/tools/customTools';
 
@@ -31,6 +32,7 @@ import { suggestedListPrompt } from 'src/prompts/tax-saving-fund/suggestedList.p
 import { knowledgePrompt } from 'src/prompts/tax-saving-fund/knowledge.prompts';
 import { finnomenaPrompts } from 'src/prompts/finnomena.prompts';
 import { fundRankingPrompt } from 'src/prompts/fundRanking.prompts';
+import { investmentViewPrompt } from 'src/prompts/investmentView.prompts';
 import {
   supervisorRolePrompt,
   supervisorConditionPrompt,
@@ -44,6 +46,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     'tax_saving_fund_knowledge',
     'finnomena_knowledge',
     'fund_ranking',
+    'investment_view',
   ];
   const options = [END, ...members];
   // Define the routing function
@@ -122,6 +125,12 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     tools: [completeOrEscalate, ltfKnowledgeTool, eventAndPromotionTool],
     systemPrompt: knowledgePrompt,
   });
+  const investmentViewAgentNode = await generatorAgentNode({
+    name: 'investment_view',
+    llm: llmModle,
+    tools: [completeOrEscalate, investmentViewTool],
+    systemPrompt: investmentViewPrompt,
+  });
 
   const finnomenaAgentNode = await generatorAgentNode({
     name: 'finnomena_knowledge',
@@ -148,6 +157,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     .addNode('tax_saving_fund_knowledge', tsfKnowledgeAgentNode)
     .addNode('finnomena_knowledge', finnomenaAgentNode)
     .addNode('fund_ranking', fundRankingAgentNode)
+    .addNode('investment_view', investmentViewAgentNode)
     .addNode('supervisor', supervisorChain);
 
   members.forEach((member) => {

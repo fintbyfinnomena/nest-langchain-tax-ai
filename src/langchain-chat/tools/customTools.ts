@@ -4,6 +4,7 @@ import { z } from 'zod';
 import * as Type from 'src/types/tax-saving-fund/portfolioAllocationn.types';
 import * as FundRankingType from 'src/types/fundRanking.types';
 import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools';
+import { getAllInvestmentViews } from 'src/utils/tools/investmentView.tools';
 import { ltfKnowledge } from 'src/utils/tools/tax-saving-fund/ltf.tool';
 import { eventAndPromotion } from 'src/utils/tools/eventAndPromotion.tools';
 import { TaxSavingFundType, RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
@@ -155,6 +156,17 @@ export const ltfKnowledgeTool = new DynamicStructuredTool({
   func: async ({}) => {
     // console.log("\x1b[46m%s\x1b[0m","--> ltfKnowledgeTool doing!!")
     return ltfKnowledge();
+  },
+});
+
+export const investmentViewTool = new DynamicStructuredTool({
+  name: 'current-investment-view',
+  description:
+    'useful for get information about investment view on each asset class',
+  schema: z.object({}),
+  func: async ({}) => {
+    // console.log("\x1b[46m%s\x1b[0m","--> ltfKnowledgeTool doing!!")
+    return getAllInvestmentViews();
   },
 });
 

@@ -2,7 +2,7 @@ import {
   TaxSavingFundType,
   RiskLevel,
 } from '../../../types/tax-saving-fund/enum.prompts';
-import Config from '../../../config/tax.chat.config';
+import { getConfig } from '../../../config/tax.chat.config';
 
 const fundRecommended = [];
 for (const fund of Config.tsf.recommendedFund) {
