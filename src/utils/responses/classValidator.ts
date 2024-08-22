@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpStatus,
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
@@ -9,7 +10,7 @@ export class CustomValidationPipe extends ValidationPipe {
     const constraints = getAllConstraints(errors);
 
     return new BadRequestException({
-      status_code: 400,
+      status_code: HttpStatus.BAD_REQUEST,
       error_code: '00',
       message: 'รูปแบบข้อมูลไม่ถูกต้อง',
       errors: constraints,

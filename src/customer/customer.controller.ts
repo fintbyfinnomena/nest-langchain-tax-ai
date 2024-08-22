@@ -51,16 +51,18 @@ export class CustomerController {
         userId,
         batchPayload,
       );
-      return res.status(200).json(response);
+      return res.status(HttpStatus.OK).json(response);
     } catch (error) {
       console.error(error);
       const body: AppError = {
-        status_code: error.status || 500,
+        status_code: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
         error_code: getErrorCodeFromErrorMessage(error.message),
         message: error.message,
       };
 
-      return res.status(error.status || 500).json(body);
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(body);
     }
   }
 }
