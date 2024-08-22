@@ -40,7 +40,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   const members = [
     'tax_saving_fund_allocation',
     'fund_information',
-    'tax_saving_fund_suggested_list',
+    'tax_saving_fund_suggested',
     'tax_saving_fund_knowledge',
     'finnomena_knowledge',
     'fund_ranking',
@@ -102,7 +102,6 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     name: 'tax_saving_fund_allocation',
     llm: llmModle,
     tools: [suggestPortProfileAllocationTool, completeOrEscalate],
-    // systemPrompt: portfolioAllocationPrompt
     systemPrompt: portfolioAllocationPrompt,
   });
   const fundInfoAgentNode = await generatorAgentNode({
@@ -111,8 +110,8 @@ export async function initSupervisorAgent(): Promise<Runnable> {
     tools: [fundInformationTool, fundNameFussySearch, completeOrEscalate],
     systemPrompt: fundInfoPrompt,
   });
-  const tsfFundSuggestedListAgentNode = await generatorAgentNode({
-    name: 'tax_saving_fund_suggested_list',
+  const tsfFundSuggestedAgentNode = await generatorAgentNode({
+    name: 'tax_saving_fund_suggested',
     llm: llmModle,
     tools: [taxSavingFundSuggestedListTool, completeOrEscalate],
     systemPrompt: suggestedListPrompt,
@@ -145,7 +144,7 @@ export async function initSupervisorAgent(): Promise<Runnable> {
   )
     .addNode('tax_saving_fund_allocation', taxSavingFundAllocationAgentNode)
     .addNode('fund_information', fundInfoAgentNode)
-    .addNode('tax_saving_fund_suggested_list', tsfFundSuggestedListAgentNode)
+    .addNode('tax_saving_fund_suggested', tsfFundSuggestedAgentNode)
     .addNode('tax_saving_fund_knowledge', tsfKnowledgeAgentNode)
     .addNode('finnomena_knowledge', finnomenaAgentNode)
     .addNode('fund_ranking', fundRankingAgentNode)

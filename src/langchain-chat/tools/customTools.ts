@@ -6,17 +6,16 @@ import * as FundRankingType from 'src/types/fundRanking.types';
 import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools';
 import { ltfKnowledge } from 'src/utils/tools/tax-saving-fund/ltf.tool';
 import { eventAndPromotion } from 'src/utils/tools/eventAndPromotion.tools';
-import { RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
+import { TaxSavingFundType, RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
 import {
   getFundInformation,
   getFundFussySearch,
 } from 'src/utils/tools/fundInfo.tools';
 import { getTaxSavingFundSuggestedList } from 'src/utils/tools/tax-saving-fund/suggestedFundList.tools';
 import { getFundRanking } from 'src/utils/tools/fundRanking.tools';
+
 export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   name: 'suggest-port-profile-allocation',
-  // description:
-  //   'suggest port profile allocation and return list of fund. useful for create fund profile and allocate you port',
   description:
     'useful for create or suggest proper tax saving funds allocation and allocate you port.',
   schema: z.object({
@@ -47,7 +46,7 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
     riskLevel,
     desiredAmount,
   }) => {
-    console.log("\x1b[46m%s\x1b[0m","--> suggestPortProfileAllocationTool doing!!")
+    // console.log("\x1b[46m%s\x1b[0m","--> suggestPortProfileAllocationTool doing!!")
     const input: Type.ComboAllocationInput = {
       age: age,
       annualIncome: annualIncome,
@@ -58,7 +57,6 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
       riskLevel: riskLevel,
       desiredAmount: desiredAmount,
     };
-    console.log("input > ",input)
     const result = await suggestPortfolioAllocation(input);
     return JSON.stringify(result);
   },
@@ -71,15 +69,13 @@ export const fundInformationTool = new DynamicStructuredTool({
   schema: z.object({
     fundName: z
       .string()
-      // .describe('whatever input from user for identity the fund, but scraping only fund code'),
-      // .describe('fund name, fund code or whatever for identity the fund'),
       .describe(
         'fund name, fund code or whatever for identity the fund. it should be english language , and not a sentence',
       ),
   }),
   func: async ({ fundName }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    console.log('\x1b[36m%s\x1b[0m', '--> send request : ', fundName);
+    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ', fundName);
     const result = await getFundInformation(fundName);
     return JSON.stringify(result);
   },
@@ -92,8 +88,6 @@ export const fundNameFussySearch = new DynamicStructuredTool({
   schema: z.object({
     fundName: z
       .string()
-      // .describe('whatever input from user for identity the fund, but scraping only fund code'),
-      // .describe('fund name, fund code or whatever for identity the fund'),
       .describe(
         'fund name, fund code or whatever for identity the fund. it should be english language , and not a sentence',
       ),
@@ -105,13 +99,27 @@ export const fundNameFussySearch = new DynamicStructuredTool({
   },
 });
 
-export const taxSavingFundSuggestedListTool = new DynamicTool({
+export const taxSavingFundSuggestedListTool = new DynamicStructuredTool({
   name: 'tax-saving-fund-suggested-list',
   description:
     'useful for to give a suggested list on each type of tax saving fund from Finnomena this year',
-  func: async () => {
+  schema: z.object({
+    type: z.nativeEnum(TaxSavingFundType).nullable().describe('Type of tax saving fund, Should be english and can be empty'),
+    risk: z.nativeEnum(RiskLevel).nullable().describe('risk level of fund ( "สูง"/"high", "กลาง"/"medium", "ต่ำ"/"low" ,"ต่ำมาก"/"safe" ), Should be english and can be empty'),
+    category: z.string().describe('category of fund, can be category ("หุ้น","อสังหา","พันธบัตร","ผสม","ทองคำ") , specific country or area ("จีน","เวียดนาม","เอเชีย",etc) , industry ("เทคโนโลยี","healthcare",etc). Should be thai and can be empty'),
+  }),
+  func: async ({
+    type,
+    risk,
+    category,
+  }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundSuggestedListTool doing!!")
-    const result = await getTaxSavingFundSuggestedList();
+    const input = {
+      type: type,
+      risk: risk,
+      category: category,
+    };
+    const result = await getTaxSavingFundSuggestedList(input);
     return JSON.stringify(result);
   },
 });
