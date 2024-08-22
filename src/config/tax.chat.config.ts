@@ -349,10 +349,10 @@ export const getConfig = () => {
         {
           type: 'rmf',
           risk: 'high',
-          fund: 'B-INDIARMF',
+          fund: 'B-INDIAMRMF',
           category: 'หุ้นอินเดีย',
           fund_comment:
-            'ลงทุนในกองทุนหลัก Kotak Funds - India Midcap Fund ซึ่งเน้นไปที่หุ้นของบริษัทที่จดทะเบียนในตลาดหุ้นอินเดีย แต่จะเน้นไปที่ขนาดกลางเป็นส่วนใหญ่เพื่อรับอานิสงค์กลุ่ม Middle-Class ที่กำลังเติบโตในประเทศ ทั้งนี้กองทุนหลักมีผลการดำเนินงานที่โดดเด่นมากว่า 10 ปี และกองทุน B-INDIARMF มีนโยบายการบริหาร FX Heding Policy อย่าง Active ทำให้ผลการดำเนินงานส่งต่อมาได้อย่างเต็มที่ในระยะยาว',
+            'ลงทุนในกองทุนหลัก Kotak Funds - India Midcap Fund ซึ่งเน้นไปที่หุ้นของบริษัทที่จดทะเบียนในตลาดหุ้นอินเดีย แต่จะเน้นไปที่ขนาดกลางเป็นส่วนใหญ่เพื่อรับอานิสงค์กลุ่ม Middle-Class ที่กำลังเติบโตในประเทศ ทั้งนี้กองทุนหลักมีผลการดำเนินงานที่โดดเด่นมากว่า 10 ปี และกองทุน B-INDIAMRMF มีนโยบายการบริหาร FX Heding Policy อย่าง Active ทำให้ผลการดำเนินงานส่งต่อมาได้อย่างเต็มที่ในระยะยาว',
         },
         {
           type: 'rmf',
@@ -443,6 +443,11 @@ export const getConfig = () => {
         {
           key: 'tesg_below_minimum_fund',
           value: 'KKP GB THAI ESG',
+        },
+        {
+          key: 'below_minimum_fund_description',
+          value:
+            'ลงทุนในตราหนี้ เนื่องจากจำนวนเงินยังไม่มากพอสำหรับการจัดสรรเป็นพอร์ตการลงทุน',
         },
         {
           key: 'ssf_high_combo_description',
