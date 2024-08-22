@@ -7,7 +7,10 @@ import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/port
 import { getAllInvestmentViews } from 'src/utils/tools/investmentView.tools';
 import { ltfKnowledge } from 'src/utils/tools/tax-saving-fund/ltf.tool';
 import { eventAndPromotion } from 'src/utils/tools/eventAndPromotion.tools';
-import { TaxSavingFundType, RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
+import {
+  TaxSavingFundType,
+  RiskLevel,
+} from 'src/types/tax-saving-fund/enum.prompts';
 import {
   getFundInformation,
   getFundFussySearch,
@@ -35,7 +38,7 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
       .number()
       .describe('investment in "ประกันบำนาญ" this year'),
     riskLevel: z.nativeEnum(RiskLevel).describe('investor risk level.'),
-    desiredAmount: z.number().describe('the desired amount'),
+    desiredAmount: z.number().nullable().describe('the desired amount'),
   }),
   func: async ({
     age,
@@ -105,15 +108,23 @@ export const taxSavingFundSuggestedListTool = new DynamicStructuredTool({
   description:
     'useful for to give a suggested list on each type of tax saving fund from Finnomena this year',
   schema: z.object({
-    type: z.nativeEnum(TaxSavingFundType).nullable().describe('Type of tax saving fund, Should be english and can be empty'),
-    risk: z.nativeEnum(RiskLevel).nullable().describe('risk level of fund ( "สูง"/"high", "กลาง"/"medium", "ต่ำ"/"low" ,"ต่ำมาก"/"safe" ), Should be english and can be empty'),
-    category: z.string().describe('category of fund, can be category ("หุ้น","อสังหา","พันธบัตร","ผสม","ทองคำ") , specific country or area ("จีน","เวียดนาม","เอเชีย",etc) , industry ("เทคโนโลยี","healthcare",etc). Should be thai and can be empty'),
+    type: z
+      .nativeEnum(TaxSavingFundType)
+      .nullable()
+      .describe('Type of tax saving fund, Should be english and can be empty'),
+    risk: z
+      .nativeEnum(RiskLevel)
+      .nullable()
+      .describe(
+        'risk level of fund ( "สูง"/"high", "กลาง"/"medium", "ต่ำ"/"low" ,"ต่ำมาก"/"safe" ), Should be english and can be empty',
+      ),
+    category: z
+      .string()
+      .describe(
+        'category of fund, can be category ("หุ้น","อสังหา","พันธบัตร","ผสม","ทองคำ") , specific country or area ("จีน","เวียดนาม","เอเชีย",etc) , industry ("เทคโนโลยี","healthcare",etc). Should be thai and can be empty',
+      ),
   }),
-  func: async ({
-    type,
-    risk,
-    category,
-  }) => {
+  func: async ({ type, risk, category }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundSuggestedListTool doing!!")
     const input = {
       type: type,
