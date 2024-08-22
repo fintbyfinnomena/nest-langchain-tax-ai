@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Config from '../../config/tax.chat.config';
+import { getConfig } from '../../config/tax.chat.config';
 import path from 'path';
 import {
   FundInfoCard,
@@ -30,19 +30,28 @@ export async function getFundInformation(
 }
 
 async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
-  const fundApiBaseUrl = Config.fundApi.baseUrl;
-  const fundQuoteBaseUrl = Config.fundQuote.baseUrl;
+  const encodedFundName = encodeURIComponent(fundName);
+
+  const fundApiBaseUrl = getConfig().fundApi.baseUrl;
+  const fundQuoteBaseUrl = getConfig().fundQuote.baseUrl;
 
   try {
     // Construct URLs
-    const fundInfoUrl = path.join(fundApiBaseUrl, fundName);
+    const fundInfoUrl = path.join(fundApiBaseUrl, encodedFundName);
     const fundPerformanceUrl = path.join(
       fundApiBaseUrl,
-      fundName,
+      encodedFundName,
       'performance',
     );
-    const fundFeeUrl = path.join(fundApiBaseUrl, `fee?funds[]=${fundName}`);
-    const fundPortfolioUrl = path.join(fundApiBaseUrl, fundName, 'portfolio');
+    const fundFeeUrl = path.join(
+      fundApiBaseUrl,
+      `fee?funds[]=${encodedFundName}`,
+    );
+    const fundPortfolioUrl = path.join(
+      fundApiBaseUrl,
+      encodedFundName,
+      'portfolio',
+    );
 
     // Make parallel requests
     const [
@@ -57,7 +66,6 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
       axios.get(fundPortfolioUrl),
     ]);
 
-    // TODO: To Check
     const fundInfo = fundInfoResponse.data.data;
     const fundPerf = fundPerformanceResponse.data.data;
     const fundFee = fundFeeResponse.data.data[0]['fees'];
@@ -100,17 +108,15 @@ async function fetchFundApi(fundName: string): Promise<FundInfoCard | string> {
         backEnd: fundFeeExtracted.backEnd,
         management: fundFeeExtracted.management,
       },
-      tsfRecommendation: {
-        isRecommended: false,
-        comment: null,
-      },
-      fundQuoteLink: path.join(fundQuoteBaseUrl, fundInfo['short_code']),
+      tsfComment: null,
+      fundQuoteLink: new URL(fundInfo['short_code'], fundQuoteBaseUrl).href,
     };
 
-    const tsfComment = fetchTSFComment(fundName);
+    // decode fundname before sending
+    const mapFundName = decodeURIComponent(fundName);
+    const tsfComment = fetchTSFComment(mapFundName);
     if (tsfComment) {
-      result.tsfRecommendation.isRecommended = true;
-      result.tsfRecommendation.comment = tsfComment;
+      result.tsfComment = tsfComment;
     }
 
     return result;
@@ -126,7 +132,7 @@ type FundFussyResult = {
 export async function getFundFussySearch(
   fundName: string,
 ): Promise<FundFussyResult[]> {
-  const fundListUrl = Config.fundApi.baseUrl;
+  const fundListUrl = getConfig().fundApi.baseUrl;
   try {
     const response = await axios.get(fundListUrl);
     const fundList = response.data.data;
@@ -153,7 +159,7 @@ export async function getFundFussySearch(
 }
 
 function fetchTSFComment(fundName: string): string | null {
-  const elem = Config.tsf.recommendedFund.find((i) => i.fund === fundName);
+  const elem = getConfig().tsf.recommendedFund.find((i) => i.fund === fundName);
   if (!elem) return null;
   return elem['fund_comment'];
 }
