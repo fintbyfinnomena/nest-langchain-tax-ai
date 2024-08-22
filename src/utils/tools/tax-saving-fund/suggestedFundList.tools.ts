@@ -5,7 +5,7 @@ import {
 import { getConfig } from '../../../config/tax.chat.config';
 
 const fundRecommended = [];
-for (const fund of Config.tsf.recommendedFund) {
+for (const fund of getConfig().tsf.recommendedFund) {
   fundRecommended.push({
     fund: fund.fund,
     type: fund.type as TaxSavingFundType,
