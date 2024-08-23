@@ -22,11 +22,7 @@ const config = getConfig();
     ChatModule,
     FeedbackModule,
     CustomerModule,
-    MongooseModule.forRoot(
-      process.env.NODE_ENV === 'local'
-        ? `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}:${config.mongoPort}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
-        : `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}/${config.mongoDB}?replicaSet=frontier&readPreference=secondary&authSource=admin`,
-    ),
+    MongooseModule.forRoot(config.mongoConnString),
   ],
 })
 export class AppModule {}
