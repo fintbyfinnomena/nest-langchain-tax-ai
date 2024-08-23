@@ -14,17 +14,13 @@ export const getConfig = () => {
     redisUsername: process.env.REDIS_USERNAME,
     redisPassword: process.env.REDIS_PASSWORD,
 
-    mongoHost: process.env.MONGO_HOST,
-    mongoDB: process.env.MONGO_DB,
-    mongoPort: process.env.MONGO_PORT,
-    mongoUsername: process.env.MONGO_USERNAME,
-    mongoPassword: process.env.MONGO_PASSWORD,
+    mongoConnString: process.env.MONGO_CONNECTION_STRING,
 
     fundQuote: {
       baseUrl: 'https://www.finnomena.com/fund/',
     },
     fundApi: {
-      baseUrl: 'https://api-int.finnomena.com/fund-service/public/api/v2/funds',
+      baseUrl: 'https://api.finnomena.com/fund-service/public/api/v2/funds',
     },
     tsf: {
       portfolio: [
