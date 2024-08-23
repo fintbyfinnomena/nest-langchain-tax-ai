@@ -53,11 +53,11 @@ export function suggestPortfolioAllocation(
 
   if (desiredAmount) {
     if (desiredAmount > maximumAllowAmount.all) {
-      desiredAmount = maximumAllowAmount.all;
       result.reason += ABOVE_MAXIMUM_AMOUNT_INVEST(
         desiredAmount,
         maximumAllowAmount.all,
       );
+      desiredAmount = maximumAllowAmount.all;
     }
 
     // Case: Do nothing because desired amount in acceptable range
