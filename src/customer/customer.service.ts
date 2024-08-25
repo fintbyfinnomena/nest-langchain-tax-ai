@@ -1,4 +1,4 @@
-import { BatchPayload } from 'src/types/order.types';
+import { BatchOrderResponse, BatchPayload } from 'src/types/order.types';
 import { BatchOrderDto } from './dto/cutomer.dto';
 import { CustomerRepo } from './customer.repository';
 import { AccountIdentifier, BankAccount } from 'src/types/account.types';
@@ -14,7 +14,7 @@ export class CustomerService {
   public async GenerateBatchOrderPayload(
     userID: number,
     batchReq: BatchOrderDto,
-  ): Promise<BatchPayload> {
+  ): Promise<BatchOrderResponse> {
     const accountIdentifiers =
       await this.orderRepo.GetAllAccountIdentifierByUserID(userID);
     const segregateAccount =
@@ -24,7 +24,15 @@ export class CustomerService {
       segregateAccount.account_code,
     );
     const mainBank = getMainBankFromBanks(banks.subscription_banks);
-    const response = mapToBatchPayload(segregateAccount, mainBank, batchReq);
+    const batchPayload = mapToBatchPayload(
+      segregateAccount,
+      mainBank,
+      batchReq,
+    );
+    const response: BatchOrderResponse = {
+      batch_payload: batchPayload,
+      account_code: segregateAccount.account_code,
+    };
     return response;
   }
 }

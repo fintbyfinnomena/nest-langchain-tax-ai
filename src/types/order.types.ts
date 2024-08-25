@@ -14,3 +14,8 @@ export interface BatchPayload {
   batch_type: string;
   orders: Order[];
 }
+
+export interface BatchOrderResponse {
+  batch_payload: BatchPayload;
+  account_code: string;
+}
