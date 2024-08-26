@@ -6,13 +6,19 @@ import {
 import { getConfig } from '../../../config/tax.chat.config';
 
 const MAX_NUMBER_INPUT = 9999999999;
-const BELOW_45_CONSTRUCTION_LOGIC = `สำหรับผู้เสียภาษีที่อายุ 45 ปีหรือต่ำกว่า  Charlie จะแนะนำให้ลงทุนในกองทุน SSF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน RMF และ TESG เนื่องจากตามกฎหมาย กองทุนประเภทนี้ไม่จำเป็นต้องถือถึงอายุ 55 ถึงจะขายกองทุนเหล่านั้นออกมาได้ เพียงแค่ถือเป็นระยะเวลา 10 ปีก็สามารถขายออกมาได้ทันที (ตัวอย่าง ผู้เสียภาษีอายุ 44 ปี สามารถขายกองทุนนำเงินออกมาได้ตั้งแต่อายุ 54 ปี) นอกจากนี้กองทุนประเภท SSF ยังไม่มีเงื่อนไขที่ต้องลงทุนต่อเนื่องทุกปีแบบ RMF อีกด้วย`;
-const ABOVE_45_CONSTRUCTION_LOGIC = `สำหรับ ผู้เสียภาษีที่อายุมากกว่า 45 ปี  Charlie จะแนะนำให้ลงทุนในกองทุน RMF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน SSF และ TESG เนื่องจากมีโอกาสที่จะขายกองทุนเหล่านี้ออกมาในระยะเวลาที่ต่ำกว่า 10 ปีของ SSF ได้ จากเงื่อนไขอายุที่เข้าใกล้ 55 ปี`;
+const ABOVE_MAXIMUM_AMOUNT_INVEST = (
+  desiredAmount: number,
+  maxAmount: number,
+) => `ยอดเงินที่คุณต้องการลงทุน (${desiredAmount} บาท)สูงกว่ายอดกองทุนประหยัดภาษีที่ซื้อได้ที่ ${Math.round(maxAmount).toLocaleString()} บาท Charlie จะปรับจำนวนเงินที่ลงทุนเป็นยอดสูงสุดที่คุณซื้อได้แทนครับ
+
+`;
+const BELOW_45_CONSTRUCTION_LOGIC = `สำหรับการลงทุนของผู้เสียภาษีที่อายุ 45 ปีหรือต่ำกว่า Charlie จะแนะนำให้ลงทุนในกองทุน SSF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน RMF และ TESG เนื่องจากตามกฎหมาย กองทุนประเภทนี้ไม่จำเป็นต้องถือถึงอายุ 55 ถึงจะขายกองทุนเหล่านั้นออกมาได้ เพียงแค่ถือเป็นระยะเวลา 10 ปีก็สามารถขายออกมาได้ทันที (ตัวอย่าง ผู้เสียภาษีอายุ 44 ปี สามารถขายกองทุนนำเงินออกมาได้ตั้งแต่อายุ 54 ปี) นอกจากนี้กองทุนประเภท SSF ยังไม่มีเงื่อนไขที่ต้องลงทุนต่อเนื่องทุกปีแบบ RMF อีกด้วย`;
+const ABOVE_45_CONSTRUCTION_LOGIC = `สสำหรับการลงทุนของผู้เสียภาษีที่อายุมากกว่า 45 ปี Charlie จะแนะนำให้ลงทุนในกองทุน RMF ให้เต็มสิทธิ์ ก่อนจะลงทุนส่วนที่เหลือในกองทุน SSF และ TESG เนื่องจากมีโอกาสที่จะขายกองทุนเหล่านี้ออกมาในระยะเวลาที่ต่ำกว่า 10 ปีของ SSF ได้ จากเงื่อนไขอายุที่เข้าใกล้ 55 ปี (ตัวอย่างผู้เสียภาษีอายุ 46 ปี สามารถขายกองทุนนำเงินออกมาได้ตั้งแต่อายุ 55 ปี ซึ่งใช้เวลาแค่ 9 ปีเท่านั้น)`;
 const FUND_SELECTION_LOGIC = `
 
-สำหรับกอง TESG เราแนะนำไว้ท้ายสุดเนื่องจากเป็นกองทุนที่ไม่มีความยืดหยุ่นในประเภทสินทรัพย์ที่ลงทุนได้
+ส่วนของกอง TESG เราแนะนำไว้ท้ายสุดเนื่องจากเป็นกองทุนที่ไม่มีความยืดหยุ่นในประเภทสินทรัพย์ที่ลงทุนได้
 
-เมื่อ Charlie คำนวณสัดส่วนกองทุนทั้งหมดแล้ว จะทำการเลือกแนะนำกองทุนตามความเสี่ยงที่ผู้เสียภาษีต้องการ โดยกองทุนเหล่านี้ได้มีการคัดเลือกจากผู้เชี่ยวชาญและ Charlie ของทาง FINNOMENA ดูหลักการคัดเลือกกองทุนเต็ม ๆ [คลิก](https://www.finnomena.com/finnomenafunds/ssf-rmf-for-diy/#screening-method)`;
+เมื่อ Charlie คำนวณสัดส่วนกองทุนทั้งหมดแล้ว จะทำการเลือกกองทุนที่เหมาะสมแต่ละประเภทตามความเสี่ยงที่ผู้เสียภาษีต้องการ โดยกองทุนเหล่านี้ได้มีการคัดเลือกจากทีมงาน Investment ของบลน. Finnomena ดูหลักการคัดเลือกกองทุนเต็ม ๆ [คลิก](https://www.finnomena.com/finnomenafunds/ssf-rmf-for-diy/#screening-method)`;
 
 function validNumberInput(x: number): boolean {
   return x >= 0 && x < MAX_NUMBER_INPUT;
@@ -24,14 +30,14 @@ export function suggestPortfolioAllocation(
   const allocation: Type.FundTypeAllocation[] = [];
   const result = {
     allocation,
-    note: '',
+    error: '',
     reason: '',
   };
 
   try {
     validateComboAllocationInput(input);
   } catch (e: any) {
-    result.note = e.message;
+    result.error = e.message;
     return result;
   }
 
@@ -47,9 +53,11 @@ export function suggestPortfolioAllocation(
 
   if (desiredAmount) {
     if (desiredAmount > maximumAllowAmount.all) {
+      result.reason += ABOVE_MAXIMUM_AMOUNT_INVEST(
+        desiredAmount,
+        maximumAllowAmount.all,
+      );
       desiredAmount = maximumAllowAmount.all;
-      result.note =
-        'warning: desired amount is more than maximum allowed amount for all tax benefit fund, system will use maximum allowed amount for calculation';
     }
 
     // Case: Do nothing because desired amount in acceptable range
@@ -81,7 +89,7 @@ export function suggestPortfolioAllocation(
     fundTypeOrder,
   );
 
-  result.reason =
+  result.reason +=
     (ageAbove45 ? ABOVE_45_CONSTRUCTION_LOGIC : BELOW_45_CONSTRUCTION_LOGIC) +
     FUND_SELECTION_LOGIC;
 
@@ -231,6 +239,10 @@ function createFundTypeAllocation(
       `${type as string}_below_minimum_fund`,
     ) as string;
 
+    result.description = getConfigMeta(
+      `below_minimum_fund_description`,
+    ) as string;
+
     result.funds.push({
       type,
       risk,
@@ -238,6 +250,7 @@ function createFundTypeAllocation(
       proportion: Math.round((amount / wholeAmount) * 100),
       amount,
     });
+
     return result;
   }
 

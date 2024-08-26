@@ -1,23 +1,32 @@
-import { RecommendedFund } from '../../../types/tax-saving-fund/recommend.types';
 import {
   TaxSavingFundType,
   RiskLevel,
 } from '../../../types/tax-saving-fund/enum.prompts';
 import { getConfig } from '../../../config/tax.chat.config';
 
-export function getTaxSavingFundSuggestedList(): RecommendedFund[] {
-  const singleFundRecommendedList = getConfig().tsf.recommendedFund;
+const fundRecommended = [];
+for (const fund of getConfig().tsf.recommendedFund) {
+  fundRecommended.push({
+    fund: fund.fund,
+    type: fund.type as TaxSavingFundType,
+    risk: fund.risk as RiskLevel,
+    category: fund.category,
+    fundComment: fund.fund_comment,
+  });
+}
 
-  const result = [];
-  for (const f of singleFundRecommendedList) {
-    result.push({
-      fund: f.fund,
-      type: f.type as TaxSavingFundType,
-      risk: f.risk as RiskLevel,
-      category: f.category,
-      fundComment: f['fund_comment'],
-    });
-  }
-
-  return result;
+export async function getTaxSavingFundSuggestedList(input) {
+  let tmpFundRecommended: any[] = fundRecommended.slice();
+  Object.keys(input).forEach((k)=>{
+    if (input[k] != "") {
+      if ( input[k] != null ){
+        if (k!="category"){
+          tmpFundRecommended = tmpFundRecommended.filter(item => item[k].includes(input[k]))
+        }else{
+          tmpFundRecommended = tmpFundRecommended.filter(item => (item.category.includes(input[k])||item.fundComment.includes(input[k])))
+        }
+      }
+    }
+  })
+  return tmpFundRecommended
 }

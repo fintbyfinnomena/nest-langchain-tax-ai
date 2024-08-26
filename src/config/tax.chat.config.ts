@@ -14,17 +14,13 @@ export const getConfig = () => {
     redisUsername: process.env.REDIS_USERNAME,
     redisPassword: process.env.REDIS_PASSWORD,
 
-    mongoHost: process.env.MONGO_HOST,
-    mongoDB: process.env.MONGO_DB,
-    mongoPort: process.env.MONGO_PORT,
-    mongoUsername: process.env.MONGO_USERNAME,
-    mongoPassword: process.env.MONGO_PASSWORD,
+    mongoConnString: process.env.MONGO_CONNECTION_STRING,
 
     fundQuote: {
       baseUrl: 'https://www.finnomena.com/fund/',
     },
     fundApi: {
-      baseUrl: 'https://api-int.finnomena.com/fund-service/public/api/v2/funds',
+      baseUrl: 'https://api.finnomena.com/fund-service/public/api/v2/funds',
     },
     tsf: {
       portfolio: [
@@ -349,10 +345,10 @@ export const getConfig = () => {
         {
           type: 'rmf',
           risk: 'high',
-          fund: 'B-INDIARMF',
+          fund: 'B-INDIAMRMF',
           category: 'หุ้นอินเดีย',
           fund_comment:
-            'ลงทุนในกองทุนหลัก Kotak Funds - India Midcap Fund ซึ่งเน้นไปที่หุ้นของบริษัทที่จดทะเบียนในตลาดหุ้นอินเดีย แต่จะเน้นไปที่ขนาดกลางเป็นส่วนใหญ่เพื่อรับอานิสงค์กลุ่ม Middle-Class ที่กำลังเติบโตในประเทศ ทั้งนี้กองทุนหลักมีผลการดำเนินงานที่โดดเด่นมากว่า 10 ปี และกองทุน B-INDIARMF มีนโยบายการบริหาร FX Heding Policy อย่าง Active ทำให้ผลการดำเนินงานส่งต่อมาได้อย่างเต็มที่ในระยะยาว',
+            'ลงทุนในกองทุนหลัก Kotak Funds - India Midcap Fund ซึ่งเน้นไปที่หุ้นของบริษัทที่จดทะเบียนในตลาดหุ้นอินเดีย แต่จะเน้นไปที่ขนาดกลางเป็นส่วนใหญ่เพื่อรับอานิสงค์กลุ่ม Middle-Class ที่กำลังเติบโตในประเทศ ทั้งนี้กองทุนหลักมีผลการดำเนินงานที่โดดเด่นมากว่า 10 ปี และกองทุน B-INDIAMRMF มีนโยบายการบริหาร FX Heding Policy อย่าง Active ทำให้ผลการดำเนินงานส่งต่อมาได้อย่างเต็มที่ในระยะยาว',
         },
         {
           type: 'rmf',
@@ -443,6 +439,11 @@ export const getConfig = () => {
         {
           key: 'tesg_below_minimum_fund',
           value: 'KKP GB THAI ESG',
+        },
+        {
+          key: 'below_minimum_fund_description',
+          value:
+            'ลงทุนในตราหนี้ เนื่องจากจำนวนเงินยังไม่มากพอสำหรับการจัดสรรเป็นพอร์ตการลงทุน',
         },
         {
           key: 'ssf_high_combo_description',
