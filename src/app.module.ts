@@ -27,7 +27,7 @@ const config = getConfig();
     CustomerModule,
     MongooseModule.forRoot(config.mongoConnString),
     ThrottlerModule.forRoot({
-      throttlers: [{ limit: 60, ttl: seconds(60) }],
+      throttlers: [{ limit: 1000, ttl: seconds(1) }],
       storage: new ThrottlerStorageRedisService(getRedisClient()),
     }),
   ],
