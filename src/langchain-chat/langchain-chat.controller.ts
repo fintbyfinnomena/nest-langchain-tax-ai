@@ -261,11 +261,10 @@ export class LangchainChatController {
   @Post('chats')
   @HttpCode(200)
   async chat(@Headers() headers: any, @Res() res: Response) {
-    const userId = headers['user-id'];
-
+    const userId = headers['finno-user-id'];
     if (!userId) {
       throw new HttpException(
-        'user-id header is missing',
+        'finno-user-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -318,11 +317,11 @@ export class LangchainChatController {
   @Get('chats/latest')
   @HttpCode(200)
   async getLatestChat(@Headers() headers: any, @Res() res: Response) {
-    const userId = headers['user-id'];
+    const userId = headers['finno-user-id'];
 
     if (!userId) {
       throw new HttpException(
-        'user-id header is missing',
+        'finno-user-id header is missing',
         HttpStatus.BAD_REQUEST,
       );
     }

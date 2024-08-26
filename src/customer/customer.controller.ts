@@ -22,13 +22,13 @@ export class CustomerController {
     @Body() batchPayload: BatchOrderDto,
     @Res() res: Response,
   ) {
-    const userIdStr = headers['user-id'];
+    const userIdStr = headers['finno-user-id'];
 
     if (!userIdStr) {
       const body: AppError = {
         status_code: HttpStatus.BAD_REQUEST,
         error_code: '00',
-        message: 'ต้องการ header user-id',
+        message: 'ต้องการ header finno-user-id',
       };
       return res.status(HttpStatus.BAD_REQUEST).json(body);
     }
