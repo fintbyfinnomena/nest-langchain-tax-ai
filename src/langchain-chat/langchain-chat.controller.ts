@@ -45,6 +45,7 @@ import {
   HttpStatus,
   Param,
   Get,
+  UseGuards,
 } from '@nestjs/common';
 import { LangchainChatService } from './langchain-chat.service';
 import { BasicMessageDto, ThumbDownBody } from './dtos/basic-message.dto';
@@ -52,12 +53,10 @@ import {
   ChatHeader,
   ContextAwareMessagesDto,
 } from './dtos/context-aware-messages.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
-import { DocumentDto } from './dtos/document.dto';
-import { diskStorage } from 'multer';
-import { PDF_BASE_PATH } from 'src/utils/constants/common.constants';
 import { Response } from 'express';
+import { ThrottleByUserId } from 'src/utils/throttler/userId';
+import { Throttle, hours } from '@nestjs/throttler';
+import { getConfig } from 'src/config/tax.chat.config';
 
 @Controller('langchain-chat')
 export class LangchainChatController {
@@ -278,6 +277,13 @@ export class LangchainChatController {
     }
   }
 
+  @UseGuards(ThrottleByUserId)
+  @Throttle({
+    default: {
+      limit: getConfig().taxQuestionLimit,
+      ttl: hours(getConfig().taxQuestionTtlHrs),
+    },
+  })
   @Post('chats/:id')
   @HttpCode(200)
   async chatById(

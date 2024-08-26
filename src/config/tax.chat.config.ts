@@ -16,6 +16,9 @@ export const getConfig = () => {
 
     mongoConnString: process.env.MONGO_CONNECTION_STRING,
 
+    taxQuestionTtlHrs: Number(process.env.TAX_QUESTION_TTL_HRS) || 12,
+    taxQuestionLimit: Number(process.env.TAX_QUESTION_LIMIT) || 20,
+
     fundQuote: {
       baseUrl: 'https://www.finnomena.com/fund/',
     },
