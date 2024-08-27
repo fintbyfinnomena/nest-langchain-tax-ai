@@ -17,18 +17,23 @@ const redisInvestmentViewKey = 'investment_view';
 const redisInvestmentViewUpdateTime = 'investment_view_updated_at';
 const updateIntervalMinute = 30;
 
-export const getAllInvestmentViews = async (): Promise<string> => {
-  const updatedTime = await GetLatestUpdateTime();
+export const getAllInvestmentViews = async (): Promise<string | null> => {
+  try {
+    const updatedTime = await GetLatestUpdateTime();
 
-  if (
-    !updatedTime ||
-    updatedTime < DateTime.now().minus({ minutes: updateIntervalMinute })
-  ) {
-    await UpdateInvestmentView();
+    if (
+      !updatedTime ||
+      updatedTime < DateTime.now().minus({ minutes: updateIntervalMinute })
+    ) {
+      await UpdateInvestmentView();
+    }
+
+    const investmentViews = await getRedisClient().get(redisInvestmentViewKey);
+    return investmentViews;
+  } catch (e) {
+    console.error(e);
+    return null;
   }
-
-  const investmentViews = await getRedisClient().get(redisInvestmentViewKey);
-  return investmentViews;
 };
 
 const GetLatestUpdateTime = async (): Promise<DateTime | null> => {
