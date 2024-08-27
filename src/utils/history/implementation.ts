@@ -5,6 +5,7 @@ import { ChatMessageHistory } from 'langchain/stores/message/in_memory';
 import { TaxChatMessage } from '../../types/chatHistory.types';
 import { HydratedDocument, Model, UpdateQuery } from 'mongoose';
 import { TaxChatHistory } from 'src/schemas/chatHistory.schema';
+import { getConfig } from "../../config/tax.chat.config"
 
 export class ChatHistoryManagerImp implements ChatHistoryManager {
   private redis: Redis;
@@ -71,7 +72,7 @@ export class ChatHistoryManagerImp implements ChatHistoryManager {
       }
     }
     const value = JSON.stringify(customMessages);
-    await this.redis.set(chatId, value);
+    await this.redis.set(chatId, value, "EX", getConfig().redisTTL);
     return;
   }
 
