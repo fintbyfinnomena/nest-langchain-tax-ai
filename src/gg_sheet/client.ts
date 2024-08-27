@@ -15,7 +15,10 @@ export async function getGGSheet(id: string): Promise<GoogleSpreadsheet> {
     });
   } else {
     auth = new GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+      scopes: [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive.file',
+      ],
     });
   }
 
