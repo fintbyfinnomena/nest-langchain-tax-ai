@@ -18,7 +18,11 @@ curl -X POST http://localhost:8080/api/v1/langchain-chat/question \
      --no-buffer
 ```
 
-## Deployment Node
+### Development Notes
+
+- To reset throttle on chat function, go to redis docker and then exec "redis-cli flushall"
+
+## Deployment Note
 
 ### Investment View
 

@@ -1,8 +1,9 @@
-import { BatchPayload } from 'src/types/order.types';
+import { BatchOrderResponse, BatchPayload } from 'src/types/order.types';
 import { BatchOrderDto } from './dto/cutomer.dto';
 import { CustomerRepo } from './customer.repository';
 import { AccountIdentifier, BankAccount } from 'src/types/account.types';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class CustomerService {
   private readonly orderRepo: CustomerRepo;
@@ -13,7 +14,7 @@ export class CustomerService {
   public async GenerateBatchOrderPayload(
     userID: number,
     batchReq: BatchOrderDto,
-  ): Promise<BatchPayload> {
+  ): Promise<BatchOrderResponse> {
     const accountIdentifiers =
       await this.orderRepo.GetAllAccountIdentifierByUserID(userID);
     const segregateAccount =
@@ -23,7 +24,15 @@ export class CustomerService {
       segregateAccount.account_code,
     );
     const mainBank = getMainBankFromBanks(banks.subscription_banks);
-    const response = mapToBatchPayload(segregateAccount, mainBank, batchReq);
+    const batchPayload = mapToBatchPayload(
+      segregateAccount,
+      mainBank,
+      batchReq,
+    );
+    const response: BatchOrderResponse = {
+      batch_payload: batchPayload,
+      account_code: segregateAccount.account_code,
+    };
     return response;
   }
 }
@@ -35,7 +44,10 @@ function getSegregateAccountFormAccountList(
     (i) => i.account_type === 'segregate',
   );
   if (!account) {
-    throw new Error('Segregate account not found');
+    throw new HttpException(
+      'ไม่พบบัญชี segregate ของผู้ใช้',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
   }
   return account;
 }
@@ -43,7 +55,10 @@ function getSegregateAccountFormAccountList(
 function getMainBankFromBanks(banks: BankAccount[]): BankAccount {
   const mainBank = banks.find((i) => i.is_main === true);
   if (!mainBank) {
-    throw new Error('Main bank not found');
+    throw new HttpException(
+      'ไม่พบบัญชีธนาคารของผู้ใช้',
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
   }
   return mainBank;
 }
@@ -55,10 +70,11 @@ function mapToBatchPayload(
 ): BatchPayload {
   const cartRef = uuidv4();
   const date = new Date().toISOString();
+  const dateWithoutTime = date.split('T')[0];
   const orders = batchReq.orders.map((order, index) => {
     return {
       id: index + 1,
-      order_date: date,
+      order_date: dateWithoutTime,
       order_type: 'buy',
       fund: order.fund_short_code,
       unit_type: 'baht',

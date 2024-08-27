@@ -5,12 +5,12 @@ import {
   Post,
   Res,
   HttpStatus,
-  HttpException,
 } from '@nestjs/common';
 import { BatchOrderDto } from './dto/cutomer.dto';
 import { CustomerService } from './customer.service';
 import { ChatHeader } from 'src/langchain-chat/dtos/context-aware-messages.dto';
 import { Response } from 'express';
+import type { AppError } from 'src/utils/responses/appError';
 
 @Controller('customer')
 export class CustomerController {
@@ -22,13 +22,15 @@ export class CustomerController {
     @Body() batchPayload: BatchOrderDto,
     @Res() res: Response,
   ) {
-    const userIdStr = headers['user-id'];
+    const userIdStr = headers['finno-user-id'];
 
     if (!userIdStr) {
-      throw new HttpException(
-        'user-id header is missing',
-        HttpStatus.BAD_REQUEST,
-      );
+      const body: AppError = {
+        status_code: HttpStatus.BAD_REQUEST,
+        error_code: '00',
+        message: 'ต้องการ header finno-user-id',
+      };
+      return res.status(HttpStatus.BAD_REQUEST).json(body);
     }
 
     let userId: number;
@@ -36,10 +38,12 @@ export class CustomerController {
     try {
       userId = parseInt(userIdStr);
     } catch (error) {
-      throw new HttpException(
-        'user-id header is not a number',
-        HttpStatus.BAD_REQUEST,
-      );
+      const body: AppError = {
+        status_code: HttpStatus.BAD_REQUEST,
+        error_code: '00',
+        message: 'user-id header ต้องเป็นตัวเลข',
+      };
+      return res.status(HttpStatus.BAD_REQUEST).json(body);
     }
 
     try {
@@ -47,10 +51,29 @@ export class CustomerController {
         userId,
         batchPayload,
       );
-      return res.status(200).json(response);
+      return res.status(HttpStatus.OK).json(response);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: error.message });
+      const body: AppError = {
+        status_code: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        error_code: getErrorCodeFromErrorMessage(error.message),
+        message: error.message,
+      };
+
+      return res
+        .status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        .json(body);
     }
+  }
+}
+
+// TODO: find the way of appExceptionHandlerLater
+function getErrorCodeFromErrorMessage(message: string): string {
+  if (message === 'ไม่พบบัญชี segregate ของผู้ใช้') {
+    return '01';
+  } else if (message === 'ไม่พบบัญชีธนาคารของผู้ใช้') {
+    return '02';
+  } else {
+    return '00';
   }
 }

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, seconds } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { LangchainChatModule } from './langchain-chat/langchain-chat.module';
 import { RedisModule } from './redis/redis.module';
 import { ChatModule } from './chat/chat.module';
@@ -9,6 +11,7 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CustomerModule } from './customer/customer.module';
 import { getConfig } from './config/tax.chat.config';
+import { getRedisClient } from './redis/client';
 
 const config = getConfig();
 @Module({
@@ -22,11 +25,11 @@ const config = getConfig();
     ChatModule,
     FeedbackModule,
     CustomerModule,
-    MongooseModule.forRoot(
-      process.env.NODE_ENV === 'local'
-        ? `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}:${config.mongoPort}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
-        : `mongodb://${config.mongoUsername}:${config.mongoPassword}@${config.mongoHost}/${config.mongoDB}?replicaSet=frontier&readPreference=secondary&authSource=admin`,
-    ),
+    MongooseModule.forRoot(config.mongoConnString),
+    ThrottlerModule.forRoot({
+      throttlers: [{ limit: 1000, ttl: seconds(1) }],
+      storage: new ThrottlerStorageRedisService(getRedisClient()),
+    }),
   ],
 })
 export class AppModule {}
