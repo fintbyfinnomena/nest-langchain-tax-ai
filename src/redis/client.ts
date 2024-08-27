@@ -20,6 +20,7 @@ const createClient = () => {
     port: parseInt(config.redisPort),
     username: config.redisUsername,
     password: config.redisPassword,
+    db: Number(config.redisDB)
   };
 
   // if (!isLocalEnv) {
