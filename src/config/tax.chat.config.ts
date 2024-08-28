@@ -21,6 +21,8 @@ export const getConfig = () => {
     taxQuestionTtlHrs: Number(process.env.TAX_QUESTION_TTL_HRS) || 12,
     taxQuestionLimit: Number(process.env.TAX_QUESTION_LIMIT) || 20,
 
+    batchCheckoutRedirectUrl: process.env.BATCH_CHECKOUT_REDIRECT_URL,
+
     fundQuote: {
       baseUrl: 'https://www.finnomena.com/fund/',
     },
