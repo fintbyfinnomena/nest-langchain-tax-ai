@@ -11,11 +11,11 @@ export async function getGGSheet(id: string): Promise<GoogleSpreadsheet> {
     auth = new JWT({
       email: serviceAccountConfig.client_email,
       key: serviceAccountConfig.private_key,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
   } else {
     auth = new GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
     console.error(auth);
   }
