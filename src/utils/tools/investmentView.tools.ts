@@ -45,7 +45,8 @@ const GetLatestUpdateTime = async (): Promise<DateTime | null> => {
 
 const getInvestmentViewFromGGSheet = async (): Promise<InvestmentView[]> => {
   const ggSheet = await getGGSheet(getConfig().investmentViewWorksheetId);
-  console.error(ggSheet);
+  console.error(getConfig().investmentViewWorksheetId);
+  console.error(getConfig().investmentViewSheetId);
   const investmentViewData =
     await ggSheet.sheetsById[getConfig().investmentViewSheetId].getRows();
 
