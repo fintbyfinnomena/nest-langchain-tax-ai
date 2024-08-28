@@ -4,6 +4,7 @@ import { CustomerRepo } from './customer.repository';
 import { AccountIdentifier, BankAccount } from 'src/types/account.types';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { getConfig } from "../config/tax.chat.config"
 
 export class CustomerService {
   private readonly orderRepo: CustomerRepo;
@@ -87,7 +88,8 @@ function mapToBatchPayload(
   return {
     ref: cartRef,
     type: 'batch',
-    batch_type: 'taxi',
+    batch_type: 'charlie',
+    redirect_url: getConfig().batchCheckoutRedirectUrl,
     orders,
   };
 }

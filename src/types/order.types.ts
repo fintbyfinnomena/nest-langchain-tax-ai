@@ -12,6 +12,7 @@ export interface BatchPayload {
   ref: string;
   type: string;
   batch_type: string;
+  redirect_url: string;
   orders: Order[];
 }
 

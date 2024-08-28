@@ -18,7 +18,7 @@ export class CustomerController {
 
   @Post('batch-order')
   async batchOrder(
-    @Headers() headers: ChatHeader,
+    @Headers() headers: any,
     @Body() batchPayload: BatchOrderDto,
     @Res() res: Response,
   ) {

@@ -14,12 +14,14 @@ export const getConfig = () => {
     redisUsername: process.env.REDIS_USERNAME,
     redisPassword: process.env.REDIS_PASSWORD,
     redisDB: process.env.REDIS_DB,
-    redisTTL: process.env.REDIS_TTL, 
+    redisTTL: process.env.REDIS_TTL,
 
     mongoConnString: process.env.MONGO_CONNECTION_STRING,
 
     taxQuestionTtlHrs: Number(process.env.TAX_QUESTION_TTL_HRS) || 12,
     taxQuestionLimit: Number(process.env.TAX_QUESTION_LIMIT) || 20,
+
+    batchCheckoutRedirectUrl: process.env.BATCH_CHECKOUT_REDIRECT_URL,
 
     fundQuote: {
       baseUrl: 'https://www.finnomena.com/fund/',
