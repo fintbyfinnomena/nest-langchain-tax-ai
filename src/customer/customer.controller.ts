@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { BatchOrderDto } from './dto/cutomer.dto';
 import { CustomerService } from './customer.service';
-import { ChatHeader } from 'src/langchain-chat/dtos/context-aware-messages.dto';
 import { Response } from 'express';
 import type { AppError } from 'src/utils/responses/appError';
 
