@@ -17,6 +17,7 @@ export async function getGGSheet(id: string): Promise<GoogleSpreadsheet> {
     auth = new GoogleAuth({
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
+    console.error(auth);
   }
 
   const doc = new GoogleSpreadsheet(id, auth);
