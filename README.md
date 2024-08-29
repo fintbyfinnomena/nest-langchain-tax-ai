@@ -1,4 +1,4 @@
-# TAXi
+# Charlie
 
 FINNOMENA Tax Saving Fund Assistant
 
@@ -17,3 +17,13 @@ curl -X POST http://localhost:8080/api/v1/langchain-chat/question \
      -d '{"question" : "SSF คืออะไร?"}' \
      --no-buffer
 ```
+
+### Development Notes
+
+- To reset throttle on chat function, go to redis docker and then exec "redis-cli flushall"
+
+## Deployment Note
+
+### Investment View
+
+- apart from .env, need service account that can connect to https://docs.google.com/spreadsheets/d/1FPmEVD2B8JYl1HKmxx9jCe_6fkfXMa-AcWhxGGYiB5I/edit?gid=1316310497#gid=1316310497

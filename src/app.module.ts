@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, seconds } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { LangchainChatModule } from './langchain-chat/langchain-chat.module';
 import { RedisModule } from './redis/redis.module';
 import { ChatModule } from './chat/chat.module';
@@ -7,8 +9,11 @@ import { FundModule } from './fund/fund.module';
 import { FeedbackModule } from './feedback/feedback.module';
 // import { VectorStoreService } from './services/vector-store.service';
 import { MongooseModule } from '@nestjs/mongoose';
-require('dotenv').config();
+import { CustomerModule } from './customer/customer.module';
+import { getConfig } from './config/tax.chat.config';
+import { getRedisClient } from './redis/client';
 
+const config = getConfig();
 @Module({
   // imports: [ConfigModule.forRoot(), RedisModule],
 
@@ -19,11 +24,12 @@ require('dotenv').config();
     FundModule,
     ChatModule,
     FeedbackModule,
-    MongooseModule.forRoot(
-      process.env.NODE_ENV === 'local'
-        ? `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`
-        : `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}/?retryWrites=true&w=majority&appName=FinnomenaFeedback`,
-    ),
+    CustomerModule,
+    MongooseModule.forRoot(config.mongoConnString),
+    ThrottlerModule.forRoot({
+      throttlers: [{ limit: 1000, ttl: seconds(1) }],
+      storage: new ThrottlerStorageRedisService(getRedisClient()),
+    }),
   ],
 })
 export class AppModule {}

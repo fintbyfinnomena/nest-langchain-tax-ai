@@ -4,37 +4,44 @@ import { z } from 'zod';
 import * as Type from 'src/types/tax-saving-fund/portfolioAllocationn.types';
 import * as FundRankingType from 'src/types/fundRanking.types';
 import { suggestPortfolioAllocation } from 'src/utils/tools/tax-saving-fund/portfolioAllocation.tools';
+import { getAllInvestmentViews } from 'src/utils/tools/investmentView.tools';
 import { ltfKnowledge } from 'src/utils/tools/tax-saving-fund/ltf.tool';
 import { eventAndPromotion } from 'src/utils/tools/eventAndPromotion.tools';
-import { RiskLevel } from 'src/types/tax-saving-fund/enum.prompts';
+import {
+  TaxSavingFundType,
+  RiskLevel,
+} from 'src/types/tax-saving-fund/enum.prompts';
 import {
   getFundInformation,
   getFundFussySearch,
 } from 'src/utils/tools/fundInfo.tools';
 import { getTaxSavingFundSuggestedList } from 'src/utils/tools/tax-saving-fund/suggestedFundList.tools';
 import { getFundRanking } from 'src/utils/tools/fundRanking.tools';
+
 export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   name: 'suggest-port-profile-allocation',
-  // description:
-  //   'suggest port profile allocation and return list of fund. useful for create fund profile and allocate you port',
   description:
     'useful for create or suggest proper tax saving funds allocation and allocate you port.',
   schema: z.object({
-    ageAbove45: z.boolean().describe('age above 45 year old ?'),
-    annualIncome: z.number().describe('annual income'),
+    age: z.number().describe('age / อายุ'),
+    annualIncome: z.number().describe('annual income / รายได้ประจำปี'),
     alternativeRetirementFund: z
       .number()
-      .describe('sum of the alternative retirement fund'),
-    govPensionFund: z.number().describe('the total of government pension fund'),
+      .describe(
+        `sum of the investment in "กองทุนสำรองเลี้ยงชีพ", "กองทุนสงเคราะห์ครู" this year`,
+      ),
+    govPensionFund: z.number().describe('investment in "กบข." this year'),
     nationalSavingFund: z
       .number()
-      .describe('the total of national saving fund'),
-    pensionInsurance: z.number().describe('the total of pension insurance'),
-    riskLevel: z.nativeEnum(RiskLevel).describe('personal risk level.'),
-    desiredAmount: z.number().describe('the desired amount'),
+      .describe('investment in "กองทุนการออมแห่งชาติ" this year'),
+    pensionInsurance: z
+      .number()
+      .describe('investment in "ประกันบำนาญ" this year'),
+    riskLevel: z.nativeEnum(RiskLevel).describe('investor risk level.'),
+    desiredAmount: z.number().nullable().describe('the desired amount'),
   }),
   func: async ({
-    ageAbove45,
+    age,
     annualIncome,
     alternativeRetirementFund,
     govPensionFund,
@@ -45,7 +52,7 @@ export const suggestPortProfileAllocationTool = new DynamicStructuredTool({
   }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> suggestPortProfileAllocationTool doing!!")
     const input: Type.ComboAllocationInput = {
-      ageAbove45: ageAbove45,
+      age: age,
       annualIncome: annualIncome,
       alternativeRetirementFund: alternativeRetirementFund,
       govPensionFund: govPensionFund,
@@ -66,15 +73,13 @@ export const fundInformationTool = new DynamicStructuredTool({
   schema: z.object({
     fundName: z
       .string()
-      // .describe('whatever input from user for identity the fund, but scraping only fund code'),
-      // .describe('fund name, fund code or whatever for identity the fund'),
       .describe(
         'fund name, fund code or whatever for identity the fund. it should be english language , and not a sentence',
       ),
   }),
   func: async ({ fundName }) => {
     // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ', fundName);
     const result = await getFundInformation(fundName);
     return JSON.stringify(result);
   },
@@ -87,27 +92,46 @@ export const fundNameFussySearch = new DynamicStructuredTool({
   schema: z.object({
     fundName: z
       .string()
-      // .describe('whatever input from user for identity the fund, but scraping only fund code'),
-      // .describe('fund name, fund code or whatever for identity the fund'),
       .describe(
         'fund name, fund code or whatever for identity the fund. it should be english language , and not a sentence',
       ),
   }),
   func: async ({ fundName }) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> fundNameFussySearch doing!!")
     const result = await getFundFussySearch(fundName);
     return JSON.stringify(result);
   },
 });
 
-export const taxSavingFundSuggestedListTool = new DynamicTool({
+export const taxSavingFundSuggestedListTool = new DynamicStructuredTool({
   name: 'tax-saving-fund-suggested-list',
   description:
     'useful for to give a suggested list on each type of tax saving fund from Finnomena this year',
-  func: async () => {
-    // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundTool doing!!")
-    const result = await getTaxSavingFundSuggestedList();
+  schema: z.object({
+    type: z
+      .nativeEnum(TaxSavingFundType)
+      .nullable()
+      .describe('Type of tax saving fund, Should be english and can be empty'),
+    risk: z
+      .nativeEnum(RiskLevel)
+      .nullable()
+      .describe(
+        'risk level of fund ( "สูง"/"high", "กลาง"/"medium", "ต่ำ"/"low" ,"ต่ำมาก"/"safe" ), Should be english and can be empty',
+      ),
+    category: z
+      .string()
+      .describe(
+        'category of fund, can be category ("หุ้น","อสังหา","พันธบัตร","ผสม","ทองคำ") , specific country or area ("จีน","เวียดนาม","เอเชีย",etc) , industry ("เทคโนโลยี","healthcare",etc). Should be thai and can be empty',
+      ),
+  }),
+  func: async ({ type, risk, category }) => {
+    // console.log("\x1b[46m%s\x1b[0m","--> taxSavingFundSuggestedListTool doing!!")
+    const input = {
+      type: type,
+      risk: risk,
+      category: category,
+    };
+    const result = await getTaxSavingFundSuggestedList(input);
     return JSON.stringify(result);
   },
 });
@@ -141,9 +165,19 @@ export const ltfKnowledgeTool = new DynamicStructuredTool({
   description: 'useful for get information about LTF fund',
   schema: z.object({}),
   func: async ({}) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> ltfKnowledgeTool doing!!")
     return ltfKnowledge();
+  },
+});
+
+export const investmentViewTool = new DynamicStructuredTool({
+  name: 'current-investment-view',
+  description:
+    'useful for get information about investment view on each asset class',
+  schema: z.object({}),
+  func: async ({}) => {
+    // console.log("\x1b[46m%s\x1b[0m","--> ltfKnowledgeTool doing!!")
+    return getAllInvestmentViews();
   },
 });
 
@@ -153,8 +187,7 @@ export const eventAndPromotionTool = new DynamicStructuredTool({
     'useful for get information about tax saving fund event and promotion from Finnomena',
   schema: z.object({}),
   func: async ({}) => {
-    // console.log("\x1b[46m%s\x1b[0m","--> fundInformationTool doing!!")
-    // console.log('\x1b[36m%s\x1b[0m', '--> send request : ',fundName);
+    // console.log("\x1b[46m%s\x1b[0m","--> eventAndPromotionTool doing!!")
     return eventAndPromotion();
   },
 });

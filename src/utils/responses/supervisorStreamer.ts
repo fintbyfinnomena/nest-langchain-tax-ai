@@ -49,10 +49,6 @@ export class SupervisorStreamer {
       {
         messages: messagesReq,
       },
-      // {
-      //   input: message,
-      //   chat_history: await history.getMessages(),
-      // },
       { version: 'v1' },
     );
 
@@ -66,12 +62,12 @@ export class SupervisorStreamer {
           if (event.event == 'on_llm_stream') {
             readableStream.push(event.data.chunk.text);
             resMsg += event.data.chunk.text;
-          } else {
-            // console.log('\x1b[42m%s\x1b[0m', event.event);
-            if (event.event == 'on_chain_end') {
-              console.log(event.data);
-            }
           }
+          // else{
+          //   console.log('\x1b[42m%s\x1b[0m', event.event);
+          //   // console.log(event.data)
+          //   // console.log(JSON.stringify(event.data))
+          // }
         }
         readableStream.push(null); // Signal the end of the stream
       } catch (error) {
@@ -150,12 +146,13 @@ export class SupervisorStreamer {
           if (event.event == 'on_llm_stream') {
             readableStream.push(event.data.chunk.text);
             resMsg += event.data.chunk.text;
-          } else {
-            // console.log('\x1b[42m%s\x1b[0m', event.event);
-            if (event.event == 'on_chain_end') {
-              console.log(event.data);
-            }
           }
+          // else {
+          //   // console.log('\x1b[42m%s\x1b[0m', event.event);
+          // if (event.event == 'on_chain_end') {
+          //   console.log(event.data);
+          // }
+          // }
         }
         readableStream.push(null); // Signal the end of the stream
       } catch (error) {

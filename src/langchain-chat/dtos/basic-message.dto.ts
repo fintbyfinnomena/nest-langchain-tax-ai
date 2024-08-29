@@ -11,11 +11,12 @@
  * @property user_query - The query string provided by the user.
  *                        It must be a non-empty string.
  */
-import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Min, MaxLength } from 'class-validator';
 
 export class BasicMessageDto {
   @IsNotEmpty()
   @IsString()
+  @MaxLength(500)
   question: string;
 }
 
